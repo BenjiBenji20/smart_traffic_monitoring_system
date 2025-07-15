@@ -56,3 +56,6 @@ six
 # ONNX inference runtime
 onnx
 onnxruntime
+
+# For jupyter notebook
+ipykernel
