@@ -19,7 +19,6 @@ class ProphetModel:
     except Exception as e:
       print(f"Initialization failed: {e}")
 
-    
 
   # train the modl
   def train_model(self):
@@ -31,20 +30,43 @@ class ProphetModel:
 
   # make future preidction
   def predict_future(self):
-    future = self.m.make_future_dataframe(periods=24*365, freq='H')
-    forecast = self.m.predict(future)
+    future = self.m.make_future_dataframe(periods=24*365, freq='h')
+    self.forecast = self.m.predict(future)
+    self.forecast['ds'] = pd.to_datetime(self.forecast['ds'])
 
-    return forecast
+    return self.forecast
   
+
+  # AGGREGATE HOURLY PREDICTION TO GENERATE DAILY, WEEKLY AND MONTHLY PREIDCTIONS
+  @property
+  def daily_prediction(self):
+    self.predict_future()
+    self._daily = self.forecast.set_index('ds').resample('D')['yhat'].sum().reset_index()
+
+    return self._daily
+  
+  @property
+  def weekly_prediction(self):
+    self.predict_future()
+    self._weekly = self.forecast.set_index('ds').resample('W')['yhat'].sum().reset_index()
+
+    return self._weekly
+  
+  @property
+  def monthly_prediction(self):
+    self.predict_future()
+    self._monthly = self.forecast.set_index('ds').resample('M')['yhat'].sum().reset_index()
+
+    return self._monthly
+
 
 def main():
   # pathlib since direct path results an error dunno why
   data_path = Path(__file__).resolve().parents[2] / 'data' / 'processed' / 'vehicle-data-feed-prophet-model.csv'
   model = ProphetModel(str(data_path))
   model.train_model()
-  forecast = model.predict_future()
 
-  print(forecast.tail())
+  print(model.daily_prediction.tail())
 
 
 if __name__ == "__main__":
