@@ -29,7 +29,12 @@ class ProphetModel:
 
   # train the modl
   def train_model(self):
-    self.m = Prophet()
+    self.m = Prophet(
+        daily_seasonality=True,
+        weekly_seasonality=True,
+        yearly_seasonality=True
+    )
+    self.m.add_seasonality(name='hourly', period=24, fourier_order=5)
     self.m.fit(self.df)
 
     return self.m
