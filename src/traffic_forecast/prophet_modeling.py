@@ -14,6 +14,13 @@ class ProphetModel:
       # convert column type into proper data type accepted by prophet
       self.df['ds'] = pd.to_datetime(self.df['ds'])
       self.df['y'] = pd.to_numeric(self.df['y'])
+
+      # forecast handler
+      self._forecast = None
+      self._hourly = None
+      self._daily = None
+      self._weekly = None
+      self._monthly = None
     except FileNotFoundError:
       print(f"File name {ds_dir} not found.")
     except Exception as e:
@@ -30,32 +37,43 @@ class ProphetModel:
 
   # make future preidction
   def predict_future(self):
-    future = self.m.make_future_dataframe(periods=24*365, freq='h')
-    self.forecast = self.m.predict(future)
-    self.forecast['ds'] = pd.to_datetime(self.forecast['ds'])
-
-    return self.forecast
+    if self._forecast is None:
+      future = self.m.make_future_dataframe(periods=24*365, freq='h')
+      self._forecast = self.m.predict(future)
+      self._forecast['ds'] = pd.to_datetime(self._forecast['ds'])
+      
+    return self._forecast
   
 
-  # AGGREGATE HOURLY PREDICTION TO GENERATE DAILY, WEEKLY AND MONTHLY PREIDCTIONS
+  # AGGREGATE HOURLY PREDICTION TO GENERATE HOURLY, DAILY, WEEKLY AND MONTHLY PREIDCTIONS
+  @property
+  def hourly_prediction(self):
+    if self._hourly is None:
+      self._hourly = self.predict_future()
+
+    return self._hourly
+
   @property
   def daily_prediction(self):
-    self.predict_future()
-    self._daily = self.forecast.set_index('ds').resample('D')['yhat'].sum().reset_index()
+    if self._daily is None:
+      forecast = self.predict_future()
+      self._daily = forecast.set_index('ds').resample('D')['yhat'].sum().reset_index()
 
     return self._daily
   
   @property
   def weekly_prediction(self):
-    self.predict_future()
-    self._weekly = self.forecast.set_index('ds').resample('W')['yhat'].sum().reset_index()
+    if self._weekly is None:
+      forecast = self.predict_future()
+      self._weekly = forecast.set_index('ds').resample('W')['yhat'].sum().reset_index()
 
     return self._weekly
   
   @property
   def monthly_prediction(self):
-    self.predict_future()
-    self._monthly = self.forecast.set_index('ds').resample('M')['yhat'].sum().reset_index()
+    if self._monthly is None:
+      forecast = self.predict_future()
+      self._monthly = forecast.set_index('ds').resample('ME')['yhat'].sum().reset_index()
 
     return self._monthly
 
@@ -66,7 +84,10 @@ def main():
   model = ProphetModel(str(data_path))
   model.train_model()
 
+  print(model.hourly_prediction.tail())
   print(model.daily_prediction.tail())
+  print(model.weekly_prediction.tail())
+  print(model.monthly_prediction.tail())
 
 
 if __name__ == "__main__":
