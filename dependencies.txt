@@ -59,3 +59,7 @@ onnxruntime
 
 # For jupyter notebook
 ipykernel
+plotly
+
+# For time series forecasting
+prophet
