@@ -68,6 +68,12 @@ def prediction_detail():
     {"time": ts.isoformat(), "value": int(val)}
     for ts, val in zip(hourly['ds'], hourly['yhat'])
   ]
+  # include AI generated summary and recommendation keys
+  hourly_res = {
+    "prediction": hourly_data,
+    "summary": "", 
+    "recommendation": "" 
+  }
 
   # --- Daily (current week) ---
   start_of_week = today - timedelta(days=today.weekday())
@@ -81,6 +87,12 @@ def prediction_detail():
     {"date": ts.strftime('%Y-%m-%d'), "value": int(val)}
     for ts, val in zip(daily['ds'], daily['yhat'])
   ]
+  # include AI generated summary and recommendation keys
+  daily_res = {
+    "prediction": daily_data,
+    "summary": "", 
+    "recommendation": "" 
+  }
 
   # --- Weekly (next 16 weeks) ---
   start_month = today.replace(day=1)
@@ -96,6 +108,12 @@ def prediction_detail():
       "week_end": we.strftime('%Y-%m-%d'),
       "value": int(val)
     })
+  # include AI generated summary and recommendation keys
+  weekly_res = {
+    "prediction": weekly_data,
+    "summary": "", 
+    "recommendation": "" 
+  }
 
   # --- Monthly (current year) ---
   current_year = today.year
@@ -104,16 +122,20 @@ def prediction_detail():
     {"month": ts.strftime('%Y-%m-%d'), "value": int(val)}
     for ts, val in zip(monthly['ds'], monthly['yhat'])
   ]
-
-  return {
-    "hourly": hourly_data,
-    "daily": daily_data,
-    "weekly": weekly_data,
-    "monthly": monthly_data
+  # include AI generated summary and recommendation keys
+  monthly_res = {
+    "prediction": monthly_data,
+    "summary": "",
+    "recommendation": ""
   }
 
+  return {
+    "hourly": hourly_res,
+    "daily": daily_res,
+    "weekly": weekly_res,
+    "monthly": monthly_res
+  }
 
-print(f"Prediction Summary: \n{prediction_summary()}\n\nPrediction Details: \n{prediction_detail()}")
 
 """
   HERE FOR USER PREDICTION REQUEST
