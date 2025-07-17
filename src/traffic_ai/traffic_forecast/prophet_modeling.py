@@ -85,7 +85,7 @@ class ProphetModel:
 
 def main():
   # pathlib since direct path results an error dunno why
-  data_path = Path(__file__).resolve().parents[2] / 'data' / 'processed' / 'vehicle-data-feed-prophet-model.csv'
+  data_path = Path(__file__).resolve().parents[3] / 'data' / 'processed' / 'vehicle-data-feed-prophet-model.csv'
   model = ProphetModel(str(data_path))
   model.train_model()
 
