@@ -20,20 +20,22 @@ m_forecast = model.monthly_prediction
 today = pd.to_datetime(datetime.now().date())
 # get the 24hrs forecast for the current day
 hourly = h_forecast[h_forecast['ds'].dt.date == today.date()]
-
+start_of_week = (today - timedelta(days=today.weekday())) # monday
+end_of_week = (today + timedelta(days=6 - today.weekday())) # sunday
 
 # function JSON schmea builder for dashboard summary
 def prediction_summary():
-  y_h_sum = int(np.sum(hourly['yhat']))
-
-  start_of_week = (today - timedelta(days=today.weekday())) # monday
-  end_of_week = (today + timedelta(days=6 - today.weekday())) # sunday
+  # --- HOURLY ---
+  vhcl_today_sum = int(np.sum(hourly['yhat']))
+  
+  # --- WEEKLY ---
   weekly = w_forecast[
     (w_forecast['ds'].dt.date >= start_of_week.date()) &
     (w_forecast['ds'].dt.date <= end_of_week.date()) 
   ]
-  y_w_sum = int(np.sum(weekly['yhat']))
+  vhcl_current_week_sum = int(np.sum(weekly['yhat']))
 
+  # --- THREE MONTHS ---
   # get the 3 months range from current month to 3rd months prior
   start_date = today.replace(day=1) # First day of current month
   end_month_first_day = (start_date + relativedelta(months=3)).replace(day=1) # Get first day of the 4th month (3 months ahead)
@@ -44,21 +46,21 @@ def prediction_summary():
     (m_forecast['ds'].dt.date >= start_date.date()) &
     (m_forecast['ds'].dt.date <= end_date.date())
   ]
-  y_m_sum = int(np.sum(three_months_forecast['yhat']))
+  vhcl_three_months_sum = int(np.sum(three_months_forecast['yhat']))
  
   return {
-    "current_date": today.isoformat(),
-    "yhat_daily_sum": y_h_sum,
-    "current_week": {
+    "today": today.isoformat(),
+    "vhcl_today_sum": vhcl_today_sum,
+    "current_week_range": {
       "start": str(start_of_week.date()),
       "end": str(end_of_week.date())
     },
-    "yhat_weekly_sum": y_w_sum,
+    "vhcl_current_week_sum": vhcl_current_week_sum,
     "three_months_range": {
       "start": str(start_date.date()),
       "end": str(end_date.date())
     },
-    "yhat_monthly_sum": y_m_sum
+    "vhcl_three_months_sum": vhcl_three_months_sum
   }
 
 
@@ -76,9 +78,6 @@ def prediction_detail():
   }
 
   # --- Daily (current week) ---
-  start_of_week = today - timedelta(days=today.weekday())
-  end_of_week = start_of_week + timedelta(days=6)
-
   daily = d_forecast[
     (d_forecast['ds'].dt.date >= start_of_week.date()) &
     (d_forecast['ds'].dt.date <= end_of_week.date())
@@ -136,6 +135,7 @@ def prediction_detail():
     "monthly": monthly_res
   }
 
+print(f"{prediction_summary()}\n\n\n\n{prediction_detail()}")
 
 """
   HERE FOR USER PREDICTION REQUEST
