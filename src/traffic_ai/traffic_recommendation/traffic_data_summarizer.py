@@ -10,6 +10,17 @@ def sum_summary(data):
   today = data['today']
   t_sum = data['vhcl_today_sum']
 
+  con_th, mod_th, free_th = 1000, 500, 100
+  category = None
+
+  if t_sum >= con_th:
+    category = 'congested'
+  elif t_sum >= mod_th & t_sum < con_th:
+    category = 'moderate'
+  else:
+    category = 'free'
+
+
   cw_range = data['current_week_range']
   cw_sum = data['vhcl_current_week_sum']
 
@@ -19,6 +30,7 @@ def sum_summary(data):
   return {
       'today': today,
       'vhcl_today_sum': t_sum,
+      'category': category,
       'current_week_range': cw_range,
       'vhcl_current_week_sum': cw_sum,
       'three_months_range': tm_range,
@@ -28,7 +40,7 @@ def sum_summary(data):
 
 def hourly_summary(data):
   # extract each data accordingly
-  hourly_vals = data['hourly']['prediction']
+  hourly_vals = data['hourly']
   peak_hour = max(hourly_vals, key=lambda x: x['value'])
   low_hour = min(hourly_vals, key=lambda x: x['value'])
   avg_hour = sum(x['value'] for x in hourly_vals) // len(hourly_vals)
@@ -41,7 +53,7 @@ def hourly_summary(data):
 
 
 def daily_summary(data):
-  daily_vals = data['daily']['prediction']
+  daily_vals = data['daily']
 
   date_range = {
     'start': daily_vals[0]['date'],
@@ -60,7 +72,7 @@ def daily_summary(data):
 
 
 def weekly_summary(data):
-  weekly_vals = data['weekly']['prediction']
+  weekly_vals = data['weekly']
 
   week_range = {
     'start': weekly_vals[0]['week_start'],
@@ -79,7 +91,7 @@ def weekly_summary(data):
 
 
 def monthly_summary(data):
-  monthly_vals = data['monthly']['prediction']
+  monthly_vals = data['monthly']
 
   month_range = {
     'start': monthly_vals[0]['month'],
