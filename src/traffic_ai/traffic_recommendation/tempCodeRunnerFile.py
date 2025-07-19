@@ -1,6 +1,0 @@
-f"Daily Traffic Prediction Summary\n"
-  f"Date Range: {date_range['start']} to {date_range['end']}\n\n"
-  f"Peak Day: {peak['date']} with {peak['value']:,} vehicles\n"
-  f"Lowest Day: {low['date']} with {low['value']:,} vehicles\n"
-  f"Average Vehicles per Day: {avg:,}\n\n"
-  f"{concat}"
