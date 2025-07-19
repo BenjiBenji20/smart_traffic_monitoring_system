@@ -1,5 +1,5 @@
 from pathlib import Path
-from prophet_modeling import ProphetModel
+from traffic_ai.traffic_forecast.prophet_modeling import ProphetModel
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import pandas as pd
@@ -111,7 +111,7 @@ def prediction_detail():
     "monthly": monthly_data
   }
 
-print(f"{prediction_summary()}\n\n\n\n{prediction_detail()}")
+# print(f"{prediction_summary()}\n\n\n\n{prediction_detail()}")
 
 """
   HERE FOR USER PREDICTION REQUEST

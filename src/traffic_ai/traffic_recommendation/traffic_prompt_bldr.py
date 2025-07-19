@@ -93,25 +93,3 @@ def monthly_prompt(monthly_data):
     f"Average Vehicles per Month: {avg:,}\n\n"
     f"{concat}"
   )
-
-def main():
-  d1 = {'today': '2025-07-19T00:00:00', 'vhcl_today_sum': 87713, 'current_week_range': {'start': '2025-07-14', 'end': '2025-07-20'}, 'vhcl_current_week_sum': 664448, 'three_months_range': {'start': '2025-07-01', 'end': '2025-09-30'}, 'vhcl_three_months_sum': 8357175}
-
-  d2 = {'hourly': [{'time': '2025-07-19T00:00:00', 'value': 3888}, {'time': '2025-07-19T01:00:00', 'value': 3948}, {'time': '2025-07-19T02:00:00', 'value': 3960}, {'time': '2025-07-19T03:00:00', 'value': 3946}, {'time': '2025-07-19T04:00:00', 'value': 3934}, {'time': '2025-07-19T05:00:00', 'value': 3947}, {'time': '2025-07-19T06:00:00', 'value': 3990}, {'time': '2025-07-19T07:00:00', 'value': 4038}, {'time': '2025-07-19T08:00:00', 'value': 4049}, {'time': '2025-07-19T09:00:00', 'value': 3992}, {'time': '2025-07-19T10:00:00', 'value': 3869}, {'time': '2025-07-19T11:00:00', 'value': 3722}, {'time': '2025-07-19T12:00:00', 'value': 3602}, {'time': '2025-07-19T13:00:00', 'value': 3537}, {'time': '2025-07-19T14:00:00', 'value': 3511}, {'time': '2025-07-19T15:00:00', 'value': 3475}, {'time': '2025-07-19T16:00:00', 'value': 3391}, {'time': '2025-07-19T17:00:00', 'value': 3263}, {'time': '2025-07-19T18:00:00', 'value': 3139}, {'time': '2025-07-19T19:00:00', 'value': 3080}, {'time': '2025-07-19T20:00:00', 'value': 3122}, {'time': '2025-07-19T21:00:00', 'value': 3254}, {'time': '2025-07-19T22:00:00', 'value': 3435}, {'time': '2025-07-19T23:00:00', 'value': 3610}], 'daily': [{'date': '2025-07-14', 'value': 94200}, {'date': '2025-07-15', 'value': 100437}, {'date': '2025-07-16', 'value': 100288}, {'date': '2025-07-17', 'value': 99220}, {'date': '2025-07-18', 'value': 94648}, {'date': '2025-07-19', 'value': 87713}, {'date': '2025-07-20', 'value': 87939}], 'weekly': [{'week_start': '2025-06-30', 'week_end': '2025-07-06', 'value': 671663}, {'week_start': '2025-07-07', 'week_end': '2025-07-13', 'value': 685660}, {'week_start': '2025-07-14', 'week_end': '2025-07-20', 'value': 664448}, {'week_start': '2025-07-21', 'week_end': '2025-07-27', 'value': 629079}, {'week_start': '2025-07-28', 'week_end': '2025-08-03', 'value': 594626}, {'week_start': '2025-08-04', 'week_end': '2025-08-10', 'value': 602957}, {'week_start': '2025-08-11', 'week_end': '2025-08-17', 'value': 635621}, {'week_start': '2025-08-18', 'week_end': '2025-08-24', 'value': 618146}, {'week_start': '2025-08-25', 'week_end': '2025-08-31', 'value': 610589}, {'week_start': '2025-09-01', 'week_end': '2025-09-07', 'value': 615768}, {'week_start': '2025-09-08', 'week_end': '2025-09-14', 'value': 624926}, {'week_start': '2025-09-15', 'week_end': '2025-09-21', 'value': 649993}, {'week_start': '2025-09-22', 'week_end': '2025-09-28', 'value': 660599}, {'week_start': '2025-09-29', 'week_end': '2025-10-05', 'value': 662292}, {'week_start': '2025-10-06', 'week_end': '2025-10-12', 'value': 614053}, {'week_start': '2025-10-13', 'week_end': '2025-10-19', 'value': 608027}], 'monthly': [{'month': '2025-01-31', 'value': 2533597}, {'month': '2025-02-28', 'value': 2350706}, {'month': '2025-03-31', 'value': 2776051}, {'month': '2025-04-30', 'value': 2744207}, {'month': '2025-05-31', 'value': 2853825}, {'month': '2025-06-30', 'value': 2703008}, {'month': '2025-07-31', 'value': 2894973}, {'month': '2025-08-31', 'value': 2718664}, {'month': '2025-09-30', 'value': 2743538}, {'month': '2025-10-31', 'value': 2800834}, {'month': '2025-11-30', 'value': 2745254}, {'month': '2025-12-31', 'value': 2692450}]} 
-
-  a = sum_summary(d1)
-  b = hourly_summary(d2)
-  c = daily_summary(d2)
-  d = weekly_summary(d2)
-  e = monthly_summary(d2)
-
-  print(f"{summary_prompt(a)}\n\n\n")
-  print(f"{hourly_prompt(b)}\n\n\n")
-  print(f"{daily_prompt(c)}\n\n\n")
-  print(f"{weekly_prompt(d)}\n\n\n")
-  print(f"{monthly_prompt(e)}\n\n\n")
-
-  print("Hello World!")
-
-if __name__ == "__main__":
-  main()
