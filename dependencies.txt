@@ -1,4 +1,7 @@
 # These are all the dependencies installed in this project
+# resource security
+dotenv
+
 # Object detection dependencies
 cvzone==1.5.6
 ultralytics~=8.3.151
@@ -63,3 +66,6 @@ plotly
 
 # For time series forecasting
 prophet
+
+# For text recommendation generation
+openai
