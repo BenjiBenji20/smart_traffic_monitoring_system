@@ -72,3 +72,4 @@ openai
 
 # Database
 firebase-admin
+mysql-connector
