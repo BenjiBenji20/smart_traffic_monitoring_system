@@ -22,14 +22,14 @@ def summary_prompt(summ_data):
   # extract each summ_data accordingly
   today = summ_data['today']
   t_sum = summ_data['vhcl_today_sum']
-  cat = summ_data['category']
+  con = summ_data['condition']
   cw_range = summ_data['current_week_range']
   cw_sum = summ_data['vhcl_current_week_sum']
   tm_range = summ_data['three_months_range']
   tm_sum = summ_data['vhcl_three_months_sum']
 
   return f"Summary of Traffic Prediction for This Year:\n\
-Today {today[:10]}: total of {t_sum:,} Vehicles, which is {cat} of volume category\n\n\
+Today {today[:10]}: total of {t_sum:,} Vehicles, which is {con} of volume condition\n\n\
 This week from {cw_range['start']} to {cw_range['end']}: total of {cw_sum} Vehicles\n\
 Three Months from {tm_range['start']} to {tm_range['end']}: total of {tm_sum} Vehicles\n\n\
 {concat}"

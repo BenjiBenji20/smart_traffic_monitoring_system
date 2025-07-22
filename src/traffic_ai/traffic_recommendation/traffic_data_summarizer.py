@@ -11,14 +11,14 @@ def sum_summary(data):
   t_sum = data['vhcl_today_sum']
 
   con_th, mod_th, free_th = 1000, 500, 100
-  category = None
+  condition = None
 
   if t_sum >= con_th:
-    category = 'congested'
+    condition = 'congested'
   elif t_sum >= mod_th & t_sum < con_th:
-    category = 'moderate'
+    condition = 'moderate'
   else:
-    category = 'free'
+    condition = 'free'
 
 
   cw_range = data['current_week_range']
@@ -30,7 +30,7 @@ def sum_summary(data):
   return {
       'today': today,
       'vhcl_today_sum': t_sum,
-      'category': category,
+      'condition': condition,
       'current_week_range': cw_range,
       'vhcl_current_week_sum': cw_sum,
       'three_months_range': tm_range,
