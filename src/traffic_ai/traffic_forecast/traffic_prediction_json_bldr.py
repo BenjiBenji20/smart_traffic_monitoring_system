@@ -1,14 +1,21 @@
-from pathlib import Path
 from traffic_ai.traffic_forecast.prophet_modeling import ProphetModel
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 import numpy as np
+from sqlalchemy import create_engine
+from dotenv import load_dotenv
+import os
 
-# pathlib since direct path results an error dunno why
-# load and train the model
-data_path = Path(__file__).resolve().parents[3] / 'data' / 'processed' / 'vehicle-data-feed-prophet-model.csv'
-model = ProphetModel(str(data_path))
+load_dotenv()
+# db connection
+engine = create_engine(f"mysql+pymysql://{os.getenv('mysql_user')}:{os.getenv('mysql_password')}@{os.getenv('mysql_host')}/{os.getenv('mysql_database')}")
+
+# sql query
+table_name = 'vehicle_aggregated' # use this whenever u want to switch and read table
+query = f"SELECT ds, y FROM {table_name}"
+
+model = ProphetModel(query, engine=engine)
 model.train_model()
 
 h_forecast = model.hourly_prediction

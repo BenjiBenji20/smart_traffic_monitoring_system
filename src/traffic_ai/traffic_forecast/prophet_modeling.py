@@ -1,11 +1,11 @@
 import pandas as pd
 from prophet import Prophet
-from pathlib import Path
+from mysql.connector import Error
 
 class ProphetModel:
-  def __init__(self, ds_dir):
+  def __init__(self, db_conn, engine):
     try:
-      self.df = pd.read_csv(ds_dir)
+      self.df = pd.read_sql(db_conn, con=engine)
 
       # check for availability of ds & y column (required by prophet)
       if not {'ds', 'y'}.issubset(self.df.columns):
@@ -21,8 +21,8 @@ class ProphetModel:
       self._daily = None
       self._weekly = None
       self._monthly = None
-    except FileNotFoundError:
-      print(f"File name {ds_dir} not found.")
+    except Error as e:
+      print(f"An expected SQL Database connection ocurred: {e}")
     except Exception as e:
       print(f"Initialization failed: {e}")
 
@@ -83,17 +83,17 @@ class ProphetModel:
     return self._monthly
 
 
-def main():
-  # pathlib since direct path results an error dunno why
-  data_path = Path(__file__).resolve().parents[3] / 'data' / 'processed' / 'vehicle-data-feed-prophet-model.csv'
-  model = ProphetModel(str(data_path))
-  model.train_model()
+# def main():
+#   # pathlib since direct path results an error dunno why
+#   data_path = Path(__file__).resolve().parents[3] / 'data' / 'processed' / 'vehicle-data-feed-prophet-model.csv'
+#   model = ProphetModel(str(data_path))
+#   model.train_model()
 
-  print(model.hourly_prediction.tail())
-  print(model.daily_prediction.tail())
-  print(model.weekly_prediction.tail())
-  print(model.monthly_prediction.tail())
+#   print(model.hourly_prediction.tail())
+#   print(model.daily_prediction.tail())
+#   print(model.weekly_prediction.tail())
+#   print(model.monthly_prediction.tail())
 
 
-if __name__ == "__main__":
-  main()
+# if __name__ == "__main__":
+#   main()
