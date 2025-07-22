@@ -69,3 +69,6 @@ prophet
 
 # For text recommendation generation
 openai
+
+# Database
+firebase-admin
