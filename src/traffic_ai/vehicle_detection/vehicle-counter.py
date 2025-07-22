@@ -8,7 +8,55 @@ import cvzone
 from sort import *
 import numpy as np
 import time
+from datetime import datetime
 import pandas as pd
+import firebase_admin
+from firebase_admin import credentials, db
+import threading
+import queue
+
+# laod service acc JSON key
+# absolute path tang ina nakakastressed yang file path issue
+cred = credentials.Certificate(r"C:\Users\imper\Documents\capstone-project-v2\configs\traffic-logs-firebase-admin-sdk.json")
+
+# initialize app with db URL
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://capstone-traffic-monitoring-default-rtdb.asia-southeast1.firebasedatabase.app/'
+})
+
+today = pd.to_datetime(datetime.now()).date()
+previous_class_counts = {}
+# Firebase queue and worker thread
+firebase_queue = queue.Queue()
+firebase_queue = queue.Queue()
+# Thread to avoid constant firebase call
+def firebase_worker():
+    while True:
+        try:
+            task = firebase_queue.get(timeout=5)
+            if task is None:
+                firebase_queue.task_done()  # acknowledge the sentinel task
+                break
+
+            path, action, data = task
+            ref = db.reference(path)
+            if action == 'push':
+                ref.push(data)
+            elif action == 'set':
+                ref.set(data)
+            elif action == 'update':
+                ref.update(data)
+
+            print(f"Executed {action} at {path}")
+            firebase_queue.task_done()  # acknowledge the completed task
+        except queue.Empty:
+            continue  # No task, loop again
+        except Exception as e:
+            logging.error(f"Firebase error: {e}")
+            firebase_queue.task_done()  # still mark the task as done if it was fetched
+
+# Start Firebase thread
+threading.Thread(target=firebase_worker, daemon=True).start()
 
 try:
     # Initialize video capture and model
@@ -131,6 +179,9 @@ try:
 
                 print(f"Total Count: {len(total_count)}")
                 for cls, count in vehicle_class_cnt_json_data.items():
+                    if previous_class_counts.get(cls) != count:
+                        firebase_queue.put((f"/detected_vehicle/{today}/vehicle_class_count", 'update', {cls: count}))
+                        previous_class_counts[cls] = count
                     print(f"{cls}: {count}")
 
         # Record time-out (when tracked vehicle exited the frame)
@@ -163,6 +214,10 @@ try:
                     del time_track[ex_id]  # delete sent IDs to avoid big set and inefficient loop
 
                 print(f"Final Data for ID {ex_id}: {vehicle_json_data[ex_id]}")
+                print(f"vehicle class count{vehicle_class_cnt_json_data}")
+
+                # push detected vehicle logs to firebase rtdb
+                firebase_queue.put((f"/detected_vehicle/{today}/individual_vehicle", 'push', vehicle_json_data[ex_id]))
 
         # Display livestream
         cv2.imshow("YOLOv11 Vehicle Detection", img)
@@ -173,6 +228,8 @@ try:
     # Release resources
     cap.release()
     cv2.destroyAllWindows()
+    firebase_queue.put(None)  # Send exit signal to Firebase thread
+    firebase_queue.join()
 except FileNotFoundError:
     logging.info("File not found")
 except requests.exceptions.ConnectionError:
