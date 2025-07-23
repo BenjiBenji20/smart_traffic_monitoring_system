@@ -10,6 +10,15 @@ SHOW TABLES;
 
 SELECT COUNT(*) FROM vehicle_aggregated as v WHERE v.y = 30;
 
+-- bawasan pa y value, divide by 2
+-- SET SQL_SAFE_UPDATES = 0;
+
+UPDATE vehicle_aggregated AS v
+SET y = v.y / 2
+WHERE v.y > 0;
+
+-- SET SQL_SAFE_UPDATES = 1;
+
 -- check entry
 SELECT * FROM vehicle_aggregated;
 -- check datatypes
