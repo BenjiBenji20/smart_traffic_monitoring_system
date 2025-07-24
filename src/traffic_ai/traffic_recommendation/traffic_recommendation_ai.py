@@ -22,7 +22,7 @@ def config():
   load_dotenv()
 
 class AIRecommendation:
-  def __init__(self, d1, d2):
+  def __init__(self, d1, d2, user_type):
     # extract summary and convert to prompt using prompt builder
     sum_s = sum_summary(d1)
     hour_s = hourly_summary(d2)
@@ -32,11 +32,11 @@ class AIRecommendation:
 
     # build prompt
     self.prompt = {
-      'sp': summary_prompt(sum_s),
-      'hp': hourly_prompt(hour_s),
-      'dp': daily_prompt(day_s),
-      'wp': weekly_prompt(week_s),
-      'mp': monthly_prompt(month_s)
+      'sp': summary_prompt(sum_s, user_type),
+      'hp': hourly_prompt(hour_s, user_type),
+      'dp': daily_prompt(day_s, user_type),
+      'wp': weekly_prompt(week_s, user_type),
+      'mp': monthly_prompt(month_s, user_type)
     }
 
     # ai generated recommendation hand;er variables
@@ -92,7 +92,7 @@ def main():
   d1 = prediction_summary()
   d2 = prediction_detail() 
 
-  reco = AIRecommendation(d1=d1, d2=d2)
+  reco = AIRecommendation(d1=d1, d2=d2, user_type='enduser')
 
   r = reco.recommendation()
   for val in r.values():
