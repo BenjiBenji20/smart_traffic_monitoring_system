@@ -118,3 +118,175 @@ def prediction_detail():
 """
   HERE FOR USER PREDICTION REQUEST
 """
+# --- Hourly ---
+def hourly_req(forecast, start, end):
+  hourly = h_forecast[(h_forecast['ds'] >= start) & (h_forecast['ds'] <= end)]
+  for ts, val in zip(hourly['ds'], hourly['yhat']):
+    forecast['hourly'].append({
+      "time": ts.isoformat(),
+      "value": int(val)
+    })
+
+# --- Daily ---
+def daily_req(forecast, remaining_hrs, _, start, end):
+  daily = d_forecast[(d_forecast['ds'] >= start) & (d_forecast['ds'] <= end)]
+  for ts, val in zip(daily['ds'], daily['yhat']):
+    forecast['daily'].append({
+      "date": ts.strftime('%Y-%m-%d'),
+      "value": int(val)
+    })
+
+  # Handle potential leftover partial day (hours)
+  total_hours = (end - start).total_seconds() / 3600
+  full_days = int(total_hours // 24)
+  leftover_hours = int(round(total_hours - (full_days * 24)))  # safer with round
+
+  if leftover_hours >= 1:
+    hourly_start = end - timedelta(hours=leftover_hours)
+    hourly_end = end
+
+    # Prevent duplicate hourly call if the range is exactly on a full day
+    if hourly_start < hourly_end:
+        hourly_req(forecast, hourly_start, hourly_end)
+
+# --- Weekly ---
+def weekly_req(forecast, start, end):
+  days_to_sunday = (6 - start.weekday()) % 7  # Sunday = 6
+  cursor = start + timedelta(days=days_to_sunday)
+  cursor = cursor.replace(hour=0, minute=0, second=0, microsecond=0)
+
+  first_week_start = None
+  last_week_end = None
+
+  while cursor <= end:
+    week_start = cursor - timedelta(days=6)
+    weekly = w_forecast[w_forecast['ds'].dt.date == cursor.date()]
+
+    if not weekly.empty:
+      forecast['weekly'].append({
+        "week_start": week_start.strftime('%Y-%m-%d'),
+        "week_end": cursor.strftime('%Y-%m-%d'),
+        "value": int(weekly['yhat'].values[0])
+      })
+
+      if first_week_start is None:
+          first_week_start = week_start
+      last_week_end = cursor
+
+    cursor += timedelta(days=7)
+
+  return first_week_start, last_week_end
+
+# --- Monthly ---
+def monthly_req(forecast, start, end):
+  from calendar import monthrange
+
+  cursor = start.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+  first_valid = None
+  last_valid = None
+
+  while cursor <= end:
+    last_day = monthrange(cursor.year, cursor.month)[1]
+    month_end = cursor.replace(day=last_day)
+    month_data = m_forecast[m_forecast['ds'].dt.date == month_end.date()]
+
+    if not month_data.empty:
+      forecast['monthly'].append({
+        "month_start": cursor.strftime('%Y-%m-%d'),
+        "month_end": month_end.strftime('%Y-%m-%d'),
+        "value": int(month_data['yhat'].values[0])
+      })
+
+      if not first_valid:
+        first_valid = cursor
+      last_valid = month_end
+
+    cursor = (cursor + relativedelta(months=1)).replace(day=1)
+
+  return first_valid, last_valid
+
+
+def admin_prediction_req(req):
+  forecast = {
+    "monthly": [],
+    "weekly": [],
+    "daily": [],
+    "hourly": []
+  }
+
+  start = pd.to_datetime(req['start'])
+  end = pd.to_datetime(req['end'])
+
+  diff = end - start # get the difference to know the date distannce
+  # extract days, seconds
+  days = diff.days
+  remaining_hrs = diff.seconds // 3600
+
+  resolution = None
+  if days < 2:
+    resolution = 'hourly'
+    hourly_req(forecast, start, end)
+
+  elif days < 14:
+    resolution = 'daily'
+    daily_req(forecast, remaining_hrs, days, start, end)
+
+  elif days < 45:
+    resolution = 'weekly'
+    first_week_start, last_week_end = weekly_req(forecast, start, end)
+
+    if first_week_start and start < first_week_start:
+      daily_req(
+        forecast,
+        0,
+        (first_week_start - start).days,
+        start,
+        first_week_start - timedelta(seconds=1)
+      )
+
+    if last_week_end and end > last_week_end:
+      daily_req(
+        forecast,
+        0,
+        (end - last_week_end).days,
+        last_week_end + timedelta(seconds=1),
+        end
+      )
+
+  else:
+    resolution = 'monthly'
+    first_month_start, last_month_end = monthly_req(forecast, start, end)
+
+    # Fill leftover days before first full month
+    if first_month_start and start < first_month_start:
+      days_before = (first_month_start - start).days
+      daily_req(
+        forecast,
+        0,
+        days_before,
+        start,
+        first_month_start - timedelta(seconds=1)
+      )
+
+    # Fill leftover days after last full month
+    if last_month_end and end > last_month_end:
+      days_after = (end - last_month_end).days
+      daily_req(
+        forecast,
+        0,
+        days_after,
+        last_month_end + timedelta(seconds=1),
+        end
+      )
+
+  return forecast
+
+# Run with your request
+req = {
+  "start": "2025-09-09T05:00:00",
+  "end": "2025-10-22T10:00:00"
+}
+
+result = admin_prediction_req(req=req)
+# print(h_forecast['ds']['2025-09-09T05:00:00'])
+print(json.dumps(result, indent=2))
