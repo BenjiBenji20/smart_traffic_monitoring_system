@@ -1,27 +1,22 @@
-from traffic_ai.traffic_forecast.prophet_modeling import ProphetModel
+from traffic_ai.traffic_forecast.forecast_manager import *
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 import numpy as np
-from sqlalchemy import create_engine
-from dotenv import load_dotenv
-import os
 
-load_dotenv()
-# db connection
-engine = create_engine(f"mysql+pymysql://{os.getenv('mysql_user')}:{os.getenv('mysql_password')}@{os.getenv('mysql_host')}/{os.getenv('mysql_database')}")
+forecast_data = None
+# check if prophet already trained and json file existed
+if forecast_today_exist():
+  forecast_data = get_forecast()
+else:
+  # generate and get forecast data from json
+  generate_forecast()
+  forecast_data = get_forecast()
 
-# sql query
-table_name = 'vehicle_aggregated' # use this whenever u want to switch and read table
-query = f"SELECT ds, y FROM {table_name}"
-
-model = ProphetModel(query, engine=engine)
-model.train_model()
-
-h_forecast = model.hourly_prediction
-d_forecast = model.daily_prediction
-w_forecast = model.weekly_prediction
-m_forecast = model.monthly_prediction
+h_forecast = forecast_data['hourly']
+d_forecast = forecast_data['daily']
+w_forecast = forecast_data['weekly']
+m_forecast = forecast_data['monthly']
 
 # extract current date
 today = pd.to_datetime(datetime.now().date())
