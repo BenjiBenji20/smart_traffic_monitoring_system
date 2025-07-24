@@ -117,6 +117,14 @@ def prediction_detail():
 
 """
   HERE FOR USER PREDICTION REQUEST
+  admin_prediction_req function consists of recursive function call and nested conditional bvlcks
+  request format: {
+#   "start": "2025-09-09T05:00:00",
+#   "end": "2025-10-22T10:00:00"
+# }
+
+  user_prediction_req f making a 5 hrs prediction prior to the user's request
+  request format: {'date': "2025-10-09T12:00:00"}
 """
 # --- Hourly ---
 def hourly_req(forecast, start, end):
@@ -206,8 +214,10 @@ def monthly_req(forecast, start, end):
   return first_valid, last_valid
 
 
+# --- ADMIN/PERSONNEL/LGU ---
 def admin_prediction_req(req):
   forecast = {
+    "request_date": req,
     "monthly": [],
     "weekly": [],
     "daily": [],
@@ -276,12 +286,25 @@ def admin_prediction_req(req):
 
   return forecast
 
-# Run with your request
-# req = {
-#   "start": "2025-09-09T05:00:00",
-#   "end": "2025-10-22T10:00:00"
-# }
 
-# result = admin_prediction_req(req=req)
-# # print(h_forecast['ds']['2025-09-09T05:00:00'])
-# print(json.dumps(result, indent=2))
+# --- ENDUSER/COMMUTERS/DRIVERS/CITIIZEN ---
+def user_prediction_req(req):
+  forecast = {
+    "request_date": req,
+    "prediction": []
+  }
+
+  start_time = pd.to_datetime(req['date'])
+  end_time = start_time + timedelta(hours=5)
+
+  prediction = h_forecast[
+    (h_forecast['ds'] >= start_time) &
+    (h_forecast['ds'] <= end_time)
+  ]
+  for ts, val in zip(prediction['ds'], prediction['yhat']):
+    forecast['prediction'].append({
+      'time': ts.isoformat(),
+      'value': int(val)
+    })
+
+  return forecast
