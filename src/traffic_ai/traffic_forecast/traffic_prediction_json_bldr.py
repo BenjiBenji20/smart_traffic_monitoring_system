@@ -222,17 +222,13 @@ def admin_prediction_req(req):
   days = diff.days
   remaining_hrs = diff.seconds // 3600
 
-  resolution = None
   if days < 2:
-    resolution = 'hourly'
     hourly_req(forecast, start, end)
 
   elif days < 14:
-    resolution = 'daily'
     daily_req(forecast, remaining_hrs, days, start, end)
 
   elif days < 45:
-    resolution = 'weekly'
     first_week_start, last_week_end = weekly_req(forecast, start, end)
 
     if first_week_start and start < first_week_start:
@@ -254,7 +250,6 @@ def admin_prediction_req(req):
       )
 
   else:
-    resolution = 'monthly'
     first_month_start, last_month_end = monthly_req(forecast, start, end)
 
     # Fill leftover days before first full month
@@ -282,11 +277,11 @@ def admin_prediction_req(req):
   return forecast
 
 # Run with your request
-req = {
-  "start": "2025-09-09T05:00:00",
-  "end": "2025-10-22T10:00:00"
-}
+# req = {
+#   "start": "2025-09-09T05:00:00",
+#   "end": "2025-10-22T10:00:00"
+# }
 
-result = admin_prediction_req(req=req)
-# print(h_forecast['ds']['2025-09-09T05:00:00'])
-print(json.dumps(result, indent=2))
+# result = admin_prediction_req(req=req)
+# # print(h_forecast['ds']['2025-09-09T05:00:00'])
+# print(json.dumps(result, indent=2))
