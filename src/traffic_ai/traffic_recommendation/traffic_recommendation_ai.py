@@ -22,7 +22,7 @@ def config():
   load_dotenv()
 
 class AIRecommendation:
-  def __init__(self, d1, d2, user_type):
+  def __init__(self, d1, d2, req, user_type):
     # extract summary and convert to prompt using prompt builder
     sum_s = sum_summary(d1)
     hour_s = hourly_summary(d2)
@@ -30,13 +30,16 @@ class AIRecommendation:
     week_s = weekly_summary(d2)
     month_s = monthly_summary(d2)
 
+    request_prompt = admin_req_summary(req) if user_type == 'admin' else end_user_req_summary(req)
+
     # build prompt
     self.prompt = {
       'sp': summary_prompt(sum_s, user_type),
       'hp': hourly_prompt(hour_s, user_type),
       'dp': daily_prompt(day_s, user_type),
       'wp': weekly_prompt(week_s, user_type),
-      'mp': monthly_prompt(month_s, user_type)
+      'mp': monthly_prompt(month_s, user_type),
+      'rp': request_prompt
     }
 
     # ai generated recommendation hand;er variables
@@ -77,11 +80,12 @@ class AIRecommendation:
         continue # if the key has already made ai recommendation, skip it
 
       try:
+        print("Delivering AI Traffic Recommendations...\n\n")
         # pass the prompt to ai
         comp = self.client_chat(prompt)
         # pass as value the ai generated recommendation to the dictionary
         self.ai_recommendation[key] = comp.choices[0].message.content
-        time.sleep(3) # 3 seconds idle to avoid internet problem
+        # time.sleep(3) # 3 seconds idle to avoid internet problem
       except Exception as e:
         raise ConnectionError(f"Failed client connection from {self.client}")
       
@@ -92,7 +96,19 @@ def main():
   d1 = prediction_summary()
   d2 = prediction_detail() 
 
-  reco = AIRecommendation(d1=d1, d2=d2, user_type='enduser')
+  req1 = {
+    "start": "2025-09-09T05:00:00",
+    "end": "2025-10-22T10:00:00"
+  }
+
+  req2 = {
+    'time': "2025-10-09T12:00:00"
+  }
+
+  d3 = user_prediction_req(req2)
+  d4 = admin_prediction_req(req1)
+
+  reco = AIRecommendation(d1=d1, d2=d2, req=d3, user_type='enduser')
 
   r = reco.recommendation()
   for val in r.values():
