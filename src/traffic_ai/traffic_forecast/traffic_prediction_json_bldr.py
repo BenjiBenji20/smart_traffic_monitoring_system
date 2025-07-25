@@ -130,7 +130,7 @@ def prediction_detail():
 def hourly_req(forecast, start, end):
   hourly = h_forecast[(h_forecast['ds'] >= start) & (h_forecast['ds'] <= end)]
   for ts, val in zip(hourly['ds'], hourly['yhat']):
-    forecast['hourly'].append({
+    forecast['forecast']['hourly'].append({
       "time": ts.isoformat(),
       "value": int(val)
     })
@@ -139,7 +139,7 @@ def hourly_req(forecast, start, end):
 def daily_req(forecast, remaining_hrs, _, start, end):
   daily = d_forecast[(d_forecast['ds'] >= start) & (d_forecast['ds'] <= end)]
   for ts, val in zip(daily['ds'], daily['yhat']):
-    forecast['daily'].append({
+    forecast['forecast']['daily'].append({
       "date": ts.strftime('%Y-%m-%d'),
       "value": int(val)
     })
@@ -171,7 +171,7 @@ def weekly_req(forecast, start, end):
     weekly = w_forecast[w_forecast['ds'].dt.date == cursor.date()]
 
     if not weekly.empty:
-      forecast['weekly'].append({
+      forecast['forecast']['weekly'].append({
         "week_start": week_start.strftime('%Y-%m-%d'),
         "week_end": cursor.strftime('%Y-%m-%d'),
         "value": int(weekly['yhat'].values[0])
@@ -199,7 +199,7 @@ def monthly_req(forecast, start, end):
     month_data = m_forecast[m_forecast['ds'].dt.date == month_end.date()]
 
     if not month_data.empty:
-      forecast['monthly'].append({
+      forecast['forecast']['monthly'].append({
         "month_start": cursor.strftime('%Y-%m-%d'),
         "month_end": month_end.strftime('%Y-%m-%d'),
         "value": int(month_data['yhat'].values[0])
@@ -218,10 +218,12 @@ def monthly_req(forecast, start, end):
 def admin_prediction_req(req):
   forecast = {
     "request_date": req,
-    "monthly": [],
-    "weekly": [],
-    "daily": [],
-    "hourly": []
+    "forecast": {
+      "monthly": [],
+      "weekly": [],
+      "daily": [],
+      "hourly": []
+    }
   }
 
   start = pd.to_datetime(req['start'])
@@ -290,11 +292,11 @@ def admin_prediction_req(req):
 # --- ENDUSER/COMMUTERS/DRIVERS/CITIIZEN ---
 def user_prediction_req(req):
   forecast = {
-    "request_date": req,
-    "prediction": []
+    "request_time": req,
+    "forecast": []
   }
 
-  start_time = pd.to_datetime(req['date'])
+  start_time = pd.to_datetime(req['time'])
   end_time = start_time + timedelta(hours=5)
 
   prediction = h_forecast[
@@ -302,9 +304,22 @@ def user_prediction_req(req):
     (h_forecast['ds'] <= end_time)
   ]
   for ts, val in zip(prediction['ds'], prediction['yhat']):
-    forecast['prediction'].append({
+    forecast['forecast'].append({
       'time': ts.isoformat(),
       'value': int(val)
     })
 
   return forecast
+
+# req1 = {
+#   "start": "2025-09-09T05:00:00",
+#   "end": "2025-10-22T10:00:00"
+# }
+
+# req2 = {
+#   'time': "2025-10-09T12:00:00"
+# }
+
+# print(json.dumps(user_prediction_req(req2), indent=2))
+# print(json.dumps(admin_prediction_req(req1), indent=2))
+# print(prediction_detail())
