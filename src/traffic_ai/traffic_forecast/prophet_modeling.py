@@ -47,6 +47,9 @@ class ProphetModel:
       self._forecast = self.m.predict(future)
       self._forecast['ds'] = pd.to_datetime(self._forecast['ds'])
       
+      # get only necessary columns
+      self._forecast = self._forecast[['ds', 'yhat']]
+
     return self._forecast
   
 
