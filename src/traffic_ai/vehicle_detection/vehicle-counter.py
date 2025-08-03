@@ -69,7 +69,7 @@ try:
     classes = ClassNames()
 
     # Load region of interest mask (border)
-    border = cv2.imread("images/harang.png")
+    # border = cv2.imread("images/harang.png")
 
     # Initialize SORT tracker
     tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
@@ -99,12 +99,13 @@ try:
             break
 
         # Resize for faster inference
-        img = cv2.resize(img, (640, 360))
-        border_resized = cv2.resize(border, (640, 360))
-        frame_region = cv2.bitwise_and(img, border_resized)
+        img = cv2.resize(img, (480, 270))
+        # border_resized = cv2.resize(border, (640, 360))
+        # frame_region = cv2.bitwise_and(img, border_resized)
 
         # Run detection (no stream=True for ONNX)
-        results = model.predict(frame_region, classes=classes.classified_vehicle(), verbose=False)
+        #results = model.predict(frame_region, classes=classes.classified_vehicle(), verbose=False)
+        results = model.predict(img, classes=classes.classified_vehicle(), verbose=False)
 
         detections = np.empty((0, 5))
         detected_objects = {}
