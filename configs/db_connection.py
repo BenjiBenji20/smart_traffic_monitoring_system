@@ -9,10 +9,10 @@ def sql_connection():
   try:
     # establish connection
     c = conn.connect(
-      host=os.getenv('mysql_host'),
-      password=os.getenv('mysql_password'), # include mu nlng pass 
-      user=os.getenv('mysql_user'), # eto den
-      database=os.getenv('mysql_database')
+      host=os.getenv('MYSQL_HOST'),
+      password=os.getenv('MYSQL_PASSWORD'), # include mu nlng pass 
+      user=os.getenv('MYSQL_USER'), # eto den
+      database=os.getenv('MYSQL_DATABASE')
     )
 
     if c.is_connected():

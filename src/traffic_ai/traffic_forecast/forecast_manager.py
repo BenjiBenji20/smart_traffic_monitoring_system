@@ -26,7 +26,7 @@ def forecast_today_exist():
 def generate_forecast():
   load_dotenv()
   # db connection
-  engine = create_engine(f"mysql+pymysql://{os.getenv('mysql_user')}:{os.getenv('mysql_password')}@{os.getenv('mysql_host')}/{os.getenv('mysql_database')}")
+  engine = create_engine(f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}/{os.getenv('MYSQL_DATABASE')}")
 
   # sql query
   query = "SELECT ds, y FROM vehicle_aggregated"
