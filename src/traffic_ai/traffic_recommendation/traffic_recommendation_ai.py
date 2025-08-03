@@ -49,7 +49,7 @@ class AIRecommendation:
 
     self.client = OpenAI(
       base_url="https://openrouter.ai/api/v1",
-      api_key=os.getenv('ai_api_key'),
+      api_key=os.getenv('AI_API_KEY'),
     )
 
 

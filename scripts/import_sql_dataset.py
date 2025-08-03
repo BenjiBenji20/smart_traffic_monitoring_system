@@ -15,7 +15,7 @@ def csv_to_sql(path, table_name):
     create_tbl_query = f"CREATE TABLE {table_name} (ds DATETIME NOT NULL, y INT NOT NULL)"
     cursor.execute(create_tbl_query)
     for index, row in df.iterrows():
-      query = "INSERT INTO vehicle_aggregated (ds, y) VALUES (%s, %s)"
+      query = "INSERT INTO prophet_trainig_data (ds, y) VALUES (%s, %s)"
       cursor.execute(query, tuple(row))
 
     # commit and close
@@ -32,7 +32,7 @@ def csv_to_sql(path, table_name):
 
 def main():
   data_path = Path(__file__).resolve().parents[1] / 'data' / 'processed' / 'vehicle-data-feed-prophet-model.csv'
-  csv_to_sql(data_path, 'vehicle_aggregated')
+  csv_to_sql(data_path, 'prophet_trainig_data')
 
 
 if __name__ == "__main__":

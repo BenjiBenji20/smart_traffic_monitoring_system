@@ -75,3 +75,13 @@ firebase-admin
 mysql-connector-python
 sqlalchemy
 pymysql
+
+# web api
+fastapi[standard]
+uvicorn
+python-jose[cryptography] 
+passlib[bcrypt] 
+regex
+aiomysql 
+alembic
+pydantic_settings
