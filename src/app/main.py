@@ -1,9 +1,13 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+
+# db and model
 from src.app.db.db_session import engine, async_session
 from src.app.db.base import Base
 from src.app.models.user import User  # ensure it's imported so Base knows the model
 
+# routers
+from src.app.routes.user_router import user_router
 
 @asynccontextmanager
 async def life_span(app: FastAPI):
@@ -19,10 +23,6 @@ async def life_span(app: FastAPI):
     print("Connection close")
 
 
-# use for route depends for async db connection/session
-async def get_async_db():
-  async with async_session as session:
-    yield session
-
-
 app = FastAPI(lifespan=life_span)
+
+app.include_router(user_router)

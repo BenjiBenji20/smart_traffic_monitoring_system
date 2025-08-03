@@ -25,4 +25,4 @@ class User(Base):
   failed_attempts = Column(Integer, default=0, nullable=False)
   banned_until = Column(DateTime, nullable=True)
   last_login = Column(DateTime, nullable=True)
-  is_active = Column(Boolean, default=True, nullable=False)
+  is_active = Column(Boolean, default=False, nullable=False)

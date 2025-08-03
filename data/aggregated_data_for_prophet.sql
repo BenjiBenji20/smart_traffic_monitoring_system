@@ -23,5 +23,5 @@ WHERE v.y > 0;
 SELECT * FROM prophet_trainig_data;
 -- check datatypes
 SHOW CREATE TABLE prophet_trainig_data;
-SHOW TABLEs;
+SHOW CREATE TABLE users;
 SELECT * FROM users;
