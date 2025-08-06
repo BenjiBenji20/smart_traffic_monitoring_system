@@ -51,5 +51,5 @@ class UserSchema(BaseModel):
   complete_address: str 
   age: int 
 
-  class Config:
-    orm_mode = True
+class Config:
+  from_attributes = True

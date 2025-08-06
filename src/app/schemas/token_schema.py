@@ -9,10 +9,13 @@ class Token(BaseModel):
   access_token: str
   token_type: str
 
+  class Config:
+    from_attributes = True
+
 
 class TokenPayload(BaseModel):
   sub: str # username
   role: Role
-  is_active: bool
+  expiration: datetime
   banned_until: datetime | None = None
   
