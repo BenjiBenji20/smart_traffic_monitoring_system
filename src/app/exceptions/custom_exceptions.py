@@ -1,5 +1,11 @@
 
 
+class InternalServerError(Exception):
+  def __init__(self, detail="Internal server error occured", error_code="INTERNAL_SERVER_ERROR" ):
+    self.detail = detail
+    self.error_code = error_code
+
+
 class DuplicateEntryException(Exception):
   def __init__(self, detail="Duplicate entry", error_code="DUPLICATE_ENTRY"):
     self.detail = detail
