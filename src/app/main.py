@@ -8,11 +8,12 @@ from src.app.models.user import User  # ensure it's imported so Base knows the m
 
 # global exceptions
 from src.app.exceptions.custom_exceptions import (
-  DuplicateEntryException, ResourceNotFoundException
+  DuplicateEntryException, ResourceNotFoundException,
+  UnauthorizedAccessException, InternalServerError
 )
 from src.app.exceptions.error_handler import (
-  duplicate_entry_exception_handler,
-  resource_not_found_handler
+  duplicate_entry_exception_handler, internal_server_error_handler,
+  resource_not_found_handler, unauthorized_access_handler
 )
 
 # routers
@@ -38,5 +39,7 @@ app = FastAPI(lifespan=life_span)
 app.include_router(user_router)
 
 # regiustering global exeception handler
+app.add_exception_handler(InternalServerError, internal_server_error_handler)
 app.add_exception_handler(ResourceNotFoundException, resource_not_found_handler)
 app.add_exception_handler(DuplicateEntryException, duplicate_entry_exception_handler)
+app.add_exception_handler(UnauthorizedAccessException, unauthorized_access_handler)
