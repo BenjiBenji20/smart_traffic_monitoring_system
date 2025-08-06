@@ -138,6 +138,11 @@ def main():
 
   reco = AIRecommendation()
 
+  print(d1,"\n\n\n")
+  print(d2,"\n\n\n")
+  print(d3,"\n\n\n")
+  print(d4,"\n\n\n")
+
   r = reco.traffic_data_reco(d1, d2, 'enduser')
   for val in r.values():
     print(f"{val}\n\n------------------------------------------------------------------------------")

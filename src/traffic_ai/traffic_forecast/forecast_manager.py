@@ -29,7 +29,7 @@ def generate_forecast():
   engine = create_engine(f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}/{os.getenv('MYSQL_DATABASE')}")
 
   # sql query
-  query = "SELECT ds, y FROM vehicle_aggregated"
+  query = "SELECT ds, y FROM prophet_trainig_data"
 
   # train the modelusing the class
   model = ProphetModel(query, engine=engine)
