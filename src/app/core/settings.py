@@ -20,7 +20,7 @@ class Settings(BaseSettings):
   SQLALCHEMY_DATABASE_URI: str = ""
 
   # token settings
-  jWT_SECRET_KEY: SecretStr
+  JWT_SECRET_KEY: SecretStr
   JWT_ALGORITHM: str
   ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
   MAX_LOGIN_ATTEMPTS: int = 3
