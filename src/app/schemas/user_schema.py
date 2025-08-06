@@ -23,8 +23,6 @@ class AuthUserSchema(BaseModel):
 
 # for request dto
 class RegisterUserSchema(AuthUserSchema):
-  # id: str = Field(default_factory=lambda: str(uuid.uuid4()))# auto generate uuid
-  # created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc)) # auto generate time when reg req sent
   """
     username and password are inherited from base class
   """
@@ -36,9 +34,9 @@ class RegisterUserSchema(AuthUserSchema):
   @field_validator("complete_name", "complete_address")
   @classmethod
   def validate_name_and_address(cls, val):
-    pattern = r"^[\p{L}][\p{L}\p{M}'\- ]*$"
+    pattern = r"^[\p{L}][\p{L}\p{M}'\-,. ]*$"
     if not regex.match(pattern, val):
-      raise ValueError(f"Must be valid complete name: {val}")
+      raise ValueError(f"Must be valid: {val}")
     
     return val
 
