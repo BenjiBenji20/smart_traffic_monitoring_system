@@ -22,7 +22,6 @@ class Settings(BaseSettings):
   # token settings
   JWT_SECRET_KEY: SecretStr
   JWT_ALGORITHM: str
-  ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
   MAX_LOGIN_ATTEMPTS: int = 3
   BAN_DURATION_SECONDS: int = 3600  # 1 hour
 
