@@ -62,12 +62,56 @@ async def auth_user(username: str, password: str, db: AsyncSession) -> User:
   
 
 def generate_access_token(payload: dict) -> str:
-  # 15mins refresh token expiration
-  token_expiration = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES) 
-  payload.update({"exp": token_expiration})
+  # 15mins access token
+  token_expiration = datetime.now(timezone.utc) + timedelta(minutes=15)
 
+  # 7 days refresh token
+  payload.update({
+    "exp": int(token_expiration.timestamp()),
+    "type": "access"
+    })
   encoded_jwt = jwt.encode(payload, str(settings.JWT_SECRET_KEY), algorithm=settings.JWT_ALGORITHM)
   return encoded_jwt
+
+
+# generated refresh token
+def generate_refresh_token(payload: dict) -> str:
+  # 7 days refresh token
+  token_expiration = datetime.now(timezone.utc) + timedelta(days=7)
+  payload.update({
+    "exp": int(token_expiration.timestamp()),
+    "type": "refresh"
+    })
+  encoded_jwt = jwt.encode(payload, str(settings.JWT_SECRET_KEY), algorithm=settings.JWT_ALGORITHM)
+  return encoded_jwt
+
+
+def refresh_token(refresh_token: str) -> dict:
+  try:
+    payload = jwt.decode(refresh_token, str(settings.JWT_SECRET_KEY), algorithms=settings.JWT_ALGORITHM)
+
+    if payload.get("type") != "refresh":
+      raise UnauthorizedAccessException("Invalid token type.")
+
+    if datetime.now(timezone.utc).timestamp() > payload["exp"]:
+      raise UnauthorizedAccessException("Refresh token expired.")
+
+    username = payload.get("sub")
+    if not username:
+      raise UnauthorizedAccessException("Invalid refresh token.")
+
+    # Recreate access token only
+    new_access_token = generate_access_token({
+      "sub": username
+    })
+
+    return {
+      "access_token": new_access_token,
+      "token_type": "bearer"
+    }
+
+  except JWTError:
+    raise UnauthorizedAccessException("Invalid refresh token.")
 
 
 # jwt filterrer and returns current user
