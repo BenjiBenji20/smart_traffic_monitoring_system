@@ -2,9 +2,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import APIRouter, Depends
 
-from src.app.models.user import User
+from fastapi import Depends, Header, HTTPException
 from src.app.services.register_user_service import register_user_service
-from src.app.services.auth_service import auth_user, generate_access_token, get_current_user
+from src.app.services.auth_service import auth_user, generate_access_token, generate_refresh_token, refresh_token
 from src.app.db.db_session import get_async_db
 from src.app.schemas.user_schema import *
 from src.app.schemas.token_schema import Token
@@ -17,19 +17,34 @@ async def register_user_route(new_user: RegisterUserSchema, db: AsyncSession = D
 
 
 @user_router.post("/auth/token", response_model=Token)
-async def auth_for_access_token(user_cred_data: OAuth2PasswordRequestForm = Depends(),
+async def auth_for_token(user_cred_data: OAuth2PasswordRequestForm = Depends(),
                                  db: AsyncSession = Depends(get_async_db)):
   user = await auth_user(user_cred_data.username, user_cred_data.password, db)
   
-  access_token = generate_access_token(
-    payload={
-      "sub": user.username,
-      "role": str(user.role),
-      "banned_until": user.banned_until.isoformat() if user.banned_until else None
-    }
-  )
+  payload={
+    "sub": user.username,
+    "role": str(user.role),
+    "banned_until": user.banned_until.isoformat() if user.banned_until else None
+  }
 
-  return Token(access_token=access_token, token_type="bearer")
+  access_token = generate_access_token(payload)
+  refresh_token = generate_refresh_token({"sub": user.username})
+
+  return {
+    "access_token": access_token,
+    "refresh_token": refresh_token,
+    "token_type": "bearer"
+  }
+
+
+@user_router.post("/auth/refresh")
+async def refresh_access_token(authorization: str = Header(...)):
+  if not authorization.startswith("Bearer "):
+    raise HTTPException(status_code=401, detail="Invalid authorization header")
+
+  token = authorization.split(" ")[1]
+  return refresh_token(token)
+
 
 
 # Optional: logout endpoint to mark user inactive
