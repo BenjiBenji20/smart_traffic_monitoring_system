@@ -25,6 +25,9 @@ class Settings(BaseSettings):
   MAX_LOGIN_ATTEMPTS: int = 3
   BAN_DURATION_SECONDS: int = 3600  # 1 hour
 
+  # cors settings
+  CLIENT_ORIGINS: str
+
   class Config:
     env_file = ".env"
     case_sensitive = True
