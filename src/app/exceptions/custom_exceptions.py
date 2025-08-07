@@ -1,4 +1,4 @@
-
+from jwt import InvalidTokenError, ExpiredSignatureError
 
 class InternalServerError(Exception):
   def __init__(self, detail="Internal server error occured", error_code="INTERNAL_SERVER_ERROR" ):
@@ -20,5 +20,11 @@ class ResourceNotFoundException(Exception):
 
 class UnauthorizedAccessException(Exception):
   def __init__(self, detail="Unauthorized access", error_code="UNAUTHORIZED_ACCESS"):
+    self.detail = detail
+    self.error_code = error_code
+
+
+class ForbiddenAccessException(Exception):
+  def __init__(self, detail="Forbidden access", error_code="FORBIDDEN"):
     self.detail = detail
     self.error_code = error_code

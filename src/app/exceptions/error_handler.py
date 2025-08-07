@@ -1,8 +1,6 @@
 from fastapi import Request
-from src.app.exceptions.custom_exceptions import (
-  DuplicateEntryException, ResourceNotFoundException,
-  UnauthorizedAccessException, InternalServerError
-  )
+from fastapi.responses import JSONResponse
+from src.app.exceptions.custom_exceptions import *
 from src.app.utils.error_response import error_response
 
 async def internal_server_error_handler(request: Request, exc: InternalServerError):
@@ -19,3 +17,8 @@ async def resource_not_found_handler(request: Request, exc: ResourceNotFoundExce
 
 async def unauthorized_access_handler(request: Request, exc: UnauthorizedAccessException):
   return error_response(exc.detail, exc.error_code, 401)
+
+
+async def forbidden_access_handler(request: Request, exc: ForbiddenAccessException):
+  print("ForbiddenAccessException caught:", exc.detail)
+  return error_response(exc.detail, exc.error_code, 403)
