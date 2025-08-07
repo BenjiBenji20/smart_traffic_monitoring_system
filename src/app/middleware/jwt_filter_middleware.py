@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 
 from src.app.models.user import User
 from src.app.db.db_session import get_async_db
-from src.app.core.auth_config import PUBLIC_ROUTES
+from src.app.core.address import PUBLIC_ROUTES
 from src.app.exceptions.custom_exceptions import *
 from src.app.core.settings import settings
 from src.app.services.register_user_service import search_user_by_username

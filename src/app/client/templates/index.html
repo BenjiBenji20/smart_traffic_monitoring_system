@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test login page</title>
+</head>
+  <body>
+    <h2>Login</h2>
+
+    <label>Username:
+      <input type="text" id="username" />
+    </label>
+    <br/>
+    <label>Password:
+      <input type="password" id="password" />
+    </label>
+    <br/>
+    <button onclick="login()">Login</button>
+
+  <script>
+      display_profile = async(jwt) => {
+        const access_token = jwt.access_token
+        const response = await fetch("http://localhost:8000/api/dashboard/user", {
+          headers: {
+            "Authorization": `Bearer ${access_token}`,
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        });
+
+        const data = await response.json()
+
+        const body = document.body
+
+        body.innerHTML = 
+        `
+          <p>
+            Username: ${data.sub} <br>
+            Role: ${data.role} <br>
+            Banned until: ${data.banned_until} <br>
+            Token Expiration: ${data.exp} <br>
+            Type: ${data.type}
+          </p>
+        `
+      }
+
+
+      async function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        const formData = new URLSearchParams();
+        formData.append("username", username);
+        formData.append("password", password);
+
+        try {
+          const response = await fetch("http://localhost:8000/api/user/auth/token", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            alert("Login success! Token: " + data.access_token);
+            // Store token in localStorage/sessionStorage if needed
+          } else {
+            alert("Login failed: " + data.detail);
+          }
+
+          display_profile(data)
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Something went wrong.");
+        }
+      }
+  </script>
+  </body>
+</html>
