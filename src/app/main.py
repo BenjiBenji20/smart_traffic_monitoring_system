@@ -17,6 +17,9 @@ from src.app.middleware.jwt_filter_middleware import JWTFilterMiddleware
 from src.app.routes.user_router import user_router
 from src.app.routes.dashboard_api_router import dashboard_router
 
+# configurations
+from src.app.core.cors_config import cors_middleware
+
 @asynccontextmanager
 async def life_span(app: FastAPI):
   try:
@@ -35,6 +38,8 @@ app = FastAPI(lifespan=life_span)
 
 # middlwares
 app.add_middleware(JWTFilterMiddleware)
+# cors middleware
+cors_middleware(app=app)
 
 # user router
 app.include_router(user_router)
