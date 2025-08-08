@@ -8,3 +8,7 @@ from datetime import datetime
 class AdminPredictionRequest(BaseModel):
   start: datetime = Field(default=datetime.now)
   end: datetime
+
+
+class EndUserPredictionRequest(BaseModel):
+  time: datetime
