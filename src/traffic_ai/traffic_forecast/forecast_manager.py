@@ -1,5 +1,5 @@
 import pandas as pd
-from traffic_ai.traffic_forecast.prophet_modeling import ProphetModel
+from src.traffic_ai.traffic_forecast.prophet_modeling import ProphetModel
 from datetime import datetime
 import json
 from pathlib import Path

@@ -1,4 +1,4 @@
-from traffic_ai.traffic_forecast.forecast_manager import *
+from src.traffic_ai.traffic_forecast.forecast_manager import *
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import pandas as pd
