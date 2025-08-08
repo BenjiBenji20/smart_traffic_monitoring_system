@@ -13,9 +13,9 @@ current_dir = os.path.dirname(__file__)
 parent_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))  # this points to traffic_ai/
 sys.path.append(parent_dir)
 
-from traffic_ai.traffic_forecast.traffic_prediction_json_bldr import *
-from traffic_ai.traffic_recommendation.traffic_data_summarizer import *
-from traffic_ai.traffic_recommendation.traffic_prompt_bldr import *
+from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import *
+from src.traffic_ai.traffic_recommendation.traffic_data_summarizer import *
+from src.traffic_ai.traffic_recommendation.traffic_prompt_bldr import *
 
 def config():
   load_dotenv()
