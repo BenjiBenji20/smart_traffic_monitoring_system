@@ -20,5 +20,8 @@ async def unauthorized_access_handler(request: Request, exc: UnauthorizedAccessE
 
 
 async def forbidden_access_handler(request: Request, exc: ForbiddenAccessException):
-  print("ForbiddenAccessException caught:", exc.detail)
   return error_response(exc.detail, exc.error_code, 403)
+
+
+async def invalid_token_handler(request: Request, exc: InvalidTokenException):
+  return error_response(exc.detail, exc.error_code, 401)

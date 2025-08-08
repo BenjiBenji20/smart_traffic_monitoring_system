@@ -28,3 +28,9 @@ class ForbiddenAccessException(Exception):
   def __init__(self, detail="Forbidden access", error_code="FORBIDDEN"):
     self.detail = detail
     self.error_code = error_code
+
+
+class InvalidTokenException(Exception):
+  def __init__(self, detail="Invalid token", error_code="INVALID_TOKEN"):
+    self.detail = detail
+    self.error_code = error_code
