@@ -4,7 +4,7 @@
 
   Enhance pa sa future if needed, Bali separate functions kasi separate prompts and separate responses ang gagawin
 """
-from traffic_data_summarizer import *
+from src.traffic_ai.traffic_recommendation.traffic_data_summarizer import *
 
 # prompts can be refine more to get the desired ai response
 admin_prompt = ("Give a short yet detailed road recommendation for each prediction summary Peak, Lowest and Average \nto Enhance Malabon LGU (such as Urban Planner, City Engineer, LGU officials...) Road Decision Making.\n\n"
