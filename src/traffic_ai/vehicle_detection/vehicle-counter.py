@@ -60,10 +60,10 @@ threading.Thread(target=firebase_worker, daemon=True).start()
 
 try:
     # Initialize video capture and model
-    cap = cv2.VideoCapture("images/videoplayback.mp4")
+    cap = cv2.VideoCapture("src/traffic_ai/vehicle_detection/images/videoplayback.mp4") # this is just for testing will be change soon
 
     # Use ONNX model and optimize inference
-    model = YOLO("image-weights/yolo11n.onnx")
+    model = YOLO("src/traffic_ai/vehicle_detection/image-weights/yolo11n.onnximage-weights/yolo11n.onnx")
 
     # Load vehicle class names
     classes = ClassNames()

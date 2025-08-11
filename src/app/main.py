@@ -1,5 +1,9 @@
 from contextlib import asynccontextmanager
+from threading import Thread
+import threading
+import time
 from fastapi import FastAPI
+import numpy as np
 
 # db and model
 from src.app.db.db_session import engine, async_session
@@ -20,20 +24,40 @@ from src.app.routes.dashboard_api_router import dashboard_router
 # configurations
 from src.app.core.cors_config import cors_middleware
 
+from src.traffic_ai.vehicle_detection.vehicle_counter import start_optimized_detection
+from src.traffic_ai.vehicle_detection.shared.detection_state import frame_lock, latest_detections
+from src.traffic_ai.vehicle_detection.shared import detection_state
+
 @asynccontextmanager
 async def life_span(app: FastAPI):
-  try:
-    # create tables in db using the base class
-    async with engine.begin() as conn:
-      await conn.run_sync(Base.metadata.create_all)
-      print("Tables are created successfully!")
-      
-    yield
-  finally:
-    await engine.dispose() # close the connection
-    print("Connection close")
+    try:
+        # Create database tables
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            print("Tables created successfully!")
 
+        # Initialize shared state (backup for compatibility)
+        with detection_state.frame_lock:
+            detection_state.latest_frame = np.zeros((270, 480, 3), dtype=np.uint8)
+            detection_state.latest_detections.clear()
+        
+        print("Shared state initialized")
+        print("Server started - Livestream can be started via API")
+        
+        yield
+        
+    finally:
+        # Cleanup any running detection
+        from src.traffic_ai.vehicle_detection.vehicle_counter import get_pipeline
+        pipeline = get_pipeline()
+        if pipeline:
+            pipeline.stop()
+            print("Detection pipeline stopped")
+        
+        await engine.dispose()
+        print("Application shutdown complete")
 
+        
 app = FastAPI(lifespan=life_span)
 
 # middlwares

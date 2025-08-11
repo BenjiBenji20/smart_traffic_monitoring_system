@@ -86,3 +86,5 @@ regex
 aiomysql 
 alembic
 pydantic_settings
+
+aiohttp

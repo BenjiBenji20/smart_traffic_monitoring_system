@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings
 from pydantic import SecretStr
-from typing import Literal
+from typing import List, Literal
 
 
 class Settings(BaseSettings):
@@ -28,6 +28,11 @@ class Settings(BaseSettings):
   # cors settings
   CLIENT_ORIGINS: str
 
+  # livestream pi http addresses
+  PI_HOME_WIFI: str
+  PI_MOBILE_HOTSPOT: str
+  PI_LIVESTREAM_ADDRESS_LIST: List[str] = ["PI_HOME_WIFI", "PI_MOBILE_HOTSPOT"]
+
   class Config:
     env_file = ".env"
     case_sensitive = True
@@ -39,6 +44,15 @@ class Settings(BaseSettings):
       f"@{self.MYSQL_HOST}/{self.MYSQL_DATABASE}"
     )
     return self.SQLALCHEMY_DATABASE_URI
+  
+
+  def get_pi_addresses(self) -> List[str]:
+    """Get actual Pi addresses from environment variables"""
+    addresses = []
+    for addr_name in self.PI_LIVESTREAM_ADDRESS_LIST:
+      if hasattr(self, addr_name):
+        addresses.append(getattr(self, addr_name))
+    return addresses
 
 
 settings = Settings()
