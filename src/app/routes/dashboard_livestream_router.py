@@ -1,16 +1,9 @@
-from datetime import datetime
 import logging
-import time
-from fastapi import APIRouter, Depends, HTTPException
-import asyncio
-
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from src.app.models.user import User
-from src.app.schemas.user_schema import UserSchema
 from src.app.exceptions.custom_exceptions import *
-from src.app.services.auth_service import get_current_user
-from src.app.services.dashboard_service import (
+from src.app.services.dashboard_livestream_service import (
     generate_raw_stream, 
     generate_processed_stream, 
     get_current_detections,
@@ -20,112 +13,20 @@ from src.app.services.dashboard_service import (
     test_pi_connection,
     get_available_pi_addresses
 )
-from src.app.schemas.request_schema import AdminPredictionRequest, EndUserPredictionRequest
 from src.app.schemas.livestream_schema import *
 
-# traffic predictions
-from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import (
-  prediction_summary, prediction_detail, admin_prediction_req, user_prediction_req
-)
-# traffic recommendations
-from src.traffic_ai.traffic_recommendation.traffic_recommendation_ai import AIRecommendation
-# vehicle detection
-from src.traffic_ai.vehicle_detection.shared.detection_state import latest_detections, frame_lock, latest_frame
+
+dashboard_livestream_router = APIRouter(
+    prefix="/api/dashboard/livestream",
+    tags=["admin dashboard livestream"]
+  )
 
 
-dashboard_router = APIRouter(prefix="/api/dashboard", tags=["admin dashboard"])
-
-# enables stateless access
-# request object is a middleware from middleware.jwt_filter_middleware.py
-@dashboard_router.get("/user-profile", response_model=UserSchema)
-async def get_user_profile(user: User = Depends(get_current_user)): 
-  if not user:
-    raise ResourceNotFoundException("No user found.")
-  return user
-
-
-# get traffic prediction
-# from src/traffic_ai/traffic_forecast/traffic_prediction_json_bldr.py
-# private endpoint
-@dashboard_router.get("/prediction-summary")
-async def get_prediction_summary() -> dict:
-  return await asyncio.to_thread(prediction_summary)
-
-
-# from src/traffic_ai/traffic_forecast/traffic_prediction_json_bldr.py
-# private endpoint
-@dashboard_router.get("/prediction-detail")
-async def get_prediction_detail() -> dict:
-  return await asyncio.to_thread(prediction_detail)
-
-
-# from src/traffic_ai/traffic_forecast/traffic_prediction_json_bldr.py
-# private endpoint
-@dashboard_router.post("/admin-prediction-req")
-async def admin_prediction_request(req: AdminPredictionRequest) -> dict: # pass the current datetime as default start
-  req_dict: dict = req.model_dump()
-  return await asyncio.to_thread(admin_prediction_req, req_dict) # pass req_dict as self arg of first arg
-
-
-# from src/traffic_ai/traffic_forecast/traffic_prediction_json_bldr.py
-# public endpoint
-@dashboard_router.post("/end-user-prediction-req")
-async def enduser_prediction_request(req: EndUserPredictionRequest) -> dict:
-  req_dict: dict = req.model_dump()
-  return await asyncio.to_thread(user_prediction_req, req_dict)
-
-
-# get ai generated recommendations
-# from src/traffic_ai/traffic_recommendation/traffic_recommendation_ai.py
-# private endpoint
-@dashboard_router.get("/admin-traffic-recommendations")
-async def admin_traffic_recommendations(user: User = Depends(get_current_user)) -> dict:
-  model = AIRecommendation() 
-  d1 = prediction_summary()
-  d2 = prediction_detail()
-
-  await asyncio.to_thread(model.run_ai_recommendation, d1=d1, d2=d2, user_type=user.role)
-  return model.reco_json
-
-
-# from src/traffic_ai/traffic_recommendation/traffic_recommendation_ai.py
-# public endpoint
-@dashboard_router.get("/end-user-traffic-recommendations")
-async def end_user_traffic_recommendations() -> dict:
-  model = AIRecommendation() 
-  d1 = prediction_summary()
-  d2 = prediction_detail()
-
-  await asyncio.to_thread(model.run_ai_recommendation, d1=d1, d2=d2, user_type="end_user")
-  return model.reco_json
-
-
-# from src/traffic_ai/traffic_recommendation/traffic_recommendation_ai.py
-# private endpoint
-@dashboard_router.post("/admin-traffic-req-recommendations")
-async def admin_traffic_req_recommendations(
-  req: AdminPredictionRequest, user: User = Depends(get_current_user)) -> str:
-  model = AIRecommendation()
-  req_dict: dict = req.model_dump()
-  prediction_data = admin_prediction_req(req_dict)
-
-  return await asyncio.to_thread(model.traffic_request_reco, prediction_data, user.role)
-
-
-# from src/traffic_ai/traffic_recommendation/traffic_recommendation_ai.py
-# public endpoint
-@dashboard_router.post("/end-user-traffic-req-recommendations")
-async def admin_traffic_req_recommendations(req: EndUserPredictionRequest) -> str:
-  model = AIRecommendation()
-  req_dict: dict = req.model_dump()
-  prediction_data = user_prediction_req(req_dict)
-
-  return await asyncio.to_thread(model.traffic_request_reco, prediction_data, "end_user")
-
+# # === LIVESTREAM CONTROL ENDPOINTS ===
 
 # === LIVESTREAM CONTROL ENDPOINTS ===
 
-@dashboard_router.post("/start-livestream", response_model=LivestreamResponse)
+@dashboard_livestream_router.post("/start-livestream", response_model=LivestreamResponse)
 async def start_livestream(request: StartLivestreamRequest):
   """Start the livestream and detection pipeline"""
   try:
@@ -173,7 +74,7 @@ async def start_livestream(request: StartLivestreamRequest):
     )
 
 
-@dashboard_router.post("/stop-livestream", response_model=LivestreamResponse)
+@dashboard_livestream_router.post("/stop-livestream", response_model=LivestreamResponse)
 async def stop_livestream():
   """Stop the livestream and detection pipeline"""
   try:
@@ -192,7 +93,7 @@ async def stop_livestream():
     )
 
 
-@dashboard_router.get("/livestream-status")
+@dashboard_livestream_router.get("/livestream-status")
 async def get_livestream_status():
   """Get current livestream status"""
   try:
@@ -215,7 +116,7 @@ async def get_livestream_status():
     }
 
 
-@dashboard_router.get("/test-pi-connection")
+@dashboard_livestream_router.get("/test-pi-connection")
 async def test_pi_connection_endpoint(address_index: int = AddressIndex):
   """Test connection to a specific Pi address by index"""
   try:
@@ -239,7 +140,7 @@ async def test_pi_connection_endpoint(address_index: int = AddressIndex):
 
 # === VIDEO STREAMING ENDPOINTS ===
 
-@dashboard_router.get("/video-feed/raw")
+@dashboard_livestream_router.get("/video-feed/raw")
 async def get_raw_video_feed():
   """Stream raw video feed WITHOUT AI processing"""
   try:
@@ -260,7 +161,7 @@ async def get_raw_video_feed():
     raise HTTPException(status_code=500, detail=f"Video feed error: {str(e)}")
 
 
-@dashboard_router.get("/video-feed/processed")
+@dashboard_livestream_router.get("/video-feed/processed")
 async def get_processed_video_feed():
   """Stream processed video feed WITH AI annotations"""
   try:
@@ -281,7 +182,7 @@ async def get_processed_video_feed():
     raise HTTPException(status_code=500, detail=f"Video feed error: {str(e)}")
 
 
-@dashboard_router.get("/video-feed")
+@dashboard_livestream_router.get("/video-feed")
 async def get_video_feed():
   """Default video feed (raw for overlay compatibility)"""
   return await get_raw_video_feed()
@@ -289,7 +190,7 @@ async def get_video_feed():
 
 # === DETECTION DATA ENDPOINTS ===
 
-@dashboard_router.get("/detection-data")
+@dashboard_livestream_router.get("/detection-data")
 def get_detection_data():
   """Get current detection data"""
   try:
@@ -304,7 +205,7 @@ def get_detection_data():
     return {"objects": []}
 
 
-@dashboard_router.get("/stats")
+@dashboard_livestream_router.get("/stats")
 def get_detection_stats():
   """Get detection statistics"""
   try:

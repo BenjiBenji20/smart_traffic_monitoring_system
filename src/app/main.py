@@ -1,7 +1,4 @@
 from contextlib import asynccontextmanager
-from threading import Thread
-import threading
-import time
 from fastapi import FastAPI
 import numpy as np
 
@@ -19,13 +16,14 @@ from src.app.middleware.jwt_filter_middleware import JWTFilterMiddleware
 
 # routers
 from src.app.routes.user_router import user_router
-from src.app.routes.dashboard_api_router import dashboard_router
+from src.app.routes.dashboard_user_router import dashboard_user_router
+from src.app.routes.dashboard_livestream_router import dashboard_livestream_router
 
 # configurations
 from src.app.core.cors_config import cors_middleware
 
+# vehicle detection
 from src.traffic_ai.vehicle_detection.vehicle_counter import start_optimized_detection
-from src.traffic_ai.vehicle_detection.shared.detection_state import frame_lock, latest_detections
 from src.traffic_ai.vehicle_detection.shared import detection_state
 
 @asynccontextmanager
@@ -67,7 +65,8 @@ cors_middleware(app=app)
 
 # user router
 app.include_router(user_router)
-app.include_router(dashboard_router)
+app.include_router(dashboard_user_router)
+app.include_router(dashboard_livestream_router)
 
 # regiustering global exeception handler
 app.add_exception_handler(InternalServerError, internal_server_error_handler)

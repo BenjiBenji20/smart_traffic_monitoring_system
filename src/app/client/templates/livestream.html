@@ -112,7 +112,7 @@
                 
                 const selectedSource = piAddressSelect.value || null;
                 
-                const response = await fetch("http://localhost:8000/api/dashboard/start-livestream", {
+                const response = await fetch("http://localhost:8000/api/dashboard/livestream/start-livestream", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -156,7 +156,7 @@
                 stopBtn.disabled = true;
                 stopBtn.textContent = 'Stopping...';
                 
-                const response = await fetch("http://localhost:8000/api/dashboard/stop-livestream", {
+                const response = await fetch("http://localhost:8000/api/dashboard/livestream/stop-livestream", {
                     method: "POST"
                 });
                 
@@ -207,7 +207,7 @@
                     let anyConnected = false;
                     
                     for (let i = 0; i < availablePiAddresses.length; i++) {
-                        const response = await fetch(`http://localhost:8000/api/dashboard/test-pi-connection?address_index=${i}`);
+                        const response = await fetch(`http://localhost:8000/api/dashboard/livestream/test-pi-connection?address_index=${i}`);
                         const data = await response.json();
                         
                         if (data.connected) {
@@ -224,7 +224,7 @@
                     }
                 } else {
                     // Test specific address
-                    const response = await fetch(`http://localhost:8000/api/dashboard/test-pi-connection?address_index=${selectedIndex}`);
+                    const response = await fetch(`http://localhost:8000/api/dashboard/livestream/test-pi-connection?address_index=${selectedIndex}`);
                     const data = await response.json();
                     
                     if (data.connected) {
@@ -248,7 +248,7 @@
         
         async function loadPiAddresses() {
             try {
-                const response = await fetch("http://localhost:8000/api/dashboard/livestream-status");
+                const response = await fetch("http://localhost:8000/api/dashboard/livestream/livestream-status");
                 const data = await response.json();
                 
                 availablePiAddresses = data.available_sources || [];
@@ -287,11 +287,11 @@
             // Update stream source only if livestream is running
             if (livestreamRunning) {
                 if (mode === 'raw') {
-                    img.src = "http://localhost:8000/api/dashboard/video-feed/raw";
+                    img.src = "http://localhost:8000/api/dashboard/livestream/video-feed/raw";
                     overlayEnabled = true;
                     canvas.style.display = 'block';
                 } else {
-                    img.src = "http://localhost:8000/api/dashboard/video-feed/processed";
+                    img.src = "http://localhost:8000/api/dashboard/livestream/video-feed/processed";
                     overlayEnabled = false;
                     canvas.style.display = 'none';
                 }
@@ -305,7 +305,7 @@
             if (!livestreamRunning || !overlayEnabled) return;
             
             try {
-                const res = await fetch("http://localhost:8000/api/dashboard/detection-data");
+                const res = await fetch("http://localhost:8000/api/dashboard/livestream/detection-data");
                 const data = await res.json();
                 
                 // Update detection count
@@ -361,7 +361,7 @@
             if (!livestreamRunning) return;
             
             try {
-                const res = await fetch("http://localhost:8000/api/dashboard/stats");
+                const res = await fetch("http://localhost:8000/api/dashboard/livestream/stats");
                 const data = await res.json();
                 
                 // Update total count
@@ -380,7 +380,7 @@
         
         async function checkLivestreamStatus() {
             try {
-                const response = await fetch("http://localhost:8000/api/dashboard/livestream-status");
+                const response = await fetch("http://localhost:8000/api/dashboard/livestream/livestream-status");
                 const data = await response.json();
                 
                 const wasRunning = livestreamRunning;

@@ -4,18 +4,18 @@ PUBLIC_ROUTES = {
   "/docs",
   "/api/user/register",
   "/api/user/auth/token",
-  "/api/dashboard/end-user-prediction-req",
-  "/api/dashboard/end-user-traffic-recommendations",
-  "/api/dashboard/end-user-traffic-req-recommendations",
-  "/api/dashboard/start-livestream",
-  "/api/dashboard/stop-livestream",
-  "/api/dashboard/livestream-status",
-  "/api/dashboard/test-pi-connection",
-  "/api/dashboard/video-feed/raw",
-  "/api/dashboard/video-feed/processed",
-  "/api/dashboard/video-feed",
-  "/api/dashboard/detection-data",
-  "/api/dashboard/stats"
+  "/api/dashboard/user/end-user-prediction-req",
+  "/api/dashboard/user/end-user-traffic-recommendations",
+  "/api/dashboard/user/end-user-traffic-req-recommendations",
+  "/api/dashboard/livestream/start-livestream",
+  "/api/dashboard/livestream/stop-livestream",
+  "/api/dashboard/livestream/livestream-status",
+  "/api/dashboard/livestream/test-pi-connection",
+  "/api/dashboard/livestream/video-feed/raw",
+  "/api/dashboard/livestream/video-feed/processed",
+  "/api/dashboard/livestream/video-feed",
+  "/api/dashboard/livestream/detection-data",
+  "/api/dashboard/livestream/stats"
 }
 
 CLIENT_ORIGINS = [
