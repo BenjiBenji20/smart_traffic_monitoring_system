@@ -15,7 +15,8 @@ PUBLIC_ROUTES = {
   "/api/dashboard/livestream/video-feed/processed",
   "/api/dashboard/livestream/video-feed",
   "/api/dashboard/livestream/detection-data",
-  "/api/dashboard/livestream/stats"
+  "/api/dashboard/livestream/stats",
+  "/api/dashboard/livestream/switch-detection-mode",
 }
 
 CLIENT_ORIGINS = [
