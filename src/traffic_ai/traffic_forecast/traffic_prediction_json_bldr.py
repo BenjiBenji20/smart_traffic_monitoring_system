@@ -1,4 +1,5 @@
 from src.traffic_ai.traffic_forecast.forecast_manager import *
+from src.traffic_ai.traffic_recommendation.traffic_data_summarizer import calculate, determine_traffic_condition
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import pandas as pd
@@ -29,13 +30,22 @@ end_of_week = (today + timedelta(days=6 - today.weekday())) # sunday
 def prediction_summary():
   # --- HOURLY ---
   vhcl_today_sum = int(np.sum(hourly['yhat']))
-  
+  hourly_data = [
+    {"time": ts.isoformat(), "value": int(val)}
+    for ts, val in zip(hourly['ds'], hourly['yhat'])
+  ]
+
   # --- WEEKLY ---
   weekly = w_forecast[
     (w_forecast['ds'].dt.date >= start_of_week.date()) &
     (w_forecast['ds'].dt.date <= end_of_week.date()) 
   ]
   vhcl_current_week_sum = int(np.sum(weekly['yhat']))
+
+  weekly_data = [
+    {"date": ts.strftime('%Y-%m-%d'), "value": int(val)}
+    for ts, val in zip(weekly['ds'], weekly['yhat'])
+  ]
 
   # --- THREE MONTHS ---
   # get the 3 months range from current month to 3rd months prior
@@ -49,20 +59,29 @@ def prediction_summary():
     (m_forecast['ds'].dt.date <= end_date.date())
   ]
   vhcl_three_months_sum = int(np.sum(three_months_forecast['yhat']))
+  current_year = today.year
+  monthly = m_forecast[m_forecast['ds'].dt.year == current_year]
+  monthly_data = [
+    {"month": ts.strftime('%Y-%m-%d'), "value": int(val)}
+    for ts, val in zip(three_months_forecast['ds'], three_months_forecast['yhat'])
+  ]
  
   return {
     "today": today.isoformat(),
     "vhcl_today_sum": vhcl_today_sum,
+    "today_analytics": calculate(hourly_data),
     "current_week_range": {
       "start": str(start_of_week.date()),
       "end": str(end_of_week.date())
     },
     "vhcl_current_week_sum": vhcl_current_week_sum,
+    "weekly_analytics": calculate(weekly_data),
     "three_months_range": {
       "start": str(start_date.date()),
       "end": str(end_date.date())
     },
-    "vhcl_three_months_sum": vhcl_three_months_sum
+    "vhcl_three_months_sum": vhcl_three_months_sum,
+    "three_months_analytics": calculate(monthly_data)
   }
 
 
@@ -113,19 +132,7 @@ def prediction_detail():
     "monthly": monthly_data
   }
 
-# print(f"{prediction_summary()}\n\n\n\n{prediction_detail()}")
 
-"""
-  HERE FOR USER PREDICTION REQUEST
-  admin_prediction_req function consists of recursive function call and nested conditional bvlcks
-  request format: {
-#   "start": "2025-09-09T05:00:00",
-#   "end": "2025-10-22T10:00:00"
-# }
-
-  user_prediction_req f making a 5 hrs prediction prior to the user's request
-  request format: {'date': "2025-10-09T12:00:00"}
-"""
 # --- Hourly ---
 def hourly_req(forecast, start, end):
   hourly = h_forecast[(h_forecast['ds'] >= start) & (h_forecast['ds'] <= end)]
@@ -310,16 +317,3 @@ def user_prediction_req(req):
     })
 
   return forecast
-
-# req1 = {
-#   "start": "2025-09-09T05:00:00",
-#   "end": "2025-10-22T10:00:00"
-# }
-
-# req2 = {
-#   'time': "2025-10-09T12:00:00"
-# }
-
-# print(json.dumps(user_prediction_req(req2), indent=2))
-# print(json.dumps(admin_prediction_req(req1), indent=2))
-# print(prediction_detail())
