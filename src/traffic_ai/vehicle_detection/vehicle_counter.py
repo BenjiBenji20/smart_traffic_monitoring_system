@@ -56,8 +56,9 @@ def firebase_worker():
             firebase_queue.task_done()
 
 class OptimizedDetectionPipeline:
-    def __init__(self, camera_source):
+    def __init__(self, camera_source, detection_mode="processed"):
         self.camera_source = camera_source
+        self.detection_mode = detection_mode
         self.cap = None
         self.model = None
         self.classes = None
@@ -87,6 +88,18 @@ class OptimizedDetectionPipeline:
         # Firebase worker thread
         self.firebase_thread = None
         
+    def set_detection_mode(self, mode: str):
+        """Set detection mode: 'raw' or 'processed'"""
+        if mode in ["raw", "processed"]:
+            self.detection_mode = mode
+            print(f"🔄 Detection mode changed to: {mode}")
+            if mode == "raw":
+                print("🚨 AI processing DISABLED - No vehicle counting or Firebase updates")
+            else:
+                print("🚨 AI processing ENABLED - Vehicle counting and Firebase updates active")
+            return True
+        return False
+    
     def initialize(self):
         """Initialize all components"""
         try:
@@ -145,6 +158,21 @@ class OptimizedDetectionPipeline:
         with self.frame_lock:
             self.raw_frame = frame.copy()
         
+        #  Skip AI processing in raw mode
+        if self.detection_mode == "raw":
+            # Update shared state with raw frame only
+            with detection_state.frame_lock:
+                detection_state.latest_frame = self.raw_frame.copy()
+                detection_state.latest_detections = []  # No detections in raw mode
+            
+            # Store same frame as processed (no annotations)
+            with self.frame_lock:
+                self.processed_frame = frame.copy()
+                self.current_detections = []
+            
+            time.sleep(0.016) # 60fps in raw mode
+            return True  # Skip all AI processing below
+
         # Skip frames for performance
         if self.frame_count % self.frame_skip != 0:
             return True
@@ -343,10 +371,6 @@ class OptimizedDetectionPipeline:
         # Update Firebase counts immediately when vehicle crosses
         firebase_queue.put((f"/detected_vehicle/{today}/vehicle_class_count", 
                           'update', {det_obj_for_id: self.vehicle_class_counts[det_obj_for_id]}))
-        
-        # Update total count in Firebase
-        firebase_queue.put((f"/detected_vehicle/{today}/total_count", 
-                          'set', len(self.total_count)))
     
     def handle_vehicle_exits(self):
         """Handle vehicles exiting the frame"""
@@ -382,21 +406,25 @@ class OptimizedDetectionPipeline:
                     del self.vehicle_data[ex_id]
                     self.crossed_vehicles.discard(ex_id)
     
+
     def get_raw_frame(self):
         """Get raw frame for streaming"""
         with self.frame_lock:
             return self.raw_frame.copy() if self.raw_frame is not None else None
     
+
     def get_processed_frame(self):
         """Get processed frame with annotations"""
         with self.frame_lock:
             return self.processed_frame.copy() if self.processed_frame is not None else None
     
+
     def get_detections(self):
         """Get current detections - only return tracked objects"""
         with self.frame_lock:
             return self.current_detections.copy()
     
+
     def run(self):
         """Main processing loop"""
         if not self.initialize():
@@ -433,6 +461,7 @@ class OptimizedDetectionPipeline:
         
         print("Pipeline cleanup complete")
     
+
     def stop(self):
         """Stop the pipeline"""
         print("Stopping detection pipeline...")
@@ -442,7 +471,7 @@ class OptimizedDetectionPipeline:
 pipeline = None
 pipeline_lock = threading.Lock()
 
-def start_optimized_detection(camera_source):
+def start_optimized_detection(camera_source, detection_mode="processed"):
     """Start the optimized detection pipeline"""
     global pipeline
     
@@ -453,15 +482,17 @@ def start_optimized_detection(camera_source):
             time.sleep(1)
         
         # Create new pipeline
-        pipeline = OptimizedDetectionPipeline(camera_source)
+        pipeline = OptimizedDetectionPipeline(camera_source, detection_mode)
         
     # Run the pipeline (this will block until stopped)
     pipeline.run()
+
 
 def get_pipeline():
     """Get the global pipeline instance"""
     with pipeline_lock:
         return pipeline
+
 
 def stop_pipeline():
     """Stop the current pipeline"""
@@ -471,4 +502,14 @@ def stop_pipeline():
         if pipeline:
             pipeline.stop()
             return True
+        return False
+    
+    
+def set_detection_mode(mode: str):
+    """Set detection mode for current pipeline"""
+    global pipeline
+    
+    with pipeline_lock:
+        if pipeline:
+            return pipeline.set_detection_mode(mode)
         return False

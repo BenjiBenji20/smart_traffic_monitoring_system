@@ -11,6 +11,7 @@ from typing import List, Tuple, Optional
 from src.traffic_ai.vehicle_detection.vehicle_counter import (
     get_pipeline, 
     start_optimized_detection,
+    set_detection_mode,
     OptimizedDetectionPipeline
 )
 from src.app.core.settings import settings
@@ -51,6 +52,7 @@ def generate_raw_stream():
     
     time.sleep(0.033)  # ~30fps
 
+
 def generate_processed_stream():
   """Generate processed video stream with AI annotations"""
   while True:
@@ -83,6 +85,7 @@ def generate_processed_stream():
     
     time.sleep(0.033)  # ~30fps
 
+
 def get_current_detections():
   """Get current detections from the pipeline"""
   pipeline = get_pipeline()
@@ -91,9 +94,11 @@ def get_current_detections():
   
   return pipeline.get_detections()
 
+
 def get_available_pi_addresses() -> List[str]:
   """Get list of available Pi addresses from settings"""
   return settings.get_pi_addresses()
+
 
 async def test_pi_connection(address: str, timeout: int = 5) -> bool:
   """Test connection to a Pi camera address"""
@@ -110,8 +115,9 @@ async def test_pi_connection(address: str, timeout: int = 5) -> bool:
     logging.warning(f"Pi connection test failed for {address}: {e}")
     return False
 
-def start_detection_pipeline(camera_source: str) -> Tuple[bool, str]:
-  """Start the detection pipeline with specified camera source"""
+
+def start_detection_pipeline(camera_source: str, detection_mode: str = "raw") -> Tuple[bool, str]:  # ADD detection_mode parameter
+  """Start the detection pipeline with specified camera source and mode"""
   global _pipeline_thread, _pipeline_stop_event
   
   try:
@@ -128,10 +134,10 @@ def start_detection_pipeline(camera_source: str) -> Tuple[bool, str]:
     # Reset stop event
     _pipeline_stop_event.clear()
     
-    # Start new detection thread
+    # Start new detection thread WITH detection mode
     _pipeline_thread = threading.Thread(
       target=start_optimized_detection,
-      args=(camera_source,),
+      args=(camera_source, detection_mode),  # PASS detection_mode
       daemon=True
     )
     _pipeline_thread.start()
@@ -142,14 +148,36 @@ def start_detection_pipeline(camera_source: str) -> Tuple[bool, str]:
     # Verify pipeline started
     pipeline = get_pipeline()
     if pipeline and pipeline.running:
-      logging.info(f"Detection pipeline started successfully with source: {camera_source}")
-      return True, f"Livestream started successfully with source: {camera_source}"
+      logging.info(f"Detection pipeline started with source: {camera_source}, mode: {detection_mode}")
+      return True, f"Livestream started successfully (mode: {detection_mode})"
     else:
       return False, "Failed to initialize detection pipeline"
       
   except Exception as e:
     logging.error(f"Error starting detection pipeline: {e}")
     return False, f"Failed to start pipeline: {str(e)}"
+
+
+def switch_detection_mode(mode: str) -> Tuple[bool, str]:
+  """Switch detection mode without restarting pipeline"""
+  try:
+    # Import from correct module
+    from src.traffic_ai.vehicle_detection.vehicle_counter import set_detection_mode
+    
+    pipeline = get_pipeline()
+    if pipeline is None:
+      return False, "No pipeline is currently running"
+    
+    if set_detection_mode(mode):
+      logging.info(f"Detection mode switched to: {mode}")
+      return True, f"Detection mode switched to: {mode}"
+    else:
+      return False, "Invalid detection mode"
+      
+  except Exception as e:
+    logging.error(f"Error switching detection mode: {e}")
+    return False, f"Failed to switch mode: {str(e)}"
+
 
 def stop_detection_pipeline() -> Tuple[bool, str]:
   """Stop the detection pipeline"""
@@ -182,6 +210,7 @@ def stop_detection_pipeline() -> Tuple[bool, str]:
     logging.error(f"Error stopping detection pipeline: {e}")
     return False, f"Failed to stop pipeline: {str(e)}"
 
+
 def get_pipeline_status() -> dict:
   """Get current pipeline status"""
   try:
@@ -196,6 +225,7 @@ def get_pipeline_status() -> dict:
     return {
       "running": pipeline.running,
       "camera_source": getattr(pipeline, 'camera_source', None),
+      "detection_mode": getattr(pipeline, 'detection_mode', 'unknown'),  # ADD THIS LINE
       "message": "Pipeline running" if pipeline.running else "Pipeline stopped"
     }
       

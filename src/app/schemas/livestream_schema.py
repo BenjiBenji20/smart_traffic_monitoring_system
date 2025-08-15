@@ -15,3 +15,5 @@ class LivestreamResponse(BaseModel):
 class AddressIndex(BaseModel):
   address_index: int
 
+class SwitchModeRequest(BaseModel):
+  mode: str

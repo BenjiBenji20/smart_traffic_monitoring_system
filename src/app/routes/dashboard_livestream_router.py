@@ -9,6 +9,7 @@ from src.app.services.dashboard_livestream_service import (
     get_current_detections,
     start_detection_pipeline,
     stop_detection_pipeline,
+    switch_detection_mode,
     get_pipeline_status,
     test_pi_connection,
     get_available_pi_addresses
@@ -57,7 +58,7 @@ async def start_livestream(request: StartLivestreamRequest):
       camera_source = request.camera_source
     
     # Start the detection pipeline
-    success, message = start_detection_pipeline(camera_source)
+    success, message = start_detection_pipeline(camera_source, "raw")
     
     return LivestreamResponse(
       success=success,
@@ -145,6 +146,9 @@ async def get_raw_video_feed():
   """Stream raw video feed WITHOUT AI processing"""
   try:
     logging.info("Raw video feed requested")
+
+    # Automatically switch to raw mode (no Firebase updates)
+    switch_detection_mode("raw")
     
     return StreamingResponse(
       generate_raw_stream(), 
@@ -166,6 +170,9 @@ async def get_processed_video_feed():
   """Stream processed video feed WITH AI annotations"""
   try:
     logging.info("Processed video feed requested")
+
+    # Automatically switch to processed mode (Firebase updates enabled)
+    switch_detection_mode("processed")
     
     return StreamingResponse(
       generate_processed_stream(), 
@@ -187,6 +194,31 @@ async def get_video_feed():
   """Default video feed (raw for overlay compatibility)"""
   return await get_raw_video_feed()
 
+
+@dashboard_livestream_router.post("/switch-detection-mode")
+async def switch_mode(request: SwitchModeRequest):
+  """Switch detection mode without restarting pipeline"""
+  try:
+    if request.mode not in ["raw", "processed"]:
+      return {
+        "success": False,
+        "message": "Invalid mode. Use 'raw' or 'processed'"
+      }
+    
+    success, message = switch_detection_mode(request.mode)
+    
+    return {
+      "success": success,
+      "message": message,
+      "mode": request.mode if success else None
+    }
+      
+  except Exception as e:
+    logging.error(f"Error switching detection mode: {e}")
+    return {
+      "success": False,
+      "message": f"Failed to switch mode: {str(e)}"
+    }
 
 # === DETECTION DATA ENDPOINTS ===
 
