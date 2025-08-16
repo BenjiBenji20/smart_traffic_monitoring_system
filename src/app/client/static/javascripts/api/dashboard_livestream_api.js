@@ -48,6 +48,8 @@ class LivestreamManager {
     
     init() {
         console.log('Initializing Livestream Manager...');
+        this.fetchStats()
+
         // Start date/time updates
         this.startDateTimeUpdates();
         
@@ -132,7 +134,7 @@ class LivestreamManager {
         // Pi Address Select
         this.piAddressSelect = document.createElement('select');
         this.piAddressSelect.className = 'bg-secondary border border-accent1  rounded-lg px-2 py-2 text-xs min-w-[100px]';
-        this.piAddressSelect.innerHTML = '<option value="">Auto-detect Pi</option>';
+        this.piAddressSelect.innerHTML = '<option value="">Detect Pi</option>';
         
         // Test Connection Button
         this.testConnectionBtn = document.createElement('button');
@@ -214,7 +216,7 @@ class LivestreamManager {
                 this.availablePiAddresses.forEach((address, index) => {
                     const option = document.createElement("option");
                     option.value = address;
-                    option.textContent = `Pi ${index + 1}: ${address}`;
+                    option.textContent = `Pi Address ${index + 1}`;
                     this.piAddressSelect.appendChild(option);
                 });
             }
