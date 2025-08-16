@@ -9,6 +9,17 @@
         <link rel="stylesheet" href="../static/stylesheets/sign_in_sign_up_style.css">
     </head>
     <body class="flex items-center justify-center p-4">
+        <!-- Verify token existance -->
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const token = sessionStorage.getItem("auth_token");
+                // if token redirect to dashboard
+                if(token) {
+                    window.location.href = "admin_dashboard_page.html"
+                }
+            });
+        </script>
+
         <div class="container max-w-md mx-auto">
             <!-- Notification Toast Container -->
             <div id="notification-toast" class="fixed top-4 right-4 z-50 w-80 max-w-full"></div>
