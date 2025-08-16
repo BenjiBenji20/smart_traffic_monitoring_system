@@ -123,3 +123,48 @@ aside {
 .glow-on-hover:hover {
     box-shadow: 0 0 10px rgba(0, 255, 200, 0.4);
 }
+
+/* Smooth dropdown animation */
+/* #userMenuBtn + div {
+    transition: all 0.2s ease-out;
+    transform-origin: top right;
+    transform: scale(0.95);
+    opacity: 0;
+}
+
+.group:hover #userMenuBtn + div {
+    transform: scale(1);
+    opacity: 1;
+} */
+
+/* Dropdown styles */
+/* Dropdown animation */
+#userDropdown {
+    transition: all 0.2s ease-out;
+    transform-origin: top right;
+    transform: scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+}
+
+#userDropdown.show {
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    display: block;
+}
+
+/* Chevron rotation */
+#dropdownChevron.rotate {
+    transform: rotate(180deg);
+}
+
+/* Type writer effects */
+.typewriter-cursor::after {
+        content: "|";
+        animation: blink 1s step-end infinite;
+    }
+@keyframes blink {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+}
