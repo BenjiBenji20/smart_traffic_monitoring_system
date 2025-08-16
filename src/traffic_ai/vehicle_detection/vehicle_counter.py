@@ -88,6 +88,43 @@ class OptimizedDetectionPipeline:
         # Firebase worker thread
         self.firebase_thread = None
         
+        
+    def load_existing_counts_from_firebase(self):
+        """Load existing vehicle counts from Firebase for today"""
+        try:
+            ref = db.reference(f"/detected_vehicle/{today}/vehicle_class_count")
+            existing_counts = ref.get()
+            
+            if existing_counts:
+                print(f"Loading existing counts from Firebase: {existing_counts}")
+                # Update our local counts with Firebase data
+                for vehicle_type, count in existing_counts.items():
+                    if vehicle_type in self.vehicle_class_counts:
+                        self.vehicle_class_counts[vehicle_type] = count
+                    else:
+                        # Add new vehicle type if it exists in Firebase but not locally
+                        self.vehicle_class_counts[vehicle_type] = count
+                
+                # Update total count based on Firebase data
+                total_from_firebase = sum(existing_counts.values())
+                print(f"Restored counts - Total: {total_from_firebase}, Details: {self.vehicle_class_counts}")
+            else:
+                print("No existing counts found in Firebase for today, starting fresh")
+                
+        except Exception as e:
+            print(f"Error loading existing counts from Firebase: {e}")
+            print("Starting with zero counts")
+
+
+    def get_persistent_total_count(self):
+        """Get total count including previous Firebase data"""
+        # Current session count
+        session_count = len(self.total_count)
+        # Previous Firebase count (sum of all vehicle types)
+        firebase_base_count = sum(self.vehicle_class_counts.values()) - session_count
+        return firebase_base_count + session_count
+
+
     def set_detection_mode(self, mode: str):
         """Set detection mode: 'raw' or 'processed'"""
         if mode in ["raw", "processed"]:
@@ -100,6 +137,7 @@ class OptimizedDetectionPipeline:
             return True
         return False
     
+
     def initialize(self):
         """Initialize all components"""
         try:
@@ -123,6 +161,8 @@ class OptimizedDetectionPipeline:
             vehicle_types = ['car', 'truck', 'bus', 'motorbike', 'bicycle']
             self.vehicle_class_counts = {cls: 0 for cls in vehicle_types}
             
+            self.load_existing_counts_from_firebase()
+
             # Initialize tracker
             self.tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
             
@@ -140,11 +180,31 @@ class OptimizedDetectionPipeline:
             self.initialized = False
             return False
     
+    def check_date_change(self):
+        """Check if date has changed and reset counts if needed"""
+        global today
+        current_date = pd.to_datetime(datetime.now()).date()
+        
+        if current_date != today:
+            print(f"📅 Date changed from {today} to {current_date}")
+            today = current_date
+            # Reset local counts for new day
+            vehicle_types = ['car', 'truck', 'bus', 'motorbike', 'bicycle']
+            self.vehicle_class_counts = {cls: 0 for cls in vehicle_types}
+            self.total_count = []
+            self.crossed_vehicles.clear()
+            print("🔄 Counts reset for new day")
+            return True
+        return False
+
+
     def process_frame(self):
         """Process a single frame with detection and tracking"""
         if not self.running or not self.initialized:
             return False
             
+        self.check_date_change()
+
         ret, frame = self.cap.read()
         if not ret:
             return False
@@ -284,6 +344,7 @@ class OptimizedDetectionPipeline:
             print(f"Frame processing error: {e}")
             return True
     
+
     def map_yolo_to_vehicle_type(self, yolo_class_name):
         """Map YOLO class names to our vehicle types"""
         # Map various YOLO classes to our standardized vehicle types
@@ -318,6 +379,7 @@ class OptimizedDetectionPipeline:
         # Default to car for unknown vehicle types
         return 'car'
     
+
     def handle_vehicle_crossing(self, track_id, detected_objects, frame_detections, cx, cy):
         """Handle vehicle crossing the counting line - ONLY COUNT HERE"""
         # Mark this vehicle as having crossed the line
@@ -358,20 +420,24 @@ class OptimizedDetectionPipeline:
         }
         
         # Update counts ONLY when crossing line
-        self.total_count.append(track_id)
+        if track_id not in self.total_count:
+            self.total_count.append(track_id)
+            
         if det_obj_for_id in self.vehicle_class_counts:
             self.vehicle_class_counts[det_obj_for_id] += 1
         else:
             # Add new vehicle type if not in our list
             self.vehicle_class_counts[det_obj_for_id] = 1
-        
-        print(f"✅ VEHICLE COUNTED: {track_id} ({det_obj_for_id}) crossed line - Total: {len(self.total_count)}")
+
+        total_persistent_count = self.get_persistent_total_count()
+        print(f"✅ VEHICLE COUNTED: {track_id} ({det_obj_for_id}) crossed line - Session: {len(self.total_count)}, Total Persistent: {total_persistent_count}")
         print(f"Current counts: {self.vehicle_class_counts}")
-        
-        # Update Firebase counts immediately when vehicle crosses
+
+        # Update Firebase with incremented count (this maintains persistence)
         firebase_queue.put((f"/detected_vehicle/{today}/vehicle_class_count", 
-                          'update', {det_obj_for_id: self.vehicle_class_counts[det_obj_for_id]}))
+                        'update', {det_obj_for_id: self.vehicle_class_counts[det_obj_for_id]}))
     
+
     def handle_vehicle_exits(self):
         """Handle vehicles exiting the frame"""
         all_tracked_ids = set(self.time_track.keys())
