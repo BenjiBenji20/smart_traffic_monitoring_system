@@ -2,8 +2,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import APIRouter, Depends, Header, HTTPException, Response
 
+from src.app.models.user import User
 from src.app.services.register_user_service import register_user_service
-from src.app.services.auth_service import auth_user, generate_access_token, generate_refresh_token, refresh_token
+from src.app.services.auth_service import auth_user, generate_access_token, generate_refresh_token, get_current_user, refresh_token
 from src.app.db.db_session import get_async_db
 from src.app.schemas.user_schema import *
 from src.app.schemas.token_schema import Token
@@ -58,10 +59,9 @@ async def refresh_access_token(authorization: str = Header(...)):
   return refresh_token(token)
 
 
-
-# Optional: logout endpoint to mark user inactive
-# @user_router.post("/logout", response_model=None)
-# async def logout_user(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)):
-#   current_user.is_active = False
-#   await db.commit()
-#   return {"message": f"User {current_user.username} logged out successfully."}
+# logout endpoint to mark user inactive
+@user_router.post("/sign-out", response_model=None)
+async def sign_out_user(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)):
+  current_user.is_active = False
+  await db.commit()
+  return {"message": f"User {current_user.username} logged out successfully."}
