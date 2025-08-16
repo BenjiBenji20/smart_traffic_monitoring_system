@@ -9,308 +9,338 @@
     <link rel="stylesheet" href="../static/stylesheets/admin_dashboard_style.css">
   </head>
   <body class="bg-primary text-accent2 min-h-screen">
-      <!-- Fixed Header -->
-      <header class="fixed top-0 left-0 right-0 h-16 bg-secondary z-20 flex items-center justify-between px-4 md:px-6 border-b border-accent1">
-          <div class="flex items-center">
-              <button id="mobileMenuBtn" class="mr-2 md:hidden text-highlight">
-                  <i class="fas fa-bars text-xl"></i>
-              </button>
-              <!-- Logo -->
-              <div class="flex items-center">
-                  <i class="fas fa-traffic-light text-highlight text-3xl mr-3"></i>
-                  <span class="text-xl font-bold whitespace-nowrap">Smart Traffic</span>
-              </div>
-          </div>
-          <div class="flex items-center">
-              <span id="admin_name" class="mr-2">Admin123</span>
-              <div class="w-8 h-8 rounded-full bg-highlight flex items-center justify-center">
-                  <i class="fas fa-user text-primary"></i>
-              </div>
-          </div>
-      </header>
+    <!-- Verify token existance -->
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const token = sessionStorage.getItem("auth_token");
+            // if token not exists redirect to sign-in
+            if(!token) {
+                window.location.href = "sign_up_sign_in_page.html"
+            }
+        });
+    </script> -->
 
-      <!-- Mobile Nav Toggle Button -->
-      <div class="mobile-nav md:hidden bg-secondary p-3 flex justify-between items-center w-full fixed top-16 z-10">
-          <div class="flex items-center">
-              <i class="fas fa-traffic-light text-highlight text-2xl mr-2"></i>
-              <span class="font-bold">Traffic Monitor</span>
-          </div>
-          <button id="mobileMenuBtn" class="text-highlight">
-              <i class="fas fa-bars text-2xl"></i>
-          </button>
-      </div>
+    <!-- Notification Toast Container (same as sign-in page) -->
+    <div id="notification-toast" class="fixed top-4 right-4 z-50 w-80 max-w-full"></div>
 
-      <!-- Left Navigation Panel -->
-      <nav id="leftNav" class="bg-gradient-to-b from-[#1e1e2f] to-[#141420] w-0 md:w-[80px] lg:w-[240px] h-screen fixed top-16 left-0 z-10 overflow-y-auto transition-all duration-300 shadow-lg backdrop-blur-lg">
-        <div class="p-4 flex flex-col h-full">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-secondary z-20 flex items-center justify-between px-4 md:px-6 border-b border-accent1">
+        <div class="flex items-center">
+            <button id="mobileMenuBtn" class="mr-2 md:hidden text-highlight">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <!-- Logo -->
+            <div class="flex items-center">
+                <i class="fas fa-traffic-light text-highlight text-3xl mr-3"></i>
+                <span class="text-xl font-bold whitespace-nowrap">Smart Traffic</span>
+            </div>
+        </div>
+        <div class="relative">
+            <button id="userMenuBtn" class="flex items-center focus:outline-none">
+                <span id="admin_name" class="mr-2"></span>
+                <div class="w-8 h-8 rounded-full bg-highlight flex items-center justify-center">
+                    <i class="fas fa-user text-primary"></i>
+                </div>
+                <i id="dropdownChevron" class="fas fa-chevron-down ml-1 text-xs text-accent2/60 transition-transform"></i>
+            </button>
             
-            <!-- Navigation Links -->
-            <div class="flex-grow">
-                <!-- Dashboard with Subsections -->
-                <div class="mb-3">
-                    <button id="dashboardToggle" class="flex items-center justify-between w-full p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors duration-200 glow-on-hover">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-home text-highlight text-lg"></i>
-                            <span class="whitespace-nowrap font-medium text-gray-200">Dashboard</span>
-                        </div>
-                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+            <!-- Dropdown Menu -->
+            <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-secondary rounded-md shadow-lg border border-accent1 z-30 hidden">
+                <div class="px-4 py-3 border-b border-accent1">
+                    <p id="userFullName" class="text-sm font-medium"></p>
+                    <p id="userRole" class="text-xs text-accent2/60 capitalize"></p>
+                </div>
+                <div class="py-1">
+                    <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm hover:bg-accent1/50 text-red-400">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
                     </button>
+                </div>
+            </div>
+        </div>
+    </header>
 
-                    <div id="dashboardSubmenu" class="ml-8 mt-1 space-y-2 max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
-                        <a href="#live-traffic" class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Live Traffic Feed</a>
-                        <a href="#traffic-summary" class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Summary of Traffic Predictions</a>
-                        <a href="#traffic-analysis" class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Traffic Analysis</a>
+    <!-- Mobile Nav Toggle Button -->
+    <div class="mobile-nav md:hidden bg-secondary p-3 flex justify-between items-center w-full fixed top-16 z-10">
+        <div class="flex items-center">
+            <i class="fas fa-traffic-light text-highlight text-2xl mr-2"></i>
+            <span class="font-bold">Traffic Monitor</span>
+        </div>
+        <button id="mobileMenuBtn" class="text-highlight">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+    </div>
+
+    <!-- Left Navigation Panel -->
+    <nav id="leftNav" class="bg-gradient-to-b from-[#1e1e2f] to-[#141420] w-0 md:w-[80px] lg:w-[240px] h-screen fixed top-16 left-0 z-10 overflow-y-auto transition-all duration-300 shadow-lg backdrop-blur-lg">
+    <div class="p-4 flex flex-col h-full">
+        
+        <!-- Navigation Links -->
+        <div class="flex-grow">
+            <!-- Dashboard with Subsections -->
+            <div class="mb-3">
+                <button id="dashboardToggle" class="flex items-center justify-between w-full p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors duration-200 glow-on-hover">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-home text-highlight text-lg"></i>
+                        <span class="whitespace-nowrap font-medium text-gray-200">Dashboard</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                </button>
+
+                <div id="dashboardSubmenu" class="ml-8 mt-1 space-y-2 max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
+                    <a href="#live-traffic" class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Live Traffic Feed</a>
+                    <a href="#traffic-summary" class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Summary of Traffic Predictions</a>
+                    <a href="#traffic-analysis" class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Traffic Analysis</a>
+                </div>
+            </div>
+
+            <!-- History -->
+            <a href="#history" class="flex items-center p-3 mb-2 rounded-lg hover:bg-secondary/50 glow-on-hover transition-colors duration-200">
+                <i class="fas fa-history text-highlight mr-3 text-lg"></i>
+                <span class="whitespace-nowrap font-medium text-gray-200">History</span>
+            </a>
+
+        </div>
+        
+        <!-- Collapse Button (Desktop) -->
+        <button id="navToggle" class="hidden md:block text-highlight p-2 rounded-lg hover:bg-secondary/50 self-start transition-colors">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="min-h-screen pt-16 md:ml-[240px] lg:mr-[340px] transition-all duration-300">
+            <!-- Center Main Monitoring Panel -->
+            <div class="flex-grow p-4 md:p-6">
+            <!-- Combined Livestream and Vehicle Counts -->
+            <div class="bg-secondary rounded-xl p-4 mb-6 fade-in">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-2 px-4 py-3 bg-secondary rounded-lg shadow-inner">
+                    <h2 id="live-traffic" class="text-2xl font-semibold leading-snug tracking-wide">
+                        Live Traffic Feed
+                    </h2>
+                    <div class="text-sm text-right leading-snug">
+                        <span id="currentDateTime" class="mr-3 font-medium text-highlight">Loading...</span>
+                        <span class="text-accent2">Barangay Longos C-4 Road Malabon</span>
                     </div>
                 </div>
 
-                <!-- History -->
-                <a href="#history" class="flex items-center p-3 mb-2 rounded-lg hover:bg-secondary/50 glow-on-hover transition-colors duration-200">
-                    <i class="fas fa-history text-highlight mr-3 text-lg"></i>
-                    <span class="whitespace-nowrap font-medium text-gray-200">History</span>
-                </a>
+                <div class="flex flex-col md:flex-row gap-4">
+                <!-- Vehicle Counts (Left Side) -->
+                <div class="w-full md:w-[200px] bg-secondary rounded-lg p-4">
+                <h3 class="text-lg font-semibold mb-4 text-center">Vehicle Counts</h3>
+                <div class="space-y-4">
+                    <!-- Cars -->
+                    <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-car text-highlight text-2xl"></i>
+                            <span class="text-sm">Cars</span>
+                        </div>
+                        <div class="font-bold text-lg" id="count_car">0</div>
+                    </div>
+                    <!-- Trucks -->
+                    <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-truck text-highlight text-2xl"></i>
+                            <span class="text-sm">Trucks</span>
+                        </div>
+                        <div class="font-bold text-lg" id="count_truck">0</div>
+                    </div>
+                    <!-- Bicycles -->
+                    <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-bicycle text-highlight text-2xl"></i>
+                            <span class="text-sm">Bicycles</span>
+                        </div>
+                        <div class="font-bold text-lg" id="count_bicycle">0</div>
+                    </div>
+                    <!-- Motorbikes -->
+                    <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-motorcycle text-highlight text-2xl"></i>
+                            <span class="text-sm">Motorbikes</span>
+                        </div>
+                        <div class="font-bold text-lg" id="count_motorbike">0</div>
+                    </div>
+                    <!-- Total -->
+                    <div class="bg-highlight text-primary rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-road text-primary text-2xl"></i>
+                            <span class="text-sm">Total</span>
+                        </div>
+                        <div class="font-bold text-lg" id="count_total">0</div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Livestream (Right Side) -->
+            <div class="flex-1">
+                <div id="videoContainer" class="relative aspect-video max-w-[640px] mb-4 rounded-lg overflow-hidden border border-highlight">
+                    <img id="videoStream" src="https://via.placeholder.com/480x270" alt="Live Traffic Feed" class="w-full h-full object-cover">
+                    <canvas id="overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
+                    <div class="absolute top-0 left-0 right-0 bg-secondary/80 p-2 flex justify-between text-sm">
+                        <span id="live_location">Barangay Longos C-4 Road, Malabon</span>
+                        <span id="live_datetime">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap justify-between items-center gap-1 p-4 bg-accent1/20 rounded-lg">
+                    <div class="flex items-center gap-2">
+                    <button class="bg-highlight text-primary px-2 py-1 rounded-lg glow-on-hover font-medium">
+                        <i class="fas fa-play mr-2"></i> Start
+                    </button>
+                    <button class="bg-accent1 text-accent2 px-2 py-1 rounded-lg glow-on-hover font-medium">
+                        <i class="fas fa-stop mr-2"></i> Stop
+                    </button>
+                    </div>
+                    <!-- Center - Stream mode buttons -->
+                    <div class="flex items-center gap-2">
+                        <!-- Mode buttons will be inserted here by script -->
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                    <!-- Pi selection and test connection will be inserted here by script -->
+                    </div>
+                </div>
+            </div>
+            </div>
             </div>
             
-            <!-- Collapse Button (Desktop) -->
-            <button id="navToggle" class="hidden md:block text-highlight p-2 rounded-lg hover:bg-secondary/50 self-start transition-colors">
-                <i class="fas fa-chevron-left"></i>
+            <!-- Traffic Prediction Container -->
+            <div id="traffic-summary" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
+                <h2 class="text-xl font-semibold mb-4">Summary of Traffic Predictions</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-calendar-day text-highlight text-xl mr-2"></i>
+                            <h3 class="font-medium">Today</h3>
+                        </div>
+                        <div class="text-3xl font-bold mb-2" id="todayPrediction">0</div>
+                        <div class="text-sm text-accent2/80">Peak at 5:30 PM</div>
+                    </div>
+                    <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-calendar-week text-highlight text-xl mr-2"></i>
+                            <h3 class="font-medium">This Week</h3>
+                        </div>
+                        <div class="text-3xl font-bold mb-2" id="weekPrediction">0</div>
+                        <div class="text-sm text-accent2/80">Worst on Friday</div>
+                    </div>
+                    <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-calendar-alt text-highlight text-xl mr-2"></i>
+                            <h3 class="font-medium">Next 3 Months</h3>
+                        </div>
+                        <div class="text-3xl font-bold mb-2" id="monthPrediction">0</div>
+                        <div class="text-sm text-accent2/80">Improving trend</div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendation -->
+                <div class="flex items-start mb-4">
+                    <div class="bg-highlight text-primary rounded-full p-3 mr-4">
+                        <i class="fas fa-robot text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold mb-2">AI Recommendation</h2>
+                        <div class="bg-accent1 rounded-lg p-4" id="aiRecommendation">
+                            Analyzing current traffic patterns... Please wait while I generate recommendations.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- Chart Prediction Section -->
+            <div id="traffic-analysis" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Traffic Analysis</h2>
+                    <div class="flex flex-wrap gap-1">
+                        <button class="chart-tab bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-tab="hourly">Hourly</button>
+                        <button class="chart-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-tab="daily">Daily</button>
+                        <button class="chart-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-tab="weekly">Weekly</button>
+                        <button class="chart-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-tab="monthly">Monthly</button>
+                    </div>
+                </div>
+                
+                <div class="chart-container mb-4">
+                    <canvas id="trafficChart" class="w-full h-64"></canvas>
+                </div>
+                
+                <!-- AI Recommendation Container (Chart-Specific) -->
+                <div class="flex items-start mt-4">
+                    <div class="bg-highlight text-primary rounded-full p-3 mr-4">
+                    <i class="fas fa-robot text-xl"></i>
+                    <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium mb-2">AI Recommendation and Analysis Insight</h3>
+                        <div class="bg-accent1 rounded-lg p-4" id="chartInsight">
+                            Select a time range to view detailed analysis and recommendations.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Download Button -->
+            <button class="w-full bg-highlight text-primary py-3 rounded-lg font-semibold glow-on-hover mb-6">
+                <i class="fas fa-download mr-2"></i> Download Traffic Data Report
             </button>
         </div>
-      </nav>
-
-      <!-- Main Content Area -->
-      <main class="min-h-screen pt-16 md:ml-[240px] lg:mr-[340px] transition-all duration-300">
-              <!-- Center Main Monitoring Panel -->
-              <div class="flex-grow p-4 md:p-6">
-                <!-- Combined Livestream and Vehicle Counts -->
-                <div class="bg-secondary rounded-xl p-4 mb-6 fade-in">
-                  <!-- Header -->
-                  <div class="flex justify-between items-center mb-2 px-4 py-3 bg-secondary rounded-lg shadow-inner">
-                      <h2 id="live-traffic" class="text-2xl font-semibold leading-snug tracking-wide">
-                          Live Traffic Feed
-                      </h2>
-                      <div class="text-sm text-right leading-snug">
-                          <span id="currentDateTime" class="mr-3 font-medium text-highlight">Loading...</span>
-                          <span class="text-accent2">Barangay Longos C-4 Road Malabon</span>
-                      </div>
-                  </div>
-
-                  <div class="flex flex-col md:flex-row gap-4">
-                  <!-- Vehicle Counts (Left Side) -->
-                  <div class="w-full md:w-[200px] bg-secondary rounded-lg p-4">
-                    <h3 class="text-lg font-semibold mb-4 text-center">Vehicle Counts</h3>
-                    <div class="space-y-4">
-                        <!-- Cars -->
-                        <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-car text-highlight text-2xl"></i>
-                                <span class="text-sm">Cars</span>
-                            </div>
-                            <div class="font-bold text-lg" id="count_car">0</div>
-                        </div>
-                        <!-- Trucks -->
-                        <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-truck text-highlight text-2xl"></i>
-                                <span class="text-sm">Trucks</span>
-                            </div>
-                            <div class="font-bold text-lg" id="count_truck">0</div>
-                        </div>
-                        <!-- Bicycles -->
-                        <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-bicycle text-highlight text-2xl"></i>
-                                <span class="text-sm">Bicycles</span>
-                            </div>
-                            <div class="font-bold text-lg" id="count_bicycle">0</div>
-                        </div>
-                        <!-- Motorbikes -->
-                        <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-motorcycle text-highlight text-2xl"></i>
-                                <span class="text-sm">Motorbikes</span>
-                            </div>
-                            <div class="font-bold text-lg" id="count_motorbike">0</div>
-                        </div>
-                        <!-- Total -->
-                        <div class="bg-highlight text-primary rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-road text-primary text-2xl"></i>
-                                <span class="text-sm">Total</span>
-                            </div>
-                            <div class="font-bold text-lg" id="count_total">0</div>
+        
+        <!-- Right Insights/Interaction Panel -->
+        <aside class="fixed right-0 top-16 h-[calc(100%-4rem)] w-0 lg:w-[340px] bg-secondary p-6 overflow-y-auto transition-all duration-300 hidden lg:block">
+            <!-- Mini Chart List -->
+            <div class="mb-6 fade-in">
+            <h2 class="text-xl font-semibold mb-4">Quick Stats</h2>
+            <div class="flex gap-3 mb-4">
+            <button class="time-tab bg-highlight text-primary px-3 py-2 rounded-md text-xs" data-period="hourly">Hourly</button>
+            <button class="time-tab bg-accent1 text-accent2 px-3 py-2 rounded-md text-xs" data-period="daily">Daily</button>
+            <button class="time-tab bg-accent1 text-accent2 px-3 py-2 rounded-md text-xs" data-period="weekly">Weekly</button>
+            <button class="time-tab bg-accent1 text-accent2 px-3 py-2 rounded-md text-xs" data-period="monthly">Monthly</button>
+            </div>
+                <div class="space-y-4">
+                    <div class="bg-accent1 rounded-lg p-3 glow-on-hover">
+                        <h3 class="text-sm font-medium mb-2">Traffic Volume</h3>
+                        <canvas id="miniTrafficChart" class="w-full h-32"></canvas>
+                    </div>
+                    <div class="bg-accent1 rounded-lg p-3 glow-on-hover">
+                        <h3 class="text-sm font-medium mb-2">Average Speed</h3>
+                        <canvas id="miniSpeedChart" class="w-full h-32"></canvas>
+                    </div>
+                    <div class="bg-accent1 rounded-lg p-3 glow-on-hover">
+                        <h3 class="text-sm font-medium mb-2">Congestion Level</h3>
+                        <canvas id="miniCongestionChart" class="w-full h-32"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Recommendation Box -->
+            <div class="mb-6 fade-in">
+                <div class="bg-accent1 rounded-lg p-4 border-l-4 border-highlight">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-robot text-xl text-highlight"></i>
+                        <div>
+                            <h3 class="font-medium mb-3">AI Recommendation</h3>
+                            <p class="text-sm">Road work scheduled tomorrow on C-4 Road from 9AM-3PM. Expect delays.</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Livestream (Right Side) -->
-                <div class="flex-1">
-                    <div id="videoContainer" class="relative aspect-video max-w-[640px] mb-4 rounded-lg overflow-hidden border border-highlight">
-                        <img id="videoStream" src="https://via.placeholder.com/480x270" alt="Live Traffic Feed" class="w-full h-full object-cover">
-                        <canvas id="overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
-                        <div class="absolute top-0 left-0 right-0 bg-secondary/80 p-2 flex justify-between text-sm">
-                            <span id="live_location">Barangay Longos C-4 Road, Malabon</span>
-                            <span id="live_datetime">Loading...</span>
-                        </div>
+            </div>
+            
+            <!-- User Input Field -->
+            <div class="fade-in">
+                <div class="bg-accent1 rounded-lg p-4">
+                    <div class="mb-3">
+                        <label class="block text-sm mb-1">Ask about future traffic:</label>
+                        <input type="date" id="prediction_date" class="w-full bg-secondary rounded-lg p-2 text-sm mb-2">
                     </div>
-
-                    <div class="flex flex-wrap justify-between items-center gap-1 p-4 bg-accent1/20 rounded-lg">
-                      <div class="flex items-center gap-2">
-                        <button class="bg-highlight text-primary px-2 py-1 rounded-lg glow-on-hover font-medium">
-                            <i class="fas fa-play mr-2"></i> Start
-                        </button>
-                        <button class="bg-accent1 text-accent2 px-2 py-1 rounded-lg glow-on-hover font-medium">
-                            <i class="fas fa-stop mr-2"></i> Stop
-                        </button>
-                      </div>
-                      <!-- Center - Stream mode buttons -->
-                      <div class="flex items-center gap-2">
-                          <!-- Mode buttons will be inserted here by script -->
-                      </div>
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <!-- Pi selection and test connection will be inserted here by script -->
-                      </div>
-                    </div>
+                    <button class="w-full bg-highlight text-primary py-2 rounded-lg font-medium glow-on-hover">
+                        <i class="fas fa-chart-line mr-2"></i> Request Traffic Predictions
+                    </button>
                 </div>
-                </div>
-              </div>
-              
-              <!-- Traffic Prediction Container -->
-              <div id="traffic-summary" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
-                  <h2 class="text-xl font-semibold mb-4">Summary of Traffic Predictions</h2>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                      <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
-                          <div class="flex items-center mb-3">
-                              <i class="fas fa-calendar-day text-highlight text-xl mr-2"></i>
-                              <h3 class="font-medium">Today</h3>
-                          </div>
-                          <div class="text-3xl font-bold mb-2" id="todayPrediction">0%</div>
-                          <div class="text-sm text-accent2/80">Peak at 5:30 PM</div>
-                      </div>
-                      <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
-                          <div class="flex items-center mb-3">
-                              <i class="fas fa-calendar-week text-highlight text-xl mr-2"></i>
-                              <h3 class="font-medium">This Week</h3>
-                          </div>
-                          <div class="text-3xl font-bold mb-2" id="weekPrediction">0%</div>
-                          <div class="text-sm text-accent2/80">Worst on Friday</div>
-                      </div>
-                      <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
-                          <div class="flex items-center mb-3">
-                              <i class="fas fa-calendar-alt text-highlight text-xl mr-2"></i>
-                              <h3 class="font-medium">Next 3 Months</h3>
-                          </div>
-                          <div class="text-3xl font-bold mb-2" id="monthPrediction">0%</div>
-                          <div class="text-sm text-accent2/80">Improving trend</div>
-                      </div>
-                  </div>
-
-                  <!-- AI Recommendation -->
-                  <div class="flex items-start mb-4">
-                      <div class="bg-highlight text-primary rounded-full p-3 mr-4">
-                          <i class="fas fa-robot text-xl"></i>
-                      </div>
-                      <div class="flex-1">
-                          <h2 class="text-xl font-semibold mb-2">AI Recommendation</h2>
-                          <div class="bg-accent1 rounded-lg p-4" id="aiRecommendation">
-                              Analyzing current traffic patterns... Please wait while I generate recommendations.
-                          </div>
-                      </div>
-                  </div>
-              </div>
-
-              
-              <!-- Chart Prediction Section -->
-              <div id="traffic-analysis" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
-                  <div class="flex justify-between items-center mb-4">
-                      <h2 class="text-xl font-semibold">Traffic Analysis</h2>
-                      <div class="flex flex-wrap gap-1">
-                          <button class="chart-tab bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-tab="hourly">Hourly</button>
-                          <button class="chart-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-tab="daily">Daily</button>
-                          <button class="chart-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-tab="weekly">Weekly</button>
-                          <button class="chart-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-tab="monthly">Monthly</button>
-                      </div>
-                  </div>
-                  
-                  <div class="chart-container mb-4">
-                      <canvas id="trafficChart" class="w-full h-64"></canvas>
-                  </div>
-                  
-                  <!-- AI Recommendation Container (Chart-Specific) -->
-                  <div class="flex items-start mt-4">
-                      <div class="bg-highlight text-primary rounded-full p-3 mr-4">
-                        <i class="fas fa-robot text-xl"></i>
-                        <i class="fas fa-chart-line text-xl"></i>
-                      </div>
-                      <div>
-                          <h3 class="font-medium mb-2">AI Recommendation and Analysis Insight</h3>
-                          <div class="bg-accent1 rounded-lg p-4" id="chartInsight">
-                              Select a time range to view detailed analysis and recommendations.
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- Download Button -->
-              <button class="w-full bg-highlight text-primary py-3 rounded-lg font-semibold glow-on-hover mb-6">
-                  <i class="fas fa-download mr-2"></i> Download Traffic Data Report
-              </button>
-          </div>
-          
-          <!-- Right Insights/Interaction Panel -->
-          <aside class="fixed right-0 top-16 h-[calc(100%-4rem)] w-0 lg:w-[340px] bg-secondary p-6 overflow-y-auto transition-all duration-300 hidden lg:block">
-              <!-- Mini Chart List -->
-              <div class="mb-6 fade-in">
-                <h2 class="text-xl font-semibold mb-4">Quick Stats</h2>
-                <div class="flex gap-3 mb-4">
-                <button class="time-tab bg-highlight text-primary px-3 py-2 rounded-md text-xs" data-period="hourly">Hourly</button>
-                <button class="time-tab bg-accent1 text-accent2 px-3 py-2 rounded-md text-xs" data-period="daily">Daily</button>
-                <button class="time-tab bg-accent1 text-accent2 px-3 py-2 rounded-md text-xs" data-period="weekly">Weekly</button>
-                <button class="time-tab bg-accent1 text-accent2 px-3 py-2 rounded-md text-xs" data-period="monthly">Monthly</button>
-              </div>
-                  <div class="space-y-4">
-                      <div class="bg-accent1 rounded-lg p-3 glow-on-hover">
-                          <h3 class="text-sm font-medium mb-2">Traffic Volume</h3>
-                          <canvas id="miniTrafficChart" class="w-full h-32"></canvas>
-                      </div>
-                      <div class="bg-accent1 rounded-lg p-3 glow-on-hover">
-                          <h3 class="text-sm font-medium mb-2">Average Speed</h3>
-                          <canvas id="miniSpeedChart" class="w-full h-32"></canvas>
-                      </div>
-                      <div class="bg-accent1 rounded-lg p-3 glow-on-hover">
-                          <h3 class="text-sm font-medium mb-2">Congestion Level</h3>
-                          <canvas id="miniCongestionChart" class="w-full h-32"></canvas>
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- AI Recommendation Box -->
-              <div class="mb-6 fade-in">
-                  <div class="bg-accent1 rounded-lg p-4 border-l-4 border-highlight">
-                      <div class="flex items-start space-x-3">
-                          <i class="fas fa-robot text-xl text-highlight"></i>
-                          <div>
-                              <h3 class="font-medium mb-3">AI Recommendation</h3>
-                              <p class="text-sm">Road work scheduled tomorrow on C-4 Road from 9AM-3PM. Expect delays.</p>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- User Input Field -->
-              <div class="fade-in">
-                  <div class="bg-accent1 rounded-lg p-4">
-                      <div class="mb-3">
-                          <label class="block text-sm mb-1">Ask about future traffic:</label>
-                          <input type="date" id="prediction_date" class="w-full bg-secondary rounded-lg p-2 text-sm mb-2">
-                      </div>
-                      <button class="w-full bg-highlight text-primary py-2 rounded-lg font-medium glow-on-hover">
-                          <i class="fas fa-chart-line mr-2"></i> Request Traffic Predictions
-                      </button>
-                  </div>
-              </div>
-          </aside>
-      </main>
+            </div>
+        </aside>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- UI Functionalities -->
@@ -319,5 +349,8 @@
     <!-- LIVESTREAM -->
     <script type="module" src="../static/javascripts/api/token_manager_api.js"></script>
     <script type="module" src="../static/javascripts/api/dashboard_livestream_api.js"></script>
+    <script type="module" src="../static/javascripts/api/dashboard_prediction_api.js"></script>
+    <script type="module" src="../static/javascripts/utils/type_writer_util.js"></script>
+    <script type="module" src="../static/javascripts/ui/dashboard_render_prediction_ui.js"></script>
   </body>
 </html>
