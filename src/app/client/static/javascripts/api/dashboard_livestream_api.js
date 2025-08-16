@@ -48,7 +48,7 @@ class LivestreamManager {
     
     init() {
         console.log('Initializing Livestream Manager...');
-        this.fetchStats()
+        // this.fetchStats()
 
         // Start date/time updates
         this.startDateTimeUpdates();

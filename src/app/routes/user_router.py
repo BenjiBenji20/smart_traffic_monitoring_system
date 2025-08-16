@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header, HTTPException, Response
 
-from fastapi import Depends, Header, HTTPException
 from src.app.services.register_user_service import register_user_service
 from src.app.services.auth_service import auth_user, generate_access_token, generate_refresh_token, refresh_token
 from src.app.db.db_session import get_async_db
@@ -17,8 +16,11 @@ async def register_user_route(new_user: RegisterUserSchema, db: AsyncSession = D
 
 
 @user_router.post("/auth/token", response_model=Token)
-async def auth_for_token(user_cred_data: OAuth2PasswordRequestForm = Depends(),
-                                 db: AsyncSession = Depends(get_async_db)):
+async def auth_for_token(
+                          response: Response, 
+                          user_cred_data: OAuth2PasswordRequestForm = Depends(),
+                          db: AsyncSession = Depends(get_async_db)
+                        ):
   user = await auth_user(user_cred_data.username, user_cred_data.password, db)
   
   payload={
@@ -29,6 +31,16 @@ async def auth_for_token(user_cred_data: OAuth2PasswordRequestForm = Depends(),
 
   access_token = generate_access_token(payload)
   refresh_token = generate_refresh_token({"sub": user.username})
+
+  # attach token as http-only cookie
+  response.set_cookie(
+    key="refresh_token",
+    value=refresh_token,
+    httponly=True,       # cannot be accessed via JS
+    secure=True,         # only HTTPS
+    samesite="lax",      # prevents CSRF (use "strict" if possible)
+    max_age=7*24*60*60,  # 7 days
+  )
 
   return {
     "access_token": access_token,
