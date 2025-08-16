@@ -252,7 +252,7 @@ def get_detection_stats():
       }
     
     return {
-      "total_count": len(pipeline.total_count),
+      "total_count": pipeline.get_persistent_total_count(),
       "vehicle_counts": pipeline.vehicle_class_counts,
       "status": "running" if pipeline.running else "stopped"
     }
