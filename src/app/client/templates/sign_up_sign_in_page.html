@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Smart Traffic Monitoring System - Malabon City</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="../static/stylesheets/sign_in_sign_up_style.css">
+    </head>
+    <body class="flex items-center justify-center p-4">
+        <div class="container max-w-md mx-auto">
+            <!-- Notification Toast Container -->
+            <div id="notification-toast" class="fixed top-4 right-4 z-50 w-80 max-w-full"></div>
+            <!-- Sign Up Card -->
+            <div id="signup-card" class="card bg-[#1B263B]/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-[#0D1B2A]/50">
+                <div class="flex flex-col items-center mb-4">
+                    <div class="logo-icon mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                    </div>
+                    <h1 class="text-xl font-bold text-center text-[#E0E1DD]">Create Your Account</h1>
+                    <p class="text-xs text-center text-[#E0E1DD]/80 mt-1">Join us in making Malabon's roads smarter and safer.</p>
+                </div>
+    
+                <form class="space-y-3" id="sign-up-form">
+                    <div>
+                        <label for="username" class="block text-xs font-medium text-[#E0E1DD]/90 mb-1">Username</label>
+                        <input type="text" id="username" class="input-field w-full px-3 py-1.5 rounded-lg bg-[#0D1B2A]/50 border border-[#1B263B] text-[#E0E1DD] focus:outline-none focus:border-[#00C2FF] transition">
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-xs font-medium text-[#E0E1DD]/90 mb-1">Password</label>
+                        <input type="password" id="password" class="input-field w-full px-3 py-1.5 rounded-lg bg-[#0D1B2A]/50 border border-[#1B263B] text-[#E0E1DD] focus:outline-none focus:border-[#00C2FF] transition">
+                    </div>
+                    
+                    <div>
+                        <label for="complete_name" class="block text-xs font-medium text-[#E0E1DD]/90 mb-1">Complete Name</label>
+                        <input type="text" id="complete_name" class="input-field w-full px-3 py-1.5 rounded-lg bg-[#0D1B2A]/50 border border-[#1B263B] text-[#E0E1DD] focus:outline-none focus:border-[#00C2FF] transition">
+                    </div>
+                    
+                    <div>
+                        <label for="complete_address" class="block text-xs font-medium text-[#E0E1DD]/90 mb-1">Complete Address</label>
+                        <input type="text" id="complete_address" class="input-field w-full px-3 py-1.5 rounded-lg bg-[#0D1B2A]/50 border border-[#1B263B] text-[#E0E1DD] focus:outline-none focus:border-[#00C2FF] transition">
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <!-- Age -->
+                        <div class="flex flex-col w-1/3">
+                            <label for="age" class="text-xs font-medium text-[#E0E1DD]/90 mb-1">Age</label>
+                            <input type="number" id="age" class="input-field w-full px-2 py-1.5 rounded-lg bg-[#0D1B2A]/50 border border-[#1B263B] text-[#E0E1DD] focus:outline-none focus:border-[#00C2FF] transition">
+                        </div>
+
+                        <!-- Role -->
+                        <div class="flex flex-col w-2/3">
+                            <label for="role" class="text-xs font-medium text-[#E0E1DD]/90 mb-1">Role</label>
+                            <select id="role" class="input-field w-full px-2 py-1.5 rounded-lg bg-[#0D1B2A]/50 border border-[#1B263B] text-[#E0E1DD] focus:outline-none focus:border-[#00C2FF] transition">
+                                <option value="" disabled selected>Select your role</option>
+                                <option value="admin">Admin</option>
+                                <option value="city_engineer">City Engineer</option>
+                                <option value="traffic_enforcer">Traffic Enforcer</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary w-full py-2.5 px-3 bg-gradient-to-r from-[#00C2FF] to-[#00A3E0] text-white text-sm font-semibold rounded-lg mt-4">
+                        Sign Up
+                    </button>
+                    
+                    <p class="text-xs text-center text-[#E0E1DD]/70 mt-3">
+                        Already have an account? 
+                        <span id="show-signin" class="toggle-form text-[#00C2FF] font-medium">Sign in</span>
+                    </p>
+                </form>
+            </div>
+
+            
+            <!-- Sign In Card (Initially Hidden) -->
+            <div id="signin-card" class="card hidden bg-[#1B263B]/80 backdrop-blur-sm rounded-xl p-8 shadow-xl border border-[#0D1B2A]/50">
+                <div class="flex flex-col items-center mb-6">
+                    <div class="logo-icon mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-center text-[#E0E1DD]">Sign In to Your Account</h1>
+                    <p class="text-sm text-center text-[#E0E1DD]/80 mt-2">Your gateway to smarter traffic solutions.</p>
+                </div>
+                
+                <form class="space-y-4">
+                    <div>
+                        <label for="signin-username" class="block text-sm font-medium text-[#E0E1DD]/90 mb-1">Username</label>
+                        <input type="text" id="signin-username" class="input-field w-full px-4 py-2 rounded-lg bg-[#0D1B2A]/50 border border-[#1B263B] text-[#E0E1DD] focus:outline-none focus:border-[#00C2FF] transition">
+                    </div>
+                    
+                    <div>
+                        <label for="signin-password" class="block text-sm font-medium text-[#E0E1DD]/90 mb-1">Password</label>
+                        <input type="password" id="signin-password" class="input-field w-full px-4 py-2 rounded-lg bg-[#0D1B2A]/50 border border-[#1B263B] text-[#E0E1DD] focus:outline-none focus:border-[#00C2FF] transition">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary w-full py-3 px-4 bg-gradient-to-r from-[#00C2FF] to-[#00A3E0] text-white font-semibold rounded-lg mt-6">
+                        Sign In
+                    </button>
+                    
+                    <p class="text-sm text-center text-[#E0E1DD]/70 mt-4">
+                        Don't have an account? 
+                        <span id="show-signup" class="toggle-form text-[#00C2FF] font-medium">Sign up</span>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- UI -->
+         <script type="module" src="../static/javascripts/ui/sign_in_sign_up_ui.js"></script>
+
+         <!-- API -->
+          <script type="module" src="../static//javascripts/api/sign_up_sign_in_api.js"></script>
+        
+    </body>
+</html>
