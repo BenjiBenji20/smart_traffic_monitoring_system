@@ -9,17 +9,6 @@
     <link rel="stylesheet" href="../static/stylesheets/admin_dashboard_style.css">
   </head>
   <body class="bg-primary text-accent2 min-h-screen">
-    <!-- Verify token existance -->
-    <!-- <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const token = sessionStorage.getItem("auth_token");
-            // if token not exists redirect to sign-in
-            if(!token) {
-                window.location.href = "sign_up_sign_in_page.html"
-            }
-        });
-    </script> -->
-
     <!-- Notification Toast Container (same as sign-in page) -->
     <div id="notification-toast" class="fixed top-4 right-4 z-50 w-80 max-w-full"></div>
 
@@ -341,6 +330,29 @@
             </div>
         </aside>
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dashboardToggle = document.getElementById("dashboardToggle");
+            const dashboardSubmenu = document.getElementById("dashboardSubmenu");
+            const dashboardIcon = dashboardToggle.querySelector("i.fas.fa-chevron-down");
+
+            if (dashboardToggle && dashboardSubmenu && dashboardIcon) {
+                dashboardToggle.addEventListener("click", () => {
+                    const isOpen = dashboardSubmenu.classList.contains("max-h-0");
+                    if (isOpen) {
+                        dashboardSubmenu.classList.remove("max-h-0");
+                        dashboardSubmenu.classList.add("max-h-40");
+                        dashboardIcon.classList.add("rotate-180");
+                    } else {
+                        dashboardSubmenu.classList.remove("max-h-40");
+                        dashboardSubmenu.classList.add("max-h-0");
+                        dashboardIcon.classList.remove("rotate-180");
+                    }
+                });
+            }
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- UI Functionalities -->

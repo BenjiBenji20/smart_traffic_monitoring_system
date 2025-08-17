@@ -118,7 +118,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', async function(e
 });
 
 
-import { typewriterEffect } from "../utils/type_writer_util.js";
+import { renderAIRecommendation } from "../utils/type_writer_util.js";
 export async function renderSummaryRecommendation() {
   const container = document.getElementById('aiRecommendation');
   if (!container) return;
@@ -131,7 +131,7 @@ export async function renderSummaryRecommendation() {
     const data = await getSummaryRecommendation();
     
     // Render with typewriter effect
-    await typewriterEffect(container, data.summary_reco);
+    await renderAIRecommendation(container, data.summary_reco)
       
   } catch (error) {
     console.error("Failed to load recommendations:", error);
@@ -144,24 +144,7 @@ export async function renderSummaryRecommendation() {
   }
 }
 
-// Make it reusable for other recommendation types
-export async function renderAIRecommendation(containerId, fetchFunction, propertyName = 'summary_reco') {
-  const container = document.getElementById(containerId);
-  if (!container) return;
 
-  try {
-    container.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Generating recommendations...';
-    const data = await fetchFunction();
-    await typewriterEffect(container, data[propertyName]);
-  } catch (error) {
-    container.innerHTML = `
-      <div class="text-red-400">
-        <i class="fas fa-exclamation-circle mr-2"></i>
-        ${error.message || 'Recommendation unavailable'}
-      </div>
-    `;
-  }
-}
 
 // Call the function when the page loads
 document.addEventListener("DOMContentLoaded", async () => {

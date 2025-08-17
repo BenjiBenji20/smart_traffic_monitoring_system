@@ -124,20 +124,6 @@ aside {
     box-shadow: 0 0 10px rgba(0, 255, 200, 0.4);
 }
 
-/* Smooth dropdown animation */
-/* #userMenuBtn + div {
-    transition: all 0.2s ease-out;
-    transform-origin: top right;
-    transform: scale(0.95);
-    opacity: 0;
-}
-
-.group:hover #userMenuBtn + div {
-    transform: scale(1);
-    opacity: 1;
-} */
-
-/* Dropdown styles */
 /* Dropdown animation */
 #userDropdown {
     transition: all 0.2s ease-out;
@@ -167,4 +153,70 @@ aside {
 @keyframes blink {
     from, to { opacity: 1; }
     50% { opacity: 0; }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #3b82f6 #1e293b;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #3b82f6;
+    border-radius: 4px;
+    border: 1px solid #1e293b;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #2563eb;
+}
+
+/* Toggle button styles */
+.toggle-recommendation-btn {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    padding: 6px 12px;
+    background-color: #1e293b;
+    color: #3b82f6;
+    border: 1px solid #3b82f6;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-recommendation-btn:hover {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.toggle-recommendation-btn i {
+    transition: transform 0.2s ease;
+}
+
+/* Loading and error states */
+.loading-placeholder {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+}
+
+.error-message {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
 }
