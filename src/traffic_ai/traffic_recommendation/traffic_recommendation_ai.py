@@ -89,7 +89,7 @@ class AIRecommendation:
     if not cache_file.exists():
       return False
     # checks the last time when the file was edited
-    modified_time = datetime.fromtimestamp(self.ADMIN_CACHE_FILE.stat().st_mtime)
+    modified_time = datetime.fromtimestamp(cache_file.stat().st_mtime)
     return modified_time.date() == datetime.today().date() 
   
 
@@ -167,7 +167,7 @@ class AIRecommendation:
       comp = self.client_chat(request_prompt)
       self.req_ai_recommendation = comp.choices[0].message.content
     except Exception as e:
-        raise ConnectionError(f"Failed client connection: {e}")
+      raise ConnectionError(f"Failed client connection: {e}")
     
     return self.req_ai_recommendation
 

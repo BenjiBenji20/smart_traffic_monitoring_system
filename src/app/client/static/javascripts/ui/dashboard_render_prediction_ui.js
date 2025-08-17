@@ -165,8 +165,8 @@ export async function renderAIRecommendation(containerId, fetchFunction, propert
 
 // Call the function when the page loads
 document.addEventListener("DOMContentLoaded", async () => {
-  await renderPredictionSummary();
-  await renderUserProfile();
-  await renderSummaryRecommendation();
+    await renderPredictionSummary();
+    await renderUserProfile();
+    await renderSummaryRecommendation();
 })
 
