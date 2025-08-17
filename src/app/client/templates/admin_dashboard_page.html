@@ -244,27 +244,40 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold">Traffic Analysis</h2>
                     <div class="flex flex-wrap gap-1">
-                        <button class="chart-tab bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-tab="hourly">Hourly</button>
-                        <button class="chart-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-tab="daily">Daily</button>
-                        <button class="chart-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-tab="weekly">Weekly</button>
-                        <button class="chart-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-tab="monthly">Monthly</button>
+                        <!-- Time period tabs -->
+                        <div class="flex gap-1 mr-4">
+                            <button class="time-tab bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-period="hourly">Hourly</button>
+                            <button class="time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="daily">Daily</button>
+                            <button class="time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="weekly">Weekly</button>
+                            <button class="time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="monthly">Monthly</button>
+                        </div>
+                        <!-- Chart type selector -->
+                        <div class="flex gap-1">
+                            <button class="chart-type bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-type="line">
+                                <i class="fas fa-chart-line mr-1"></i> Line
+                            </button>
+                            <button class="chart-type bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-type="bar">
+                                <i class="fas fa-chart-bar mr-1"></i> Bar
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="chart-container mb-4">
-                    <canvas id="trafficChart" class="w-full h-64"></canvas>
+                    <canvas id="trafficChart" class="w-full h-64">
+                        <!-- Generated using JS -->
+                    </canvas>
                 </div>
                 
                 <!-- AI Recommendation Container (Chart-Specific) -->
                 <div class="flex items-start mt-4">
-                    <div class="bg-highlight text-primary rounded-full p-3 mr-4">
-                    <i class="fas fa-robot text-xl"></i>
-                    <i class="fas fa-chart-line text-xl"></i>
+                    <div class="bg-highlight text-primary rounded-full p-3 mr-1">
+                        <i class="fas fa-robot text-xl"></i>
                     </div>
                     <div>
                         <h3 class="font-medium mb-2">AI Recommendation and Analysis Insight</h3>
                         <div class="bg-accent1 rounded-lg p-4" id="chartInsight">
-                            Select a time range to view detailed analysis and recommendations.
+                            Start the server to view traffic data analysis using AI
                         </div>
                     </div>
                 </div>
@@ -353,6 +366,9 @@
             }
         });
     </script>
+
+    <!-- ChartJS cdn link -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- UI Functionalities -->

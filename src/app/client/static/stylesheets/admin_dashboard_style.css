@@ -220,3 +220,40 @@ aside {
     align-items: center;
     padding: 0 16px;
 }
+
+/* CHART DESIGN */
+/* Add these to your styles */
+.chart-container {
+    transition: opacity 0.3s ease;
+}
+
+.typewriter {
+    border-right: 2px solid #00C2FF;
+    white-space: pre-wrap;
+    overflow: hidden;
+    animation: typing 1s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #00C2FF }
+}
+
+/* Chart transitions */
+canvas {
+    transition: transform 0.3s ease;
+}
+
+.chart-change {
+    animation: chartFade 0.5s ease;
+}
+
+@keyframes chartFade {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}

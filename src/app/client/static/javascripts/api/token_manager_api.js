@@ -8,7 +8,6 @@ export function setTokens(data) {
     expiry: Date.now() + (15 * 60 * 1000) // 15 mins expiry
   };
   
-  console.log('Storing tokens:', tokens);
   sessionStorage.setItem(TOKEN_KEY, JSON.stringify(tokens));
 }
 

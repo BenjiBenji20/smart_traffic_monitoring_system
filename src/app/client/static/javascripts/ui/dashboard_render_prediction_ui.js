@@ -1,5 +1,6 @@
 import { getPredictionSummary, getUserProfile, 
-        requestSignOut, getSummaryRecommendation 
+        requestSignOut, getTrafficRecommendation, 
+        getPredictionDetail
 } from "../api/dashboard_prediction_api.js";
 
 // Render user profile
@@ -119,6 +120,8 @@ document.getElementById('logoutBtn')?.addEventListener('click', async function(e
 
 
 import { renderAIRecommendation } from "../utils/type_writer_util.js";
+let aiRecommendationData = null; // recommendation handler
+
 export async function renderSummaryRecommendation() {
   const container = document.getElementById('aiRecommendation');
   if (!container) return;
@@ -128,10 +131,10 @@ export async function renderSummaryRecommendation() {
     container.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Analyzing current traffic patterns...';
     
     // Fetch data
-    const data = await getSummaryRecommendation();
+    aiRecommendationData = await getTrafficRecommendation();
     
     // Render with typewriter effect
-    await renderAIRecommendation(container, data.summary_reco)
+    await renderAIRecommendation(container, aiRecommendationData.summary_reco, 'summary')
       
   } catch (error) {
     console.error("Failed to load recommendations:", error);
@@ -145,11 +148,254 @@ export async function renderSummaryRecommendation() {
 }
 
 
+// RENDER CHARTS
+// Chart configuration
+let trafficChart = null;
+let trafficData = null;
+let currentPeriod = 'hourly';
+let currentChartType = 'line';
 
-// Call the function when the page loads
-document.addEventListener("DOMContentLoaded", async () => {
-    await renderPredictionSummary();
-    await renderUserProfile();
-    await renderSummaryRecommendation();
-})
+async function extractTrafficData() {
+  const data = await getPredictionDetail();
 
+  // Sample data structure
+  return {
+    hourly: data.hourly, // Your hourly data
+    daily: data.daily,  // Your daily data
+    weekly: data.weekly, // Your weekly data
+    monthly: data.monthly // Your monthly data
+  };
+}
+
+
+// Update active tab styling
+function updateActiveTab(activeElement, className) {
+  document.querySelectorAll(`.${className}`).forEach(el => {
+    el.classList.remove('bg-highlight', 'text-primary');
+    el.classList.add('bg-accent1', 'text-accent2');
+  });
+  activeElement.classList.remove('bg-accent1', 'text-accent2');
+  activeElement.classList.add('bg-highlight', 'text-primary');
+}
+
+
+// Prepare data for ChartJS
+async function prepareChartData(period) {
+  if (!trafficData) {
+    trafficData = await extractTrafficData();
+  }
+
+  const periodData = trafficData[period];
+  
+  return {
+    labels: periodData.map(item => {
+      if (period === 'hourly') return new Date(item.time).getHours() + ':00';
+      if (period === 'daily') return new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' });
+      if (period === 'weekly') return `Week ${getWeekNumber(new Date(item.week_start))}`;
+      if (period === 'monthly') return new Date(item.month).toLocaleDateString('en-US', { month: 'short' });
+    }),
+    values: periodData.map(item => item.value)
+  };
+}
+
+
+// Update AI recommendation text
+async function updateChartInsight(period) {
+  const recommendationKey = period + "_reco";
+  const insightElement = document.getElementById('chartInsight');
+  
+  if (!insightElement) return;
+  
+  // Import cancellation function
+  const { cancelTypewriterAnimation } = await import('../utils/type_writer_util.js');
+  
+  // Cancel any existing animation for the previous period
+  cancelTypewriterAnimation(period);
+  
+  // Show loading immediately
+  insightElement.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Loading insight...';
+  
+  // Clear any existing toggle buttons
+  const existingToggleBtn = insightElement.parentNode.querySelector('.toggle-recommendation-btn');
+  if (existingToggleBtn) {
+    existingToggleBtn.remove();
+  }
+  
+  if (!aiRecommendationData) {
+    try {
+      aiRecommendationData = await getTrafficRecommendation();
+    } catch (error) {
+      insightElement.innerHTML = `
+        <div class="text-red-400">
+          <i class="fas fa-exclamation-circle mr-2"></i>
+          Failed to load recommendations
+        </div>
+      `;
+      return;
+    }
+  }
+  
+  // Get the recommendation text for this period
+  const recommendationText = aiRecommendationData[recommendationKey];
+  
+  if (recommendationText) {
+    // Render with typewriter effect and unique identifier
+    await renderAIRecommendation(insightElement, recommendationText, period);
+  } else {
+    insightElement.innerHTML = `
+      <div class="text-yellow-400">
+        <i class="fas fa-info-circle mr-2"></i>
+        No specific recommendations available for ${period} period
+      </div>
+    `;
+  }
+}
+
+
+// Create or update chart with animation
+async function createChart(period, chartType) {
+  const ctx = document.getElementById('trafficChart').getContext('2d');
+  const data = await prepareChartData(period);
+  
+  // Destroy previous chart if exists
+  if (trafficChart) {
+    trafficChart.destroy();
+  }
+  
+  // Add fade-out/fade-in animation
+  const container = document.querySelector('.chart-container');
+  container.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+  
+  // Start both chart creation and recommendation update simultaneously
+  setTimeout(() => {
+    // Start both processes at the same time
+    Promise.allSettled([
+      // Chart creation 
+      Promise.resolve().then(() => {
+        trafficChart = new Chart(ctx, getChartConfig(period, chartType, data));
+        container.classList.remove('opacity-0');
+      }),
+      // render Recommendation 
+      updateChartInsight(period)
+    ]).then(results => {
+      // Log any errors but don't block
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          const processes = ['Chart creation', 'Recommendation update'];
+          console.error(`${processes[index]} failed:`, result.reason);
+        }
+      });
+    });
+  }, 300);
+}
+
+
+// Get ChartJS configuration
+function getChartConfig(period, chartType, data) {
+  return {
+    type: chartType,
+    data: {
+      labels: data.labels,
+      datasets: [{
+        label: 'Vehicle Count',
+        data: data.values,
+        backgroundColor: chartType === 'bar' ? 'rgba(0, 194, 255, 0.7)' : 'transparent',
+        borderColor: '#00C2FF',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: chartType === 'line'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.parsed.y} vehicles`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(224, 225, 221, 0.1)' },
+          ticks: { color: '#E0E1DD' }
+        },
+        x: {
+          grid: { color: 'rgba(224, 225, 221, 0.1)' },
+          ticks: { color: '#E0E1DD' }
+        }
+      }
+    }
+  };
+}
+
+
+// Helper function to get week number
+function getWeekNumber(date) {
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  return Math.ceil((((date - firstDay) / 86400000) + firstDay.getDay() + 1) / 7);
+}
+
+
+// Call the functions with proper async handling
+document.addEventListener("DOMContentLoaded", () => {
+  // Start rendering functions that don't depend on each other
+  const independentRenders = [
+    renderPredictionSummary(),
+    renderUserProfile(),
+    renderSummaryRecommendation()
+  ];
+  
+  // Start chart initialization independently
+  const chartInit = extractTrafficData().then(data => {
+    trafficData = data;
+    return createChart(currentPeriod, currentChartType);
+  });
+  
+  // Run all in parallel
+  Promise.allSettled([...independentRenders, chartInit]).then(results => {
+    // Log any errors but don't block the UI
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        const functionNames = ['renderPredictionSummary', 'renderUserProfile', 'renderSummaryRecommendation', 'chart initialization'];
+        console.error(`${functionNames[index]} failed:`, result.reason);
+      }
+    });
+    
+    console.log('Dashboard initialization complete');
+  });
+  
+  // Time period tab handlers
+  document.querySelectorAll('.time-tab').forEach(tab => {
+    tab.addEventListener('click', async function() {
+      // Import cancellation function
+      const { cancelTypewriterAnimation } = await import('../utils/type_writer_util.js');
+      
+      // Cancel current animation immediately
+      cancelTypewriterAnimation(currentPeriod);
+      
+      // Update current period and UI
+      currentPeriod = this.dataset.period;
+      updateActiveTab(this, 'time-tab');
+      
+      // Create chart (which now handles recommendation in parallel)
+      createChart(currentPeriod, currentChartType);
+    });
+  });
+  
+  // Chart type handlers
+  document.querySelectorAll('.chart-type').forEach(btn => {
+    btn.addEventListener('click', function() {
+      currentChartType = this.dataset.type;
+      updateActiveTab(this, 'chart-type');
+      createChart(currentPeriod, currentChartType);
+    });
+  });
+});

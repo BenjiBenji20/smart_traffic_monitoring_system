@@ -85,7 +85,7 @@ export async function getPredictionDetail() {
 }
 
 const DASHBOARD_BASE_URL = "http://localhost:8000/api/dashboard/user";
-export async function getSummaryRecommendation() {
+export async function getTrafficRecommendation() {
     try {
     const response = await secureFetch(`${DASHBOARD_BASE_URL}/admin-traffic-recommendations`);
     
