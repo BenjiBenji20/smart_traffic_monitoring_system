@@ -1,5 +1,5 @@
 import { getPredictionSummary, getUserProfile, 
-        requestSignOut, getTrafficRecommendation, 
+        requestSignOut, getRecommendation, 
         getPredictionDetail
 } from "../api/dashboard_prediction_api.js";
 
@@ -131,7 +131,7 @@ export async function renderSummaryRecommendation() {
     container.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Analyzing current traffic patterns...';
     
     // Fetch data
-    aiRecommendationData = await getTrafficRecommendation();
+    aiRecommendationData = await getRecommendation();
     
     // Render with typewriter effect
     await renderAIRecommendation(container, aiRecommendationData.summary_reco, 'summary')
@@ -223,7 +223,7 @@ async function updateChartInsight(period) {
   
   if (!aiRecommendationData) {
     try {
-      aiRecommendationData = await getTrafficRecommendation();
+      aiRecommendationData = await getRecommendation();
     } catch (error) {
       insightElement.innerHTML = `
         <div class="text-red-400">
@@ -344,6 +344,294 @@ function getWeekNumber(date) {
 }
 
 
+// TRAFFIC PREDICTION REQUEST
+import { requestPrediction, requestPredictionRecommendation } from "../api/dashboard_prediction_api.js";
+
+let predictionChart = null;
+let predictionData = null;
+let currentPredictionPeriod = 'hourly';
+let currentPredictionChartType = 'line';
+let predictionRecommendationData = null;
+
+// Extract prediction data from API response
+async function extractPredictionData(apiResponse) {
+  return {
+    hourly: apiResponse.forecast.hourly || [],
+    daily: apiResponse.forecast.daily || [],
+    weekly: apiResponse.forecast.weekly || [],
+    monthly: apiResponse.forecast.monthly || []
+  };
+}
+
+// NEW: Prepare prediction chart data (different from traffic data)
+async function preparePredictionChartData(period) {
+  if (!predictionData || !predictionData[period] || predictionData[period].length === 0) {
+    return { labels: [], values: [] };
+  }
+
+  const periodData = predictionData[period];
+  
+  return {
+    labels: periodData.map(item => {
+      if (period === 'hourly') {
+        // Assuming hourly data has a 'time' field
+        return new Date(item.time).getHours() + ':00';
+      }
+      if (period === 'daily') {
+        // Assuming daily data has a 'date' field
+        return new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' });
+      }
+      if (period === 'weekly') {
+        // Assuming weekly data has a 'week_start' field
+        return `Week ${getWeekNumber(new Date(item.week_start))}`;
+      }
+      if (period === 'monthly') {
+        // For monthly data, use month_start
+        return new Date(item.month_start).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      }
+    }),
+    values: periodData.map(item => item.value)
+  };
+}
+
+// Update prediction chart buttons based on available data
+function updatePredictionTabs() {
+  const tabs = document.querySelectorAll('.prediction-time-tab');
+  
+  tabs.forEach(tab => {
+    const period = tab.dataset.period;
+    const hasData = predictionData && predictionData[period] && predictionData[period].length > 0;
+    
+    if (hasData) {
+      tab.disabled = false;
+      tab.classList.remove('opacity-50', 'cursor-not-allowed');
+      tab.classList.add('cursor-pointer');
+    } else {
+      tab.disabled = true;
+      tab.classList.add('opacity-50', 'cursor-not-allowed');
+      tab.classList.remove('cursor-pointer', 'bg-highlight', 'text-primary');
+      tab.classList.add('bg-accent1', 'text-accent2');
+    }
+  });
+  
+  // Set first available period as active
+  const availablePeriods = ['hourly', 'daily', 'weekly', 'monthly'];
+  for (const period of availablePeriods) {
+    if (predictionData && predictionData[period] && predictionData[period].length > 0) {
+      currentPredictionPeriod = period;
+      const activeTab = document.querySelector(`.prediction-time-tab[data-period="${period}"]`);
+      if (activeTab) {
+        updateActiveTab(activeTab, 'prediction-time-tab');
+      }
+      break;
+    }
+  }
+}
+
+// Update prediction recommendation (similar to your updateChartInsight)
+async function updatePredictionInsight() {
+  const insightElement = document.getElementById('predictionRecommendation');
+  
+  if (!insightElement) return;
+  
+  // Import cancellation function
+  const { cancelTypewriterAnimation } = await import('../utils/type_writer_util.js');
+  
+  // Cancel any existing animation
+  cancelTypewriterAnimation('prediction');
+  
+  // Show loading immediately
+  insightElement.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Loading recommendations...';
+  
+  // Clear any existing toggle buttons
+  const existingToggleBtn = insightElement.parentNode.querySelector('.toggle-recommendation-btn');
+  if (existingToggleBtn) {
+    existingToggleBtn.remove();
+  }
+  
+  if (!predictionRecommendationData) {
+    try {
+      const response = await requestPredictionRecommendation();
+      predictionRecommendationData = response; // Assuming the response is the recommendation string
+    } catch (error) {
+      insightElement.innerHTML = `
+        <div class="text-red-400">
+          <i class="fas fa-exclamation-circle mr-2"></i>
+          Failed to load recommendations
+        </div>
+      `;
+      return;
+    }
+  }
+  
+  if (predictionRecommendationData) {
+    const { renderAIRecommendation } = await import('../utils/type_writer_util.js');
+    await renderAIRecommendation(insightElement, predictionRecommendationData, 'prediction');
+  } else {
+    insightElement.innerHTML = `
+      <div class="text-yellow-400">
+        <i class="fas fa-info-circle mr-2"></i>
+        No recommendations available for this prediction
+      </div>
+    `;
+  }
+}
+
+// FIXED: Create prediction chart using the correct data preparation function
+async function createPredictionChart(period, chartType) {
+  const ctx = document.getElementById('predictionChart').getContext('2d');
+  const data = await preparePredictionChartData(period); // Use prediction-specific function
+  
+  // If no data available, show message
+  if (data.labels.length === 0) {
+    // Clear canvas and show no data message
+    if (predictionChart) {
+      predictionChart.destroy();
+      predictionChart = null;
+    }
+    
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = '#E0E1DD';
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('No data available for this period', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    return;
+  }
+  
+  // Destroy previous chart if exists
+  if (predictionChart) {
+    predictionChart.destroy();
+  }
+  
+  // Add fade-out/fade-in animation
+  const container = document.querySelector('.prediction-chart-container');
+  if (container) {
+    container.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+  }
+  
+  setTimeout(() => {
+    Promise.allSettled([
+      // Chart creation
+      Promise.resolve().then(() => {
+        predictionChart = new Chart(ctx, getPredictionChartConfig(period, chartType, data));
+        if (container) {
+          container.classList.remove('opacity-0');
+        }
+      }),
+      // Recommendation update (parallel)
+      updatePredictionInsight()
+    ]).then(results => {
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          const processes = ['Prediction chart creation', 'Prediction recommendation update'];
+          console.error(`${processes[index]} failed:`, result.reason);
+        }
+      });
+    });
+  }, 300);
+}
+
+// NEW: Separate chart config for predictions (to avoid confusion)
+function getPredictionChartConfig(period, chartType, data) {
+  return {
+    type: chartType,
+    data: {
+      labels: data.labels,
+      datasets: [{
+        label: 'Predicted Vehicle Count',
+        data: data.values,
+        backgroundColor: chartType === 'bar' ? 'rgba(255, 153, 0, 0.7)' : 'transparent', // Different color for predictions
+        borderColor: '#FF9900', // Orange for predictions
+        borderWidth: 2,
+        tension: 0.4,
+        fill: chartType === 'line'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.parsed.y} vehicles (predicted)`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(224, 225, 221, 0.1)' },
+          ticks: { color: '#E0E1DD' }
+        },
+        x: {
+          grid: { color: 'rgba(224, 225, 221, 0.1)' },
+          ticks: { color: '#E0E1DD' }
+        }
+      }
+    }
+  };
+}
+
+// Main prediction request handler
+async function handlePredictionRequest() {
+  const requestBtn = document.querySelector('.prediction-request-btn');
+  const dateInput = document.getElementById('prediction_date');
+  
+  if (!dateInput.value) {
+    alert('Please select a date for prediction');
+    return;
+  }
+  
+  // Show loading state
+  requestBtn.disabled = true;
+  requestBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Requesting Predictions...';
+  
+  try {
+    // Request prediction data
+    const response = await requestPrediction();
+    predictionData = await extractPredictionData(response);
+    
+    // Reset recommendation data to fetch new one
+    predictionRecommendationData = null;
+    
+    // Update tabs based on available data
+    updatePredictionTabs();
+
+    // update request date
+    document.getElementById("request-date-display").innerHTML = `${response.request_date.end}`;
+    
+    // Create initial chart if we have data
+    if (predictionData && Object.values(predictionData).some(arr => arr.length > 0)) {
+      await createPredictionChart(currentPredictionPeriod, currentPredictionChartType);
+      
+      // Show success message
+      requestBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Prediction Complete';
+      setTimeout(() => {
+        requestBtn.innerHTML = '<i class="fas fa-chart-line mr-2"></i> Request Traffic Predictions';
+      }, 2000);
+    } else {
+      requestBtn.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> No Data Available';
+      setTimeout(() => {
+        requestBtn.innerHTML = '<i class="fas fa-chart-line mr-2"></i> Request Traffic Predictions';
+      }, 2000);
+    }
+    
+  } catch (error) {
+    console.error('Prediction request failed:', error);
+    requestBtn.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i> Request Failed';
+    setTimeout(() => {
+      requestBtn.innerHTML = '<i class="fas fa-chart-line mr-2"></i> Request Traffic Predictions';
+    }, 2000);
+  } finally {
+    requestBtn.disabled = false;
+  }
+}
+
 // Call the functions with proper async handling
 document.addEventListener("DOMContentLoaded", () => {
   // Start rendering functions that don't depend on each other
@@ -368,8 +656,6 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error(`${functionNames[index]} failed:`, result.reason);
       }
     });
-    
-    console.log('Dashboard initialization complete');
   });
   
   // Time period tab handlers
@@ -396,6 +682,40 @@ document.addEventListener("DOMContentLoaded", () => {
       currentChartType = this.dataset.type;
       updateActiveTab(this, 'chart-type');
       createChart(currentPeriod, currentChartType);
+    });
+  });
+
+  // Prediction request button handler
+  document.querySelector('.prediction-request-btn')?.addEventListener('click', handlePredictionRequest);
+
+  // Prediction time period tab handlers
+  document.querySelectorAll('.prediction-time-tab').forEach(tab => {
+    tab.addEventListener('click', async function() {
+      if (this.disabled) return;
+      
+      // Import cancellation function
+      const { cancelTypewriterAnimation } = await import('../utils/type_writer_util.js');
+      
+      // Cancel current animation immediately
+      cancelTypewriterAnimation('prediction');
+      
+      // Update current period and UI
+      currentPredictionPeriod = this.dataset.period;
+      updateActiveTab(this, 'prediction-time-tab');
+      
+      // Create chart
+      createPredictionChart(currentPredictionPeriod, currentPredictionChartType);
+    });
+  });
+
+  // Prediction chart type handlers
+  document.querySelectorAll('.prediction-chart-type').forEach(btn => {
+    btn.addEventListener('click', function() {
+      currentPredictionChartType = this.dataset.type;
+      updateActiveTab(this, 'prediction-chart-type');
+      if (predictionData) {
+        createPredictionChart(currentPredictionPeriod, currentPredictionChartType);
+      }
     });
   });
 });

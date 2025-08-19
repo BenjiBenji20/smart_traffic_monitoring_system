@@ -257,3 +257,87 @@ canvas {
     0% { opacity: 0; transform: translateY(10px); }
     100% { opacity: 1; transform: translateY(0); }
 }
+
+/* Chart Container Styles */
+.prediction-chart-container {
+  position: relative; /* Needed for canvas positioning */
+  height: 300px; /* Fixed height */
+  min-height: 300px; /* Prevent collapse */
+  max-height: 300px; /* Prevent expansion */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chart Canvas Styles */
+#predictionChart {
+  flex: 1; /* Take remaining space */
+  width: 100% !important; /* Force full width */
+  height: 100% !important; /* Force full height */
+  min-height: 0; /* Allow shrinking */
+}
+
+/* Chart Container */
+.prediction-chart-container {
+  position: relative;
+  height: 300px;
+  min-height: 300px;
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent content from breaking out */
+}
+
+/* Chart Canvas */
+#predictionChart {
+  flex: 1;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0;
+  transition: height 0.3s ease; /* Smooth resize if needed */
+}
+
+/* Responsive Adjustments */
+@media (max-height: 800px) {
+  .prediction-chart-container {
+    height: 250px;
+    min-height: 250px;
+    max-height: 250px;
+  }
+}
+
+/* For very small screens */
+@media (max-height: 600px) {
+  .prediction-chart-container {
+    height: 200px;
+    min-height: 200px;
+    max-height: 200px;
+  }
+}
+
+/* Time Period Controls - Grid layout */
+.flex.gap-1.mb-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+  gap: 0.25rem;
+}
+
+.prediction-time-tab {
+  text-align: center;
+  white-space: nowrap;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chart Type Controls - Flex with spacing */
+.flex.gap-2.mb-3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between label and buttons */
+  gap: 0.5rem;
+}
+
+.prediction-chart-type {
+  min-width: 60px;
+  text-align: center;
+}

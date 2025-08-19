@@ -1,5 +1,3 @@
-# src/traffic_ai/vehicle_detection/optimized_vehicle_counter.py
-
 import logging
 import requests.exceptions
 from ultralytics import YOLO
