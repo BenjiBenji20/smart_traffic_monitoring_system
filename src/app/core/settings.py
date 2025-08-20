@@ -16,7 +16,7 @@ class Settings(BaseSettings):
   MYSQL_USER: str
   MYSQL_PASSWORD: SecretStr
   MYSQL_DATABASE: str
-  RAILWAY_DB_URL: str
+  DATABASE_URL: str
 
   SQLALCHEMY_DATABASE_URI: str = ""
 
@@ -27,12 +27,12 @@ class Settings(BaseSettings):
   BAN_DURATION_SECONDS: int = 3600  # 1 hour
 
   # cors settings
-  CLIENT_ORIGINS: str
+  #CLIENT_ORIGINS: str
 
   # livestream pi http addresses
-  PI_HOME_WIFI: str
-  PI_MOBILE_HOTSPOT: str
-  PI_LIVESTREAM_ADDRESS_LIST: List[str] = ["PI_HOME_WIFI", "PI_MOBILE_HOTSPOT"]
+  # PI_HOME_WIFI: str
+  # PI_MOBILE_HOTSPOT: str
+  # PI_LIVESTREAM_ADDRESS_LIST: List[str] = ["PI_HOME_WIFI", "PI_MOBILE_HOTSPOT"]
 
   class Config:
     env_file = ".env"
@@ -40,17 +40,17 @@ class Settings(BaseSettings):
 
   
   def db_uri(self):
-    self.SQLALCHEMY_DATABASE_URI = self.RAILWAY_DB_URL
+    self.SQLALCHEMY_DATABASE_URI = self.DATABASE_URL
     return self.SQLALCHEMY_DATABASE_URI
   
 
-  def get_pi_addresses(self) -> List[str]:
-    """Get actual Pi addresses from environment variables"""
-    addresses = []
-    for addr_name in self.PI_LIVESTREAM_ADDRESS_LIST:
-      if hasattr(self, addr_name):
-        addresses.append(getattr(self, addr_name))
-    return addresses
+  # def get_pi_addresses(self) -> List[str]:
+  #   """Get actual Pi addresses from environment variables"""
+  #   addresses = []
+  #   for addr_name in self.PI_LIVESTREAM_ADDRESS_LIST:
+  #     if hasattr(self, addr_name):
+  #       addresses.append(getattr(self, addr_name))
+  #   return addresses
 
 
 settings = Settings()
