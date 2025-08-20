@@ -35,7 +35,7 @@ class Settings(BaseSettings):
   # PI_LIVESTREAM_ADDRESS_LIST: List[str] = ["PI_HOME_WIFI", "PI_MOBILE_HOTSPOT"]
 
   class Config:
-    env_file = ".env"
+    #env_file = ".env"
     case_sensitive = True
 
   
