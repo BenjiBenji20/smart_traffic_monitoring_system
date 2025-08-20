@@ -40,7 +40,7 @@ class Settings(BaseSettings):
 
   
   def db_uri(self):
-    self.SQLALCHEMY_DATABASE_URI = self.RAILWAY_URL_URL
+    self.SQLALCHEMY_DATABASE_URI = self.RAILWAY_DB_URL
     return self.SQLALCHEMY_DATABASE_URI
   
 
