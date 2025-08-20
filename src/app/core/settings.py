@@ -14,7 +14,7 @@ class Settings(BaseSettings):
   BAN_DURATION_SECONDS: int = 3600
 
   class Config:
-    env_file = ".env"
+    #env_file = ".env"
     case_sensitive = True
 
   def db_uri(self):
