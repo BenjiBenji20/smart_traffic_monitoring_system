@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.app.core.address import CLIENT_ORIGINS
+# from src.app.core.address import CLIENT_ORIGINS
 
 def cors_middleware(app: FastAPI):
   app.add_middleware(

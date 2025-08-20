@@ -10,6 +10,6 @@ PUBLIC_ROUTES = {
   "/api/dashboard/user/end-user-traffic-req-recommendations"
 }
 
-CLIENT_ORIGINS = [
-  settings.CLIENT_ORIGINS
-]
+# CLIENT_ORIGINS = [
+#   settings.CLIENT_ORIGINS
+# ]
