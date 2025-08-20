@@ -11,7 +11,7 @@ class Settings(BaseSettings):
   APP_NAME: str
   DEBUG: bool = True
   ENV: Literal["dev", "prod", "test"] = "dev"
-  DATABASE_URL: str
+  MYSQL_PUBLIC_URL: str
   JWT_SECRET_KEY: SecretStr
   JWT_ALGORITHM: str
   MAX_LOGIN_ATTEMPTS: int = 3
@@ -22,6 +22,6 @@ class Settings(BaseSettings):
     case_sensitive = True
 
   def db_uri(self):
-    return self.DATABASE_URL
+    return self.MYSQL_PUBLIC_URL
 
 settings = Settings()

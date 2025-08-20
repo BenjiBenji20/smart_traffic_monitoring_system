@@ -9,7 +9,7 @@ def sql_connection():
   try:
     # establish connection
     c = conn.connect(
-      os.getenv('DATABASE_URL')
+      os.getenv('MYSQL_PUBLIC_URL')
     )
 
     if c.is_connected():
