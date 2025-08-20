@@ -16,7 +16,7 @@ class Settings(BaseSettings):
   MYSQL_USER: str
   MYSQL_PASSWORD: SecretStr
   MYSQL_DATABASE: str
-  RAILWAY_URL_URL: str
+  RAILWAY_DB_URL: str
 
   SQLALCHEMY_DATABASE_URI: str = ""
 
