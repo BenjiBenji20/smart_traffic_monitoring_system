@@ -16,6 +16,7 @@ class Settings(BaseSettings):
   MYSQL_USER: str
   MYSQL_PASSWORD: SecretStr
   MYSQL_DATABASE: str
+  RAILWAY_URL_URL: str
 
   SQLALCHEMY_DATABASE_URI: str = ""
 
@@ -39,10 +40,7 @@ class Settings(BaseSettings):
 
   
   def db_uri(self):
-    self.SQLALCHEMY_DATABASE_URI = (
-      f"mysql+aiomysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD.get_secret_value()}"
-      f"@{self.MYSQL_HOST}/{self.MYSQL_DATABASE}"
-    )
+    self.SQLALCHEMY_DATABASE_URI = self.RAILWAY_URL_URL
     return self.SQLALCHEMY_DATABASE_URI
   
 
