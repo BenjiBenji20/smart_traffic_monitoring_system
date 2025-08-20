@@ -1,0 +1,83 @@
+# .env
+# configs/traffic-logs-firebase-admin-sdk.json
+# .venv/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# --- Virtual Environments ---
+.venv/
+venv/
+ENV/
+env/
+*.env
+*.env.*
+
+# --- Jupyter / Notebooks ---
+.ipynb_checkpoints/
+*.ipynb
+
+# --- IDE / Editors ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Logs & Temp ---
+*.log
+*.out
+*.pid
+*.gz
+.DS_Store
+Thumbs.db
+
+# --- Firebase / Secrets ---
+configs/traffic-logs-firebase-admin-sdk.json
+*.pem
+*.key
+*.crt
+
+# --- Database ---
+*.db
+*.sqlite3
+*.sql
+
+# --- OS files ---
+ehthumbs.db
+Icon?
+desktop.ini
+
+# --- Datasets / Media (optional: if too big) ---
+*.csv
+*.tsv
+*.jsonl
+*.h5
+*.pkl
+*.joblib
+*.mp4
+*.avi
+*.mov
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tiff
+*.gif
+
+# --- Node / Frontend (if bundled in repo) ---
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+/.pnp
+.pnp.js
+
+# --- Render / Deployment ---
+.secrets/

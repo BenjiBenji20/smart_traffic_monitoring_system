@@ -1,0 +1,343 @@
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#videoContainer {
+    position: relative;
+}
+
+.typing-animation {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 2s steps(40, end);
+}
+
+.glow-on-hover {
+    transition: all 0.3s ease;
+}
+
+.glow-on-hover:hover {
+    box-shadow: 0 0 10px #00C2FF;
+    transform: scale(1.05);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.chart-transition {
+    transition: opacity 0.3s ease;
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.nav-collapsed {
+    width: 80px;
+    transition: width 0.3s ease;
+}
+
+.nav-expanded {
+    width: 250px;
+    transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .nav-collapsed {
+        width: 0;
+        overflow: hidden;
+    }
+    
+    .mobile-nav {
+        display: flex;
+    }
+}
+/* Custom scrollbar for right panel */
+aside::-webkit-scrollbar {
+    width: 8px; /* scrollbar thickness */
+    cursor: pointer;
+}
+
+aside::-webkit-scrollbar-track {
+    background: transparent; /* remove white background */
+}
+
+aside::-webkit-scrollbar-thumb {
+    background-color: #0D1B2A; /* gold highlight */
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+    background-color: #0D1B2A;
+}
+
+/* For Firefox */
+aside {
+    scrollbar-width: thin;
+    scrollbar-color: #0D1B2A transparent;
+}
+
+/* Custom Scrollbar */
+#leftNav::-webkit-scrollbar {
+    width: 6px;
+}
+#leftNav::-webkit-scrollbar-track {
+    background: transparent;
+}
+#leftNav::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 10px;
+}
+#leftNav::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}
+
+/* Hover glow effect */
+.glow-on-hover:hover {
+    box-shadow: 0 0 10px rgba(0, 255, 200, 0.4);
+}
+
+/* Dropdown animation */
+#userDropdown {
+    transition: all 0.2s ease-out;
+    transform-origin: top right;
+    transform: scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+}
+
+#userDropdown.show {
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    display: block;
+}
+
+/* Chevron rotation */
+#dropdownChevron.rotate {
+    transform: rotate(180deg);
+}
+
+/* Type writer effects */
+.typewriter-cursor::after {
+        content: "|";
+        animation: blink 1s step-end infinite;
+    }
+@keyframes blink {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #3b82f6 #1e293b;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #3b82f6;
+    border-radius: 4px;
+    border: 1px solid #1e293b;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #2563eb;
+}
+
+/* Toggle button styles */
+.toggle-recommendation-btn {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    padding: 6px 12px;
+    background-color: #1e293b;
+    color: #3b82f6;
+    border: 1px solid #3b82f6;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-recommendation-btn:hover {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.toggle-recommendation-btn i {
+    transition: transform 0.2s ease;
+}
+
+/* Loading and error states */
+.loading-placeholder {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+}
+
+.error-message {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+}
+
+/* CHART DESIGN */
+/* Add these to your styles */
+.chart-container {
+    transition: opacity 0.3s ease;
+}
+
+.typewriter {
+    border-right: 2px solid #00C2FF;
+    white-space: pre-wrap;
+    overflow: hidden;
+    animation: typing 1s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #00C2FF }
+}
+
+/* Chart transitions */
+canvas {
+    transition: transform 0.3s ease;
+}
+
+.chart-change {
+    animation: chartFade 0.5s ease;
+}
+
+@keyframes chartFade {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Chart Container Styles */
+.prediction-chart-container {
+  position: relative; /* Needed for canvas positioning */
+  height: 300px; /* Fixed height */
+  min-height: 300px; /* Prevent collapse */
+  max-height: 300px; /* Prevent expansion */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chart Canvas Styles */
+#predictionChart {
+  flex: 1; /* Take remaining space */
+  width: 100% !important; /* Force full width */
+  height: 100% !important; /* Force full height */
+  min-height: 0; /* Allow shrinking */
+}
+
+/* Chart Container */
+.prediction-chart-container {
+  position: relative;
+  height: 300px;
+  min-height: 300px;
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent content from breaking out */
+}
+
+/* Chart Canvas */
+#predictionChart {
+  flex: 1;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0;
+  transition: height 0.3s ease; /* Smooth resize if needed */
+}
+
+/* Responsive Adjustments */
+@media (max-height: 800px) {
+  .prediction-chart-container {
+    height: 250px;
+    min-height: 250px;
+    max-height: 250px;
+  }
+}
+
+/* For very small screens */
+@media (max-height: 600px) {
+  .prediction-chart-container {
+    height: 200px;
+    min-height: 200px;
+    max-height: 200px;
+  }
+}
+
+/* Time Period Controls - Grid layout */
+.flex.gap-1.mb-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+  gap: 0.25rem;
+}
+
+.prediction-time-tab {
+  text-align: center;
+  white-space: nowrap;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chart Type Controls - Flex with spacing */
+.flex.gap-2.mb-3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between label and buttons */
+  gap: 0.5rem;
+}
+
+.prediction-chart-type {
+  min-width: 60px;
+  text-align: center;
+}

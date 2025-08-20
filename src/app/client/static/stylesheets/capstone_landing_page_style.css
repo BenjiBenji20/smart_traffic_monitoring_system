@@ -1,0 +1,102 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+    color: #E0E1DD;
+    overflow-x: hidden;
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+}
+
+.gradient-text {
+    background: linear-gradient(90deg, #00C2FF, #0085FF);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #00C2FF, #0085FF);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 194, 255, 0.3);
+}
+
+.btn-secondary {
+    border: 2px solid #00C2FF;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(0, 194, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.feature-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(65, 90, 119, 0.3);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 194, 255, 0.1);
+    border-color: #00C2FF;
+}
+
+.section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+.section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.traffic-line {
+    position: absolute;
+    height: 2px;
+    background: rgba(0, 194, 255, 0.5);
+    animation: trafficFlow 8s linear infinite;
+}
+
+@keyframes trafficFlow {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100vw); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.dashboard-mockup {
+    border-radius: 10px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(65, 90, 119, 0.5);
+}
+
+.floating-shape {
+    position: absolute;
+    opacity: 0.05;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #00C2FF, #0085FF);
+    filter: blur(30px);
+    animation: float 15s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(50px, 50px) rotate(180deg); }
+    100% { transform: translate(0, 0) rotate(360deg); }
+}
