@@ -1,6 +1,10 @@
 from pydantic_settings import BaseSettings
 from pydantic import SecretStr
 from typing import Literal
+import os
+print("DEBUG: Current env keys =", list(os.environ.keys()))
+print("DEBUG: DATABASE_URL =", os.environ.get("DATABASE_URL"))
+
 
 class Settings(BaseSettings):
   AI_API_KEY: str
