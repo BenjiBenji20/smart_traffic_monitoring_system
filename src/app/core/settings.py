@@ -26,3 +26,5 @@ class Settings(BaseSettings):
 
   def db_uri(self):
     return self.MYSQL_PUBLIC_URL
+
+settings = Settings()
