@@ -284,9 +284,41 @@
             </div>
             
             <!-- Download Button -->
-            <button class="w-full bg-highlight text-primary py-3 rounded-lg font-semibold glow-on-hover mb-6">
+            <button id="downloadBtn" class="download-btn">
                 <i class="fas fa-download mr-2"></i> Download Traffic Data Report
             </button>
+
+            <!-- Download Options Modal -->
+            <div id="downloadModal" class="download-modal">
+                <div class="download-modal-content">
+                    <div class="download-modal-header">
+                        <h3>Download Format</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="download-options">
+                        <button class="download-option" data-format="json">
+                            <i class="fab fa-js-square text-yellow-400 text-2xl"></i>
+                            <span>JSON</span>
+                            <small>Raw data format</small>
+                        </button>
+                        <button class="download-option" data-format="excel">
+                            <i class="fas fa-file-excel text-green-500 text-2xl"></i>
+                            <span>Excel</span>
+                            <small>Spreadsheet format</small>
+                        </button>
+                        <button class="download-option" data-format="pdf">
+                            <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
+                            <span>PDF</span>
+                            <small>Printable report</small>
+                        </button>
+                        <button class="download-option package" data-format="all">
+                            <i class="fas fa-box text-purple-500 text-2xl"></i>
+                            <span>Complete Package</span>
+                            <small>All formats (ZIP)</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Right Insights/Interaction Panel -->
@@ -384,5 +416,8 @@
     <script type="module" src="../static/javascripts/api/dashboard_prediction_api.js"></script>
     <script type="module" src="../static/javascripts/utils/type_writer_util.js"></script>
     <script type="module" src="../static/javascripts/ui/dashboard_render_prediction_ui.js"></script>
+    <script type="module" src="../static/javascripts/api/download_file_api.js"></script>
+    <script type="module" src="../static/javascripts/utils/notification_util.js"></script>
+    <script type="module" src="../static/javascripts/ui/download_button_ui.js"></script>
   </body>
 </html>

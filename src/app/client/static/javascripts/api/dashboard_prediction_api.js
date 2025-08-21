@@ -134,7 +134,7 @@ export async function requestPrediction() {
 }
 
 // Helper function to format dates without milliseconds/Z
-function formatDateWithoutMS(dateInput) {
+export function formatDateWithoutMS(dateInput) {
   if (typeof dateInput === 'string') {
     return dateInput.includes(':00') ? dateInput : `${dateInput}:00`;
   }

@@ -341,3 +341,263 @@ canvas {
   min-width: 60px;
   text-align: center;
 }
+
+/* Download Button */
+.download-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #00C2FF 0%, #00A3E0 100%);
+    color: #0D1B2A;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 194, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 194, 255, 0.4);
+}
+
+.download-btn:active {
+    transform: translateY(0);
+}
+
+.download-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.download-btn:hover::before {
+    left: 100%;
+}
+
+/* Modal Styles */
+.download-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(13, 27, 42, 0.8);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.download-modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.download-modal-content {
+    background: #1B263B;
+    border-radius: 16px;
+    padding: 0;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid #415A77;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.download-modal.show .download-modal-content {
+    transform: scale(1);
+}
+
+.download-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #415A77;
+}
+
+.download-modal-header h3 {
+    color: #E0E1DD;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: #E0E1DD;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.close-modal:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Download Options */
+.download-options {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.download-option {
+    background: #415A77;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #E0E1DD;
+}
+
+.download-option:hover {
+    background: #00C2FF;
+    color: #0D1B2A;
+    transform: translateY(-2px);
+    border-color: #00C2FF;
+}
+
+.download-option.package {
+    grid-column: span 3;
+    background: linear-gradient(135deg, #415A77 0%, #00C2FF 100%);
+}
+
+.download-option.package:hover {
+    background: linear-gradient(135deg, #00C2FF 0%, #00A3E0 100%);
+}
+
+.download-option span {
+    display: block;
+    font-weight: 600;
+    margin: 8px 0 4px;
+}
+
+.download-option small {
+    opacity: 0.8;
+    font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .download-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .download-option.package {
+        grid-column: span 1;
+    }
+    
+    .download-modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+}
+
+
+/* Notification Animations */
+.notification-toast {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification-toast:not(:last-child) {
+  margin-bottom: 0.75rem;
+}
+
+.progress-bar {
+  transition: width 3s linear;
+  transform-origin: left;
+}
+
+/* Slide in animation */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes progressShrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Bounce effect for new notifications */
+.notification-toast {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.notification-toast.exiting {
+  animation: slideOutRight 0.5s ease-in forwards;
+}
+
+/* Hover effects */
+.notification-toast:hover {
+  transform: translateX(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Close button hover effect */
+.close-notification {
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.close-notification:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  #notification-container {
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+  
+  .notification-toast {
+    max-width: 100%;
+  }
+}
