@@ -19,6 +19,7 @@ from src.app.middleware.jwt_filter_middleware import JWTFilterMiddleware
 from src.app.routes.user_router import user_router
 from src.app.routes.dashboard_user_router import dashboard_user_router
 from src.app.routes.dashboard_livestream_router import dashboard_livestream_router
+from src.app.routes.dashboard_download_report_file_router import dl_file_router
 
 # configurations
 from src.app.core.cors_config import cors_middleware
@@ -122,6 +123,7 @@ cors_middleware(app=app)
 app.include_router(user_router)
 app.include_router(dashboard_user_router)
 app.include_router(dashboard_livestream_router)
+app.include_router(dl_file_router)
 
 # regiustering global exeception handler
 app.add_exception_handler(InternalServerError, internal_server_error_handler)
@@ -130,3 +132,4 @@ app.add_exception_handler(DuplicateEntryException, duplicate_entry_exception_han
 app.add_exception_handler(UnauthorizedAccessException, unauthorized_access_handler)
 app.add_exception_handler(ForbiddenAccessException, forbidden_access_handler)
 app.add_exception_handler(InvalidTokenException, invalid_token_handler)
+app.add_exception_handler(FileDownloadException, failed_file_download_handler)

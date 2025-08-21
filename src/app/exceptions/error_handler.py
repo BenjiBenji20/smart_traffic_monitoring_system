@@ -25,3 +25,6 @@ async def forbidden_access_handler(request: Request, exc: ForbiddenAccessExcepti
 
 async def invalid_token_handler(request: Request, exc: InvalidTokenException):
   return error_response(exc.detail, exc.error_code, 401)
+
+async def failed_file_download_handler(request: Request, exc: FileDownloadException):
+  return error_response(exc.detail, exc.error_code, 400)
