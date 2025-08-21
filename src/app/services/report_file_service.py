@@ -1,3 +1,5 @@
+import base64
+import logging
 import pandas as pd
 import asyncio
 import logging
@@ -6,6 +8,8 @@ from datetime import datetime
 
 from fastapi.exceptions import HTTPException
 
+from src.app.models.user import User
+from src.app.schemas.request_schema import PDFRequest
 from src.app.exceptions.custom_exceptions import FileDownloadException
 from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import (
   prediction_detail, prediction_summary
@@ -183,3 +187,111 @@ async def generate_excel_file(user_type: str) -> io.BytesIO:
     return output
   except Exception as e:
       raise FileDownloadException(f"Failed to generate Excel file: {str(e)}")
+    
+
+# PDF
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak, Table, TableStyle
+from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+async def generate_pdf_file(request: PDFRequest, user: User) -> io.BytesIO:
+  try:
+    # Fetch backend data for consistency
+    pred_data = pred_json()
+    d1 = pred_data["prediction_summary"]
+    
+    # Create PDF in memory
+    output = io.BytesIO()
+    doc = SimpleDocTemplate(
+      output, 
+      pagesize=letter,
+      title="Smart Traffic Monitoring Data Report"
+    )
+    styles = getSampleStyleSheet()
+    # Define a custom justify style
+    styles.add(ParagraphStyle(name="Justify", parent=styles["Normal"], alignment=TA_JUSTIFY))
+    story = []
+
+    # Add Title
+    story.append(Paragraph("Smart Traffic Monitoring Data Report - Longos C4 Road, Malabon City", styles['Title']))
+    story.append(Spacer(1, 12))
+    
+    # add the detail of the user who request the report
+    story.append(Paragraph("File Request Report", styles["Heading4"]))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph(f"Date: {datetime.today().strftime("%Y-%m-%d")}", styles["Justify"]))
+    story.append(Paragraph(f"To: {user.complete_name} - {user.role}", styles["Justify"]))
+    story.append(Paragraph(f"From: Di ko alam dito jahahj", styles["Justify"]))
+    story.append(Paragraph(f"Subject: Request for File Report", styles["Justify"]))
+    story.append(Spacer(1, 12))
+
+    # Add Summary (as a table for clarity)
+    story.append(Paragraph("Summary Report:", styles['Heading2']))
+    summary_data = [
+      ["Field", "Value"],
+      ["Today", d1['today']],
+      ["Vehicle Today Sum", d1['vhcl_today_sum']],
+      ["Today Peak Time", d1['today_analytics']['peak']['time']],
+      ["Today Peak Value", d1['today_analytics']['peak']['value']],
+      ["Today Peak Condition", d1['today_analytics']['peak']['condition']],
+      ["Today Low Time", d1['today_analytics']['low']['time']],
+      ["Today Low Value", d1['today_analytics']['low']['value']],
+      ["Today Low Condition", d1['today_analytics']['low']['condition']],
+      ["Today Average", d1['today_analytics']['avg']],
+      ["Current Week Start", d1['current_week_range']['start']],
+      ["Current Week End", d1['current_week_range']['end']],
+      ["Vehicle Week Sum", d1['vhcl_current_week_sum']],
+    ]
+    
+    available_width = 612 - 2 * 72  # maximize table width
+    col_widths = [available_width * 0.4, available_width * 0.6]  # column width
+    table = Table(summary_data, colWidths=col_widths)
+    table.setStyle(TableStyle([
+      ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+      ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+      ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+      ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+      ('FONTSIZE', (0, 0), (-1, 0), 12),
+      ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+      ('BACKGROUND', (0, 1), (-1, -1), colors.lightblue),
+      ('GRID', (0, 0), (-1, -1), 1, colors.black),
+      ('WORDWRAP', (0, 0), (-1, -1), 'CJK')
+    ]))
+    story.append(table)
+    
+    story.append(Spacer(1, 12))
+    
+    # add recommendation for traffic data summary
+    story.append(Paragraph("Traffic Summary AI Recommendations:", styles["Heading3"]))
+    story.append(Paragraph(request.recommendations["summary_reco"], styles["Justify"]))
+    story.append(Spacer(1, 6))
+
+    # Charts and Corresponding Recommendations
+    story.append(Paragraph("Traffic Chart with AI Recommendations", styles['Heading2']))
+    # Append chart images first 
+    for period in ['hourly', 'daily', 'weekly', 'monthly']:
+      if period in request.charts:
+        # add chart
+        story.append(Paragraph(f"{period.capitalize()} Predictions", styles['Heading3']))
+        # Convert base64 image to bytes
+        img_data = base64.b64decode(request.charts[period].split(',')[1])
+        img_io = io.BytesIO(img_data)
+        story.append(Image(img_io, width=500, height=250))
+        story.append(Spacer(1, 12))
+        
+      # Add corresponding recommendation
+      reco_key = f"{period}_reco"
+      if reco_key in request.recommendations:
+        story.append(Paragraph(f"{period.capitalize()} AI Recommendations:", styles['Heading3']))
+        story.append(Paragraph(request.recommendations[reco_key], styles["Justify"]))
+        story.append(Spacer(1, 6))
+
+    doc.build(story)
+    output.seek(0)
+
+    return output
+  except Exception as e:
+    logging.error(f"Error generating PDF: {str(e)}")
+    raise HTTPException(status_code=500, detail=str(e))
+    

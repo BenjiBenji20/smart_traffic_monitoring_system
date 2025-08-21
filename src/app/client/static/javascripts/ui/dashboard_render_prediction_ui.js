@@ -158,7 +158,6 @@ let currentChartType = 'line';
 async function extractTrafficData() {
   const data = await getPredictionDetail();
 
-  // Sample data structure
   return {
     hourly: data.hourly, // Your hourly data
     daily: data.daily,  // Your daily data
@@ -180,7 +179,7 @@ function updateActiveTab(activeElement, className) {
 
 
 // Prepare data for ChartJS
-async function prepareChartData(period) {
+export async function prepareChartData(period) {
   if (!trafficData) {
     trafficData = await extractTrafficData();
   }
@@ -291,7 +290,7 @@ async function createChart(period, chartType) {
 
 
 // Get ChartJS configuration
-function getChartConfig(period, chartType, data) {
+export function getChartConfig(period, chartType, data) {
   return {
     type: chartType,
     data: {

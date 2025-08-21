@@ -1,5 +1,5 @@
-import os
+from datetime import datetime
 
-DL_PATH = os.path.join(os.getenv("USERPROFILE"), "Downloads")
-
-print(DL_PATH)
+print(datetime.now())
+print(datetime.today())
+print(datetime.today().strftime("%Y-%m-%d"))

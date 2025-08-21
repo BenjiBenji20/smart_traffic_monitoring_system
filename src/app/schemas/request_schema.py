@@ -12,3 +12,10 @@ class AdminPredictionRequest(BaseModel):
 
 class EndUserPredictionRequest(BaseModel):
   time: datetime
+  
+  
+# chart images payload
+class PDFRequest(BaseModel):
+  recommendations: dict
+  charts: dict
+  summary: dict  

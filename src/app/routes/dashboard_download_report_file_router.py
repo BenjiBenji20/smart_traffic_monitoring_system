@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.exceptions import HTTPException
 
+from src.app.schemas.request_schema import PDFRequest
 from src.app.models.user import User
 from src.app.services.auth_service import get_current_user
 from src.app.services.report_file_service import *
@@ -58,3 +59,19 @@ async def dl_dot_xlsx(user: User = Depends(get_current_user)):
     )
   except HTTPException:
     raise 
+  
+
+@dl_file_router.post("/pdf")
+async def dl_dot_pdf(request: PDFRequest, user: User = Depends(get_current_user)):
+  try:
+    pdf_file: io.BytesIO = await generate_pdf_file(request, user)
+    if not pdf_file:
+      raise FileDownloadException(f"Failed to download PDF file")
+
+    headers = {
+      "Content-Disposition": f'attachment; filename="{file_name("pdf")}"'
+    }
+    return StreamingResponse(pdf_file, media_type="application/pdf", headers=headers)
+  except HTTPException:
+    raise 
+  

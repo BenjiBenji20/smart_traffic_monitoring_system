@@ -1,4 +1,4 @@
-import { fetchJSONFile, fetchExcelFile } from "../api/download_file_api.js";
+import { fetchJSONFile, fetchExcelFile, fetchPDFFile } from "../api/download_file_api.js";
 import { downloadNotification } from "../utils/notification_util.js"
 
 const modal = document.getElementById('downloadModal');
@@ -44,9 +44,23 @@ async function downloadExcel() {
 }
 
 
-function downloadPDF() {
-  // Your PDF download logic
-  downloadNotification('Creating PDF report...', 'success');
+async function downloadPDF() {
+  try {
+    const response = await fetchPDFFile()
+
+    if (!response.success) {
+      modal.classList.remove('show');
+      downloadNotification("error", "Failed to download PDF file");
+    }
+
+    modal.classList.remove('show');
+    downloadNotification(response.success, response.message);
+  } catch (error) {
+    modal.classList.remove('show');
+    downloadNotification("error", "An unexpected error occured while downloading the PDF File");
+    console.error("Error downloading PDF file:", error);
+    throw error;
+  }
 }
 
 
@@ -57,10 +71,6 @@ function downloadAll() {
 
 
 function downloadReport(format) {
-  // Add your download logic here
-  console.log(`Downloading ${format} report...`);
-  
-  // Example download functions (implement based on your backend)
   switch(format) {
     case 'json':
       downloadJSON();
