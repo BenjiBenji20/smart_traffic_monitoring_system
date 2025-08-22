@@ -601,3 +601,22 @@ canvas {
     max-width: 100%;
   }
 }
+
+
+#dashboard-main-view,
+#dashboard-history-view {
+  width: 100%;
+}
+
+#dashboard-main-view {
+  display: block;
+}
+
+#dashboard-history-view {
+  display: none;
+}
+
+#dashboard-main-view.active,
+#dashboard-history-view.active {
+  display: block;
+}

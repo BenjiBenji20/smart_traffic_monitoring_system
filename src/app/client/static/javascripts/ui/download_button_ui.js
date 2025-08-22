@@ -3,7 +3,7 @@ import { downloadNotification } from "../utils/notification_util.js"
 
 const modal = document.getElementById('downloadModal');
 
-
+// download buttons for main dashboard view
 async function downloadJSON() {
   try {
     const response = await fetchJSONFile()
@@ -64,13 +64,13 @@ async function downloadPDF() {
 }
 
 
-function downloadAll() {
+async function downloadAll() {
   // Your package download logic
   downloadNotification('Packaging all formats...', 'success');
 }
 
 
-function downloadReport(format) {
+async function downloadReport(format) { // for main dashboard download button
   switch(format) {
     case 'json':
       downloadJSON();
@@ -83,6 +83,91 @@ function downloadReport(format) {
       break;
     case 'all':
       downloadAll();
+      break;
+  }
+}
+
+
+// download buttons for history dashboard view
+async function downloadJSON2() {
+  try {
+    const response = await fetchJSONFile()
+
+    if (!response.success) {
+      modal.classList.remove('show');
+      downloadNotification("error", "Failed to download JSON file");
+    }
+
+    modal.classList.remove('show');
+    downloadNotification(response.success, response.message);
+  } catch (error) {
+    modal.classList.remove('show');
+    downloadNotification("error", "An unexpected error occured while downloading the JSON File");
+    console.error("Error downloading JSON file:", error);
+    throw error;
+  }
+}
+
+
+async function downloadExcel2() {
+  try {
+    const response = await fetchExcelFile()
+
+    if (!response.success) {
+      modal.classList.remove('show');
+      downloadNotification("error", "Failed to download Excel file");
+    }
+
+    modal.classList.remove('show');
+    downloadNotification(response.success, response.message);
+  } catch (error) {
+    modal.classList.remove('show');
+    downloadNotification("error", "An unexpected error occured while downloading the Excel File");
+    console.error("Error downloading Excel file:", error);
+    throw error;
+  }
+}
+
+
+async function downloadPDF2() {
+  try {
+    const response = await fetchPDFFile()
+
+    if (!response.success) {
+      modal.classList.remove('show');
+      downloadNotification("error", "Failed to download PDF file");
+    }
+
+    modal.classList.remove('show');
+    downloadNotification(response.success, response.message);
+  } catch (error) {
+    modal.classList.remove('show');
+    downloadNotification("error", "An unexpected error occured while downloading the PDF File");
+    console.error("Error downloading PDF file:", error);
+    throw error;
+  }
+}
+
+
+async function downloadAll2() {
+  // Your package download logic
+  downloadNotification('Packaging all formats...', 'success');
+}
+
+
+async function downloadReport2(format) { // for history dashboard download button
+    switch(format) {
+    case 'json':
+      downloadJSON2();
+      break;
+    case 'excel':
+      downloadExcel2();
+      break;
+    case 'pdf':
+      downloadPDF2();
+      break;
+    case 'all':
+      downloadAll2();
       break;
   }
 }
@@ -124,3 +209,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.style.overflow = '';
   }
 });
+
+export { downloadReport2 }
