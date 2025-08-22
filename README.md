@@ -188,7 +188,7 @@ smart_traffic_monitoring_system/
 
 This project is part of a capstone research titled "IoT-Based Smart Traffic Monitoring System with Data Analytics Along Barangay Longos C-4 Road for Enhanced Malabon LGU Decision-Making". It was developed by lead researcher and main web app developer Benji I. Cañones, along with co-researchers: Aero Louise C. Arnaldo, Kate Lavayne Marcos, Vanessa Joyce M. Monterde, and Wendy L. Pesimo. The project was completed at the City of Malabon University as partial fulfillment for the Bachelor of Science in Information Technology degree.
 
-For full details, refer to the [capstone documentation PDF](./Group%206_%20IoT-Based%20Smart%20Traffic%20Monitoring%20System%20with%20Data%20Analytics%20Along%20Barangay%20Longos%20C-4%20Road%20for%20Enhanced%20Malabon%20LGU%20Decision-Making.pdf).
+For full details, refer to the [Group 6_ IoT-Based Smart Traffic Monitoring System with Data Analytics Along Barangay Longos C-4 Road for Enhanced Malabon LGU Decision-Making.pdf](https://github.com/user-attachments/files/21940558/Group.6_.IoT-Based.Smart.Traffic.Monitoring.System.with.Data.Analytics.Along.Barangay.Longos.C-4.Road.for.Enhanced.Malabon.LGU.Decision-Making.pdf).
 
 ## Contact / Support
 
