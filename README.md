@@ -1,4 +1,3 @@
-```markdown
 # Smart Traffic Monitoring System
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/BenjiBenji20/smart_traffic_monitoring_system/actions)
@@ -11,7 +10,7 @@
 [![YOLO](https://img.shields.io/badge/YOLO-v11-red)](https://ultralytics.com/yolo)
 [![Firebase](https://img.shields.io/badge/Firebase-yellow?logo=firebase)](https://firebase.google.com/)
 
-![Cover Image](path/to/your/cover-image.png) <!-- Replace with your cover image path -->
+![Cover Image](path/to/your/cover-image.png) 
 
 This IoT-based smart traffic monitoring system uses real-time video feeds from Raspberry Pi devices to detect, classify, and count vehicles along Barangay Longos C-4 Road in Malabon City. It integrates AI for traffic prediction and data analytics to provide actionable insights for local government decision-making on urban congestion. The system enhances traffic management through data visualization, predictive modeling, and AI-generated recommendations.
 
