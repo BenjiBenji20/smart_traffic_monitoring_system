@@ -10,7 +10,9 @@
 [![YOLO](https://img.shields.io/badge/YOLO-v11-red)](https://ultralytics.com/yolo)
 [![Firebase](https://img.shields.io/badge/Firebase-yellow?logo=firebase)](https://firebase.google.com/)
 
-![Cover Image](path/to/your/cover-image.png) 
+<p align="center">
+   <img width="1895" height="874" alt="Image" src="https://github.com/user-attachments/assets/62a42921-423d-418b-8d8f-25f10d7e979a" width="600"/>
+</p>
 
 This IoT-based smart traffic monitoring system uses real-time video feeds from Raspberry Pi devices to detect, classify, and count vehicles along Barangay Longos C-4 Road in Malabon City. It integrates AI for traffic prediction and data analytics to provide actionable insights for local government decision-making on urban congestion. The system enhances traffic management through data visualization, predictive modeling, and AI-generated recommendations.
 
@@ -18,6 +20,7 @@ This IoT-based smart traffic monitoring system uses real-time video feeds from R
 
 - [Project Technologies](#project-technologies)
 - [Features](#features)
+- [Real World Application and Solutions](#real-world-application-and-solutions)
 - [Demo](#demo)
 - [Installation / Setup Instructions](#installation--setup-instructions)
 - [Usage](#usage)
@@ -38,7 +41,7 @@ This IoT-based smart traffic monitoring system uses real-time video feeds from R
 ## Features
 
 - **Vehicle Detection and Classification**: Identifies vehicles such as cars, trucks, buses, bicycles, motorbikes, and jeepneys in real-time using YOLOv11.
-- **Viewable Livestream**: Provides live video streaming of traffic with overlaid vehicle detections via WebRTC.
+- **Viewable Livestream**: Provides live video streaming of traffic with overlaid vehicle detections.
 - **Real-time Vehicle Counting and Data Logging**: Counts vehicles and logs data instantly to Firebase Realtime Database.
 - **Traffic Prediction**: Uses Prophet model for time-series forecasting based on historical traffic patterns to predict future congestion.
 - **Data Visualization and Analysis**: Displays charts (line and bar) using Chart.js for traffic trends and performs in-depth data analysis.
@@ -49,11 +52,20 @@ This IoT-based smart traffic monitoring system uses real-time video feeds from R
 - **Admin Dashboard**: Secure login for admins to view live dashboards, manage data, and apply predictive models.
 - **Public Mobile Access**: Mobile-friendly interface for public users to view traffic updates.
 
+## Real World Application and Solutions
+<p>
+This project introduces an IoT-based Smart Traffic Monitoring System integrated with AI and data analytics to address urban congestion in Malabon City. Deployed along Barangay Longos C-4 Road, the system uses Raspberry Pi devices for real-time vehicle detection, classification (e.g., cars, trucks, buses, bicycles, motorbikes, jeepneys), and counting. It analyzes traffic data to identify trends, predict future patterns using predictive AI models like Prophet, and generates actionable recommendations via Mistral LLM for road management. Aligned with the MMDA's Comprehensive Traffic Management Plan (CTMP), it provides valuable insights to enhance local government unit (LGU) decision-making, improve traffic flow, and serve as a model for other congested areas in Metro Manila and beyond.
+</p>
+
 ## Demo
 
 Watch a short demo video showcasing the system's real-time vehicle detection, traffic prediction, and dashboard features.
 
-[![Demo Video](path/to/your/demo-thumbnail.png)](https://drive.google.com/your-gdrive-link) <!-- Replace thumbnail path and GDrive link -->
+<p align="center">
+  <a href="https://drive.google.com/file/d/1c1HGO3NO9VcyNZVn6VlSdxPSWw8FYq2u/view?usp=sharing" target="_blank">
+    <img width="1919" height="871" alt="Image" src="https://github.com/user-attachments/assets/87d01b5d-bb87-4a04-9064-4888789bdecb" width="600"/>
+  </a>
+</p>
 
 ## Installation / Setup Instructions
 
@@ -62,8 +74,9 @@ This guide assumes you have basic knowledge of command-line tools. We'll set up 
 ### Prerequisites
 
 - Python 3.8 or higher
-- MySQL server (e.g., via XAMPP or a cloud service)
-- Node.js (for any JavaScript dependencies, if needed)
+- FastAPI
+- MySQL 
+- JavaScripts
 - Firebase account (for real-time database and admin SDK)
 - Git installed
 
@@ -87,7 +100,7 @@ This guide assumes you have basic knowledge of command-line tools. We'll set up 
    ```
 
 4. **Prepare Environment Variables**:
-   - Copy the example from `src/app/core/settings.py` and create a `.env` file in the root directory.
+   - You can follow the variable naming in the `src/app/core/settings.py` and create a `.env` file in the root directory.
    - Fill in details like MySQL credentials, Firebase project ID, API keys, etc.
 
 5. **Set Up Firebase Admin SDK**:
@@ -107,11 +120,12 @@ This guide assumes you have basic knowledge of command-line tools. We'll set up 
    - The server runs on port 8000 by default. If you change it, update the client-side code (e.g., in JavaScript files) to match the new port.
 
 2. **Access the Web App**:
-   - Open a browser and go to `http://localhost:8000` for the admin dashboard.
+   - Open a browser and go to `use your browser domain` for the admin dashboard.
    - For public mobile access, use a mobile device or responsive view.
 
 3. **IoT Device Setup**:
-   - Configure the Raspberry Pi Zero 2 W with CSI Camera to stream video to the server (refer to scripts in `/script` for integration).
+   - Follow the guide to setup the Raspberry Pi Zero 2 W + CSI Camera Module:
+   <a href="https://github.com/BenjiBenji20/RPi-Zero-2-W-MJPEG-Streaming.git" target="_blank">Configure RPi Zero 2 W</a>
 
 ## Project Structure
 
