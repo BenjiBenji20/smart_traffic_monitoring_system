@@ -2,11 +2,18 @@ import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import numpy as np
+from datetime import datetime, timezone
 
-# db and model
+from sqlalchemy import select
+
+# db, model and schema
 from src.app.db.db_session import engine, async_session
 from src.app.db.base import Base
 from src.app.models.user import User  # ensure it's imported so Base knows the model
+from src.app.models.history import History
+from src.app.schemas.history_schema import HistorySchema
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 # global exceptions
 from src.app.exceptions.custom_exceptions import *
@@ -32,7 +39,38 @@ from src.traffic_ai.vehicle_detection.shared import detection_state
 from src.traffic_ai.traffic_recommendation.traffic_recommendation_ai import AIRecommendation
 from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import prediction_summary, prediction_detail
 
+async def store_data_for_history(history_dict: dict, db: AsyncSession) -> History:
+    """Store prediction and ai recommendation raw data in history table"""
+    try:
+        # Check if today's data already exists
+        today = datetime.now(timezone.utc).date()
+        result = await db.execute(
+            select(History).where(
+                History.created_at == today
+            )
+        )
+        
+        existing_data = result.scalar_one_or_none()
+        
+        if existing_data:
+            print(f"History entry for {today} already exists, skipping...")
+            return existing_data
+        
+        history_schema = HistorySchema(**history_dict)
+        history_dict_dump = history_schema.model_dump()
+        history_db = History(**history_dict_dump)
+        
+        db.add(history_db)
+        await db.commit()
+        await db.refresh(history_db)
+        print("Fresh history data stored successfully.")
+        
+        return history_db
+    except Exception as e:
+         print(f"Error storing history data: {e}")
+         raise
 
+reco_handler = None
 async def generate_user_recommendations(d1, d2, user_type):
     """Generate recommendations for a specific user type"""
     try:
@@ -46,12 +84,17 @@ async def generate_user_recommendations(d1, d2, user_type):
             print(f"Recommendations cached for {user_type}")
         else:
             print(f"Cache already exists for {user_type}")
+        
+        if user_type in ['admin', 'traffic_enforcer', 'city_engineer']:
+            ai_reco.run_ai_recommendation(d1, d2, user_type)
+            global reco_handler
+            reco_handler = ai_reco.reco_json
             
     except Exception as e:
         print(f"Error generating recommendations for {user_type}: {e}")
 
 
-async def initialize_ai_recommendations():
+async def initialize_ai_recommendations(db: AsyncSession):
     """Initialize AI recommendations for all user types during startup"""
     try:
         print("Starting AI recommendation initialization...")
@@ -72,6 +115,15 @@ async def initialize_ai_recommendations():
         # Wait for all recommendations to complete
         await asyncio.gather(*tasks)
         
+        #  create a payload
+        history_dict = {
+            "prediction_summary": d1,
+            "prediction_detail": d2,
+            "ai_recommendation": reco_handler
+        }
+        
+        print("Storing history data")
+        await store_data_for_history(history_dict, db)
     except Exception as e:
         print(f"Error initializing AI recommendations: {e}")
         # Don't fail server startup if AI initialization fails
@@ -90,11 +142,12 @@ async def life_span(app: FastAPI):
         with detection_state.frame_lock:
             detection_state.latest_frame = np.zeros((270, 480, 3), dtype=np.uint8)
             detection_state.latest_detections.clear()
-        
         print("Shared state initialized")
         
-        # initialize AI recommendations during startup
-        await initialize_ai_recommendations()
+        # Get database session for initialization
+        async with AsyncSession(engine) as db:
+            # initialize AI recommendations during startup and store history data in database
+            await initialize_ai_recommendations(db)
         
         print("Server started - Livestream can be started via API")
         
