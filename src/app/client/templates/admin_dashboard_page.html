@@ -312,11 +312,6 @@
                             <span>PDF</span>
                             <small>Printable report</small>
                         </button>
-                        <button class="download-option package" data-format="all">
-                            <i class="fas fa-box text-purple-500 text-2xl"></i>
-                            <span>Complete Package</span>
-                            <small>All formats (ZIP)</small>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -398,27 +393,92 @@
                 <div class="grid gap-6">
                     <div class="rounded-2xl bg-white/5 backdrop-blur-lg border border-white/10 p-6 shadow-lg">
                         <h3 class="text-lg font-bold text-white mb-4">Version Details</h3>
-                        <div class="space-y-4">
-                            <!-- Data will be fetched from the backend -->
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-clock text-cyan-400"></i>
-                                <p class="text-sm text-gray-300">Timestamp: 2025-08-22 14:30</p>
+                        
+                        <!-- Traffic Prediction Summary Container -->
+                        <div id="history-traffic-summary" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
+                            <h2 class="text-xl font-semibold mb-4">Summary of Traffic Predictions</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
+                                    <div class="flex items-center mb-3">
+                                        <i class="fas fa-calendar-day text-highlight text-xl mr-2"></i>
+                                        <h3 class="font-medium">Today</h3>
+                                    </div>
+                                    <div class="text-3xl font-bold mb-2" id="historyTodayPrediction">0</div>
+                                    <div class="text-sm text-accent2/80">Peak at 5:30 PM</div>
+                                </div>
+                                <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
+                                    <div class="flex items-center mb-3">
+                                        <i class="fas fa-calendar-week text-highlight text-xl mr-2"></i>
+                                        <h3 class="font-medium">This Week</h3>
+                                    </div>
+                                    <div class="text-3xl font-bold mb-2" id="historyWeekPrediction">0</div>
+                                    <div class="text-sm text-accent2/80">Worst on Friday</div>
+                                </div>
+                                <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
+                                    <div class="flex items-center mb-3">
+                                        <i class="fas fa-calendar-alt text-highlight text-xl mr-2"></i>
+                                        <h3 class="font-medium">Next 3 Months</h3>
+                                    </div>
+                                    <div class="text-3xl font-bold mb-2" id="historyMonthPrediction">0</div>
+                                    <div class="text-sm text-accent2/80">Improving trend</div>
+                                </div>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-user text-cyan-400"></i>
-                                <p class="text-sm text-gray-300">User: Admin</p>
+
+                            <!-- AI Recommendation Summary -->
+                            <div class="flex items-start mb-4">
+                                <div class="bg-highlight text-primary rounded-full p-3 mr-4">
+                                    <i class="fas fa-robot text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h2 class="text-xl font-semibold mb-2">AI Recommendation Summary</h2>
+                                    <div class="bg-accent1 rounded-lg p-4" id="historyAiRecommendation">
+                                        Analyzing current traffic patterns... Please wait while I generate recommendations.
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-database text-cyan-400"></i>
-                                <p class="text-sm text-gray-300">Change: Updated traffic data for Barangay Longos C-4 Road</p>
+                        </div>
+
+                        <!-- Chart Prediction Section -->
+                        <div id="history-traffic-analysis" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-semibold">Traffic Analysis</h2>
+                                <div class="flex flex-wrap gap-1">
+                                    <!-- Time period tabs -->
+                                    <div class="flex gap-1 mr-4">
+                                        <button class="history-time-tab bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-period="hourly">Hourly</button>
+                                        <button class="history-time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="daily">Daily</button>
+                                        <button class="history-time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="weekly">Weekly</button>
+                                        <button class="history-time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="monthly">Monthly</button>
+                                    </div>
+                                    <!-- Chart type selector -->
+                                    <div class="flex gap-1">
+                                        <button class="history-chart-type bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-type="line">
+                                            <i class="fas fa-chart-line mr-1"></i> Line
+                                        </button>
+                                        <button class="history-chart-type bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-type="bar">
+                                            <i class="fas fa-chart-bar mr-1"></i> Bar
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-300">Details:</p>
-                                <ul class="list-disc list-inside text-sm text-gray-300">
-                                    <li>Car count: 150</li>
-                                    <li>Truck count: 20</li>
-                                    <li>Peak traffic: 17:30</li>
-                                </ul>
+                            
+                            <div class="history-chart-container mb-4">
+                                <canvas id="historyTrafficChart" class="w-full h-64">
+                                    <!-- Chart will be generated using Chart.js -->
+                                </canvas>
+                            </div>
+                            
+                            <!-- AI Recommendation Container (Chart-Specific) -->
+                            <div class="flex items-start mt-4">
+                                <div class="bg-highlight text-primary rounded-full p-3 mr-1">
+                                    <i class="fas fa-robot text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-medium mb-2">AI Detailed Recommendation and Analysis Insight</h3>
+                                    <div class="bg-accent1 rounded-lg p-4" id="historyChartInsight">
+                                        Loading detailed analysis and recommendations...
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -445,16 +505,6 @@
                                     <i class="fas fa-file-excel text-green-500 text-2xl"></i>
                                     <span>Excel</span>
                                     <small>Spreadsheet format</small>
-                                </button>
-                                <button class="download-option" data-format="pdf">
-                                    <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
-                                    <span>PDF</span>
-                                    <small>Printable report</small>
-                                </button>
-                                <button class="download-option package" data-format="all">
-                                    <i class="fas fa-box text-purple-500 text-2xl"></i>
-                                    <span>Complete Package</span>
-                                    <small>All formats (ZIP)</small>
                                 </button>
                             </div>
                         </div>
@@ -508,6 +558,9 @@
 
     <!--HISTORY UI -->
     <script type="module" src="../static/javascripts/api/dashboard_history_api.js"></script>
+    <script type="module" src="../static/javascripts/ui/chart_modules.js"></script>
+    <script type="module" src="../static/javascripts/ui/chart_renderer.js"></script>
+    <script type="module" src="../static/javascripts/ui/ai_recommendation_renderer.js"></script>
     <script type="module" src="../static/javascripts/ui/render_dashboard_history_ui.js"></script>
   </body>
 </html>

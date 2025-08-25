@@ -457,7 +457,7 @@ canvas {
 /* Download Options */
 .download-options {
     padding: 20px;
-    display: grid;
+    display: flex;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 }

@@ -1,20 +1,53 @@
 import { fetchJSONFile, fetchExcelFile, fetchPDFFile } from "../api/download_file_api.js";
 import { downloadNotification } from "../utils/notification_util.js"
+import { getPredictionSummary, getPredictionDetail, getRecommendation } from "../api/dashboard_prediction_api.js";
 
 const modal = document.getElementById('downloadModal');
 
-// download buttons for main dashboard view
-async function downloadJSON() {
+async function requestPayload() {
   try {
-    const response = await fetchJSONFile()
+    const [d1, d2, reco] = await Promise.all([
+      getPredictionSummary(),
+      getPredictionDetail(),
+      getRecommendation()
+    ]);
 
-    if (!response.success) {
-      modal.classList.remove('show');
-      downloadNotification("error", "Failed to download JSON file");
+    const predictionSummary = d1.success !== undefined ? d1.data : d1;
+    const predictionDetail = d2.success !== undefined ? d2.data : d2;
+    const recommendation = reco.success !== undefined ? reco.data : reco;
+
+    // Check if predictionDetail is null or undefined
+    if (!predictionDetail) {
+      console.error("predictionDetail is null or undefined!");
+      throw new Error("Prediction detail data is missing");
     }
 
+    const payload = {
+      prediction_detail: predictionDetail, 
+      prediction_summary: predictionSummary,
+      recommendation: recommendation
+    };
+
+    return payload;
+  } catch (error) {
+    console.error("Error in requestPayload:", error);
+    throw error;
+  }
+}
+
+
+// download buttons for main dashboard view
+async function downloadJSON() { 
+  try {
+    const payload = await requestPayload();
+    const response = await fetchJSONFile(payload);
+
+    if (response.success) {
+        downloadNotification("success", response.message);
+    } 
+
     modal.classList.remove('show');
-    downloadNotification(response.success, response.message);
+    downloadNotification(response.success, response.message)
   } catch (error) {
     modal.classList.remove('show');
     downloadNotification("error", "An unexpected error occured while downloading the JSON File");
@@ -26,7 +59,8 @@ async function downloadJSON() {
 
 async function downloadExcel() {
   try {
-    const response = await fetchExcelFile()
+    const payload = await requestPayload();
+    const response = await fetchExcelFile(payload)
 
     if (!response.success) {
       modal.classList.remove('show');
@@ -89,9 +123,9 @@ async function downloadReport(format) { // for main dashboard download button
 
 
 // download buttons for history dashboard view
-async function downloadJSON2() {
+async function downloadJSON2(payload) {
   try {
-    const response = await fetchJSONFile()
+    const response = await fetchJSONFile(payload);
 
     if (!response.success) {
       modal.classList.remove('show');
@@ -109,9 +143,9 @@ async function downloadJSON2() {
 }
 
 
-async function downloadExcel2() {
+async function downloadExcel2(payload) {
   try {
-    const response = await fetchExcelFile()
+    const response = await fetchExcelFile(payload);
 
     if (!response.success) {
       modal.classList.remove('show');
@@ -129,45 +163,13 @@ async function downloadExcel2() {
 }
 
 
-async function downloadPDF2() {
-  try {
-    const response = await fetchPDFFile()
-
-    if (!response.success) {
-      modal.classList.remove('show');
-      downloadNotification("error", "Failed to download PDF file");
-    }
-
-    modal.classList.remove('show');
-    downloadNotification(response.success, response.message);
-  } catch (error) {
-    modal.classList.remove('show');
-    downloadNotification("error", "An unexpected error occured while downloading the PDF File");
-    console.error("Error downloading PDF file:", error);
-    throw error;
-  }
-}
-
-
-async function downloadAll2() {
-  // Your package download logic
-  downloadNotification('Packaging all formats...', 'success');
-}
-
-
-async function downloadReport2(format) { // for history dashboard download button
+async function downloadReport2(format, payload) { // for history dashboard download button
     switch(format) {
     case 'json':
-      downloadJSON2();
+      downloadJSON2(payload);
       break;
     case 'excel':
-      downloadExcel2();
-      break;
-    case 'pdf':
-      downloadPDF2();
-      break;
-    case 'all':
-      downloadAll2();
+      downloadExcel2(payload);
       break;
   }
 }

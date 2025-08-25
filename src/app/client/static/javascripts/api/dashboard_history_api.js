@@ -76,4 +76,25 @@ async function updateVersionName(id, newVersionName) {
 }
 
 
-export { fetchAllHistoryRecord, fetchOneHistoryRecord, updateVersionName, getHistoryData };
+async function requestPayload(responseData) {
+  try {
+    // Check if predictionDetail is null or undefined
+    if (!responseData) {
+      console.error("predictionDetail is null or undefined!");
+      throw new Error("Prediction detail data is missing");
+    }
+
+    const payload = {
+      prediction_detail: responseData.predictionDetail, 
+      prediction_summary: responseData.predictionSummary,
+      recommendation: responseData.recommendation
+    };
+
+    return payload;
+  } catch (error) {
+    console.error("Error in requestPayload:", error);
+    throw error;
+  }
+}
+
+export { fetchAllHistoryRecord, fetchOneHistoryRecord, updateVersionName, getHistoryData, requestPayload };

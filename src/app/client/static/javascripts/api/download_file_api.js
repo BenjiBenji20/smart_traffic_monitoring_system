@@ -3,11 +3,13 @@ import { formatDateWithoutMS } from "./dashboard_prediction_api.js";
 
 const BASE_URL = "http://localhost:8000/api/dashboard/download-file";
 
-async function fetchJSONFile() {
+async function fetchJSONFile(payload) {
   try {
     // Make authenticated request to download JSON file
     const response = await secureFetch(`${BASE_URL}/json`, {
-      method: "GET",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
     // Check if the response is successful
@@ -54,15 +56,23 @@ async function fetchJSONFile() {
 }
 
 
-async function fetchExcelFile() {
+async function fetchExcelFile(payload) {
   try {
-    const response = await secureFetch(`${BASE_URL}/xlsx`, { method: "GET" });
+    const response = await secureFetch(`${BASE_URL}/xlsx`, { 
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload) 
+    });
+
     if (!response.ok) {
       throw new Error(`Failed to download Excel file: ${response.status} ${response.statusText}`);
     }
+
     const blob = await response.blob();
+    
     let filename;
     const contentDisposition = response.headers.get("Content-Disposition");
+
     if (contentDisposition) {
       const match = contentDisposition.match(/filename="([^"]+)"/);
       if (match && match[1]) {
@@ -73,8 +83,10 @@ async function fetchExcelFile() {
     } else {
       filename = `traffic_data_report_${formatDateWithoutMS(new Date)}.xlsx`;
     }
+
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
+    
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);

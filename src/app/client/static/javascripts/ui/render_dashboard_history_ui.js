@@ -1,5 +1,17 @@
+// =====================================
+// FIXED VERSION - History Dashboard Renderer
+// File: render_dashboard_history_ui.js
+// =====================================
+
 import { downloadReport2 } from "./download_button_ui.js";
-import { getHistoryData, updateVersionName } from "../api/dashboard_history_api.js"
+import { 
+  getHistoryData, 
+  updateVersionName, 
+  fetchOneHistoryRecord
+} from "../api/dashboard_history_api.js";
+
+// Import the modular components
+import { ChartRecommendationManager, HistoryListRenderer, EditableTitleRenderer } from "./chart_modules.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Get the main view containers
@@ -7,30 +19,44 @@ document.addEventListener("DOMContentLoaded", async () => {
   const dashboardHistoryView = document.getElementById("dashboard-history-view");
   const mainView = document.getElementById("main-view");
 
+  // Current state variables
+  let currentHistoryId = null;
+  let currentHistoryData = null;
+
+  // Initialize modular components
+  const chartManager = new ChartRecommendationManager({
+    canvasId: 'historyTrafficChart',
+    recommendationId: 'historyChartInsight'
+  });
+
+  const historyListRenderer = new HistoryListRenderer({
+    onItemClick: onHistoryItemClick,
+    onOptionsClick: showOptionsMenu,
+    containerSelector: '.space-y-2'
+  });
+
+  const editableTitleRenderer = new EditableTitleRenderer({
+    onSave: updateVersionName
+  });
+
   // Function to toggle visibility
   function toggleView(activeViewId) {
-    // Remove active class from both views
     dashboardMainView.classList.remove("active");
     dashboardHistoryView.classList.remove("active");
-
-    // Hide both views
     dashboardMainView.style.display = "none";
     dashboardHistoryView.style.display = "none";
 
-    // Show the selected view and add active class
     const activeView = document.getElementById(activeViewId);
-    activeView.style.display = "block"; // or "flex" based on your layout
+    activeView.style.display = "block";
     activeView.classList.add("active");
   }
 
-  // Event delegation on main-view for download functionality
+  // Event delegation for download functionality
   mainView.addEventListener("click", async (e) => {
-     // Look for download buttons in BOTH views
     const downloadBtn = e.target.closest(".download-btn");
     const closeModalBtn = e.target.closest(".close-modal");
     const downloadOption = e.target.closest(".download-option");
     
-    // Find the modal in the CURRENT visible view
     const activeView = document.querySelector("#dashboard-main-view.active, #dashboard-history-view.active");
     const modal = activeView ? activeView.querySelector(".download-modal") : null;
 
@@ -53,7 +79,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Update closeModal function to find modal in active view
   function closeModal() {
     const activeView = document.querySelector("#dashboard-main-view.active, #dashboard-history-view.active");
     const modal = activeView ? activeView.querySelector(".download-modal") : null;
@@ -67,6 +92,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Event listener for History view
   document.getElementById("view-history").addEventListener("click", async () => {
     toggleView("dashboard-history-view");
+    await renderHistoryList();
+    await renderHistoryPreview();
   });
 
   // Event listener for Dashboard view
@@ -87,56 +114,45 @@ document.addEventListener("DOMContentLoaded", async () => {
     chevron.classList.toggle("rotate-180");
   });
 
-  
   // Function to render history list dynamically
   async function renderHistoryList() {
-    const historyListContainer = document.querySelector("#dashboard-history-view aside .space-y-2");
-    if (!historyListContainer) return;
+    try {
+      const historyData = await getHistoryData();
+      
+      if (!historyData || historyData.length === 0) {
+        const container = document.querySelector("#dashboard-history-view aside .space-y-2");
+        if (container) {
+          container.innerHTML = '<div class="text-gray-400 p-3">No history data available</div>';
+        }
+        return;
+      }
 
-    const historyData = await getHistoryData();
-    historyListContainer.innerHTML = ""; // Clear existing items
+      // Use the modular history list renderer
+      historyListRenderer.render('dashboard-history-view', historyData, { selectedIndex: 0 });
 
-    historyData.forEach((item, index) => {
-      const historyItem = document.createElement("div");
-      historyItem.className = `rounded-lg px-3 py-2 cursor-pointer transition ${
-        index === 0 ? "bg-white/5 hover:bg-white/10 glow-on-hover border-l-4 border-cyan-400 animate-[fadeUp_0.3s_ease-out]" : "hover:bg-white/5 animate-[fadeUp_0.3s_ease-out]"
-      }`;
-      historyItem.setAttribute("data-metadata-id", item.id); // Attach metadata-id
-     historyItem.innerHTML = `
-        <div class="flex items-center justify-between w-full">
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-white truncate">${item.version_name}</p>
-            <p class="text-xs font-semibold text-gray-400 mt-2">${item.created_at}</p>
-          </div>
-          <span class="options-dot ml-2 text-gray-400 hover:text-white cursor-pointer flex-shrink-0">⋮</span>
-        </div>
-      `;
-
-      historyItem.querySelector(".options-dot").addEventListener("click", (e) => {
-        e.stopPropagation();
-        showOptionsMenu(item.id, historyItem);
-      });
-      historyListContainer.appendChild(historyItem);
-    });
+    } catch (error) {
+      console.error("Error rendering history list:", error);
+      const container = document.querySelector("#dashboard-history-view aside .space-y-2");
+      if (container) {
+        container.innerHTML = '<div class="text-red-400 p-3">Error loading history data</div>';
+      }
+    }
   }
 
   // Function to render history preview
   async function renderHistoryPreview() {
     const previewTitle = document.querySelector("#dashboard-history-view .flex-1 h2");
-    if (!previewTitle) return;
+    if (!previewTitle) {
+      console.error("Preview title element not found");
+      return;
+    }
 
     try {
       const historyData = await getHistoryData();
       
       if (historyData && historyData.length > 0) {
         const firstItem = historyData[0];
-        previewTitle.textContent = firstItem.version_name;
-        previewTitle.setAttribute("data-history-id", firstItem.id);
-        
-        // Clean up and re-add event listener
-        const newTitle = previewTitle.cloneNode(true);
-        previewTitle.parentNode.replaceChild(newTitle, previewTitle);
-        newTitle.addEventListener("dblclick", handleTitleDoubleClick);
+        await loadHistoryPreview(firstItem.id, firstItem.version_name, previewTitle);
       } else {
         previewTitle.textContent = "History Preview - No Data";
         previewTitle.removeAttribute("data-history-id");
@@ -147,89 +163,338 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Separate function for double click handling
-  function handleTitleDoubleClick() {
-    const id = this.getAttribute("data-history-id");
-    if (id) {
-      makePreviewTitleEditable(this, id);
+  // Load specific history preview
+  async function loadHistoryPreview(historyId, versionName, titleElement) {
+    try {
+      // Update title
+      titleElement.textContent = versionName;
+      titleElement.setAttribute("data-history-id", historyId);
+      currentHistoryId = historyId;
+
+      // Setup editable title using modular component
+      editableTitleRenderer.setupDoubleClick(titleElement, historyId);
+
+      // Load full history data
+      currentHistoryData = await fetchOneHistoryRecord(historyId);
+
+      // Render everything
+      await renderHistoryContent();
+
+    } catch (error) {
+      console.error("Error loading history preview:", error);
+      titleElement.textContent = `Error loading: ${versionName}`;
     }
   }
 
-  // Function to make preview title editable
-  function makePreviewTitleEditable(previewTitle, id) {
-    const currentText = previewTitle.textContent;
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = currentText;
-    input.className = "bg-gray-800 text-white border border-cyan-400 rounded p-1 focus:outline-none";
-    previewTitle.innerHTML = "";
-    previewTitle.appendChild(input);
+  // Render all history content (summary, charts, recommendations)
+  async function renderHistoryContent() {
+    if (!currentHistoryData) {
+      console.error("No current history data available");
+      return;
+    }
 
-    input.focus();
-    input.addEventListener("blur", () => saveVersionName(id, input.value, previewTitle));
-    input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") saveVersionName(id, input.value, previewTitle);
+    try {
+      const { prediction_summary, prediction_detail, ai_recommendation } = currentHistoryData;
+
+      // Update request date display with proper formatting
+      const requestDateDisplay = document.getElementById('history-request-date-display');
+      if (requestDateDisplay && currentHistoryData.created_at) {
+        const formattedDate = formatDisplayDate(currentHistoryData.created_at);
+        requestDateDisplay.textContent = `Request Date: ${formattedDate}`;
+      }
+
+      // Render prediction summary (numbers)
+      renderPredictionSummary(prediction_summary);
+      // Render AI recommendation summary
+      renderRecommendationSummary(ai_recommendation);
+
+      // Check if prediction_detail exists and has data
+      if (!prediction_detail || Object.keys(prediction_detail).length === 0) {
+        console.error("No prediction detail data available");
+        displayNoChartData();
+        return;
+      }
+
+      // Check if Chart.js is available globally
+      if (typeof Chart === 'undefined') {
+        console.error("Chart.js is not loaded. Make sure the script tag is included.");
+        displayChartJsError();
+        return;
+      }
+
+      // Render chart and recommendation with default period (hourly)
+      await chartManager.renderBoth('hourly', 'line', prediction_detail, ai_recommendation);
+
+      // Setup chart controls
+      setupHistoryChartControls();
+
+    } catch (error) {
+      console.error("Error rendering history content:", error);
+      displayError();
+    }
+  }
+
+  // Render prediction summary (numerical values)
+  function renderPredictionSummary(summaryData) {
+    if (!summaryData) {
+      console.warn("No prediction summary data available");
+      return;
+    }
+
+    // Update the summary cards with proper number formatting and analytics
+    const todayElement = document.getElementById('historyTodayPrediction');
+    const weekElement = document.getElementById('historyWeekPrediction');
+    const monthElement = document.getElementById('historyMonthPrediction');
+
+    // Update Today card
+    if (todayElement) {
+      const todayValue = summaryData.vhcl_today_sum || 0;
+      todayElement.textContent = todayValue.toLocaleString();
+      
+      // Update peak time if available
+      const peakTimeElement = todayElement.parentElement.querySelector('.text-accent2\\/80');
+      if (peakTimeElement && summaryData.today_analytics?.peak?.time) {
+        const peakTime = formatTime(summaryData.today_analytics.peak.time);
+        peakTimeElement.textContent = `Peak at ${peakTime}`;
+      }
+    }
+
+    // Update Week card
+    if (weekElement) {
+      const weekValue = summaryData.vhcl_current_week_sum || 0;
+      weekElement.textContent = weekValue.toLocaleString();
+      
+      // Update peak day if available
+      const peakDayElement = weekElement.parentElement.querySelector('.text-accent2\\/80');
+      if (peakDayElement && summaryData.weekly_analytics?.peak?.date) {
+        const peakDate = new Date(summaryData.weekly_analytics.peak.date);
+        const dayName = peakDate.toLocaleDateString('en-US', { weekday: 'long' });
+        peakDayElement.textContent = `Peak on ${dayName}`;
+      }
+    }
+
+    // Update 3 Months card
+    if (monthElement) {
+      const monthValue = summaryData.vhcl_three_months_sum || 0;
+      monthElement.textContent = monthValue.toLocaleString();
+      
+      // Update average info
+      const avgElement = monthElement.parentElement.querySelector('.text-accent2\\/80');
+      if (avgElement && summaryData.three_months_analytics?.avg) {
+        const avgValue = summaryData.three_months_analytics.avg;
+        avgElement.textContent = `Avg ${avgValue.toLocaleString()} vehicles/month`;
+      }
+    }
+  }
+
+  // Helper function to format time from various formats
+  function formatTime(timeString) {
+    if (!timeString) return 'Unknown';
+    
+    try {
+      // Handle different time formats
+      let time;
+      if (timeString.includes('T')) {
+        // ISO format: "2025-08-23T07:00:00"
+        time = new Date(timeString);
+      } else if (timeString.match(/^\d{1,2}:\d{2}(:\d{2})?$/)) {
+        // Time only format: "07:00" or "07:00:00"
+        time = new Date(`2000-01-01T${timeString}`);
+      } else {
+        // Try parsing as is
+        time = new Date(timeString);
+      }
+      
+      if (isNaN(time.getTime())) {
+        return timeString; // Return original if parsing failed
+      }
+      
+      // Format to local time string
+      return time.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return timeString;
+    }
+  }
+
+  // Render recommendation summary
+  function renderRecommendationSummary(recommendationData) {
+    const summaryContainer = document.getElementById('historyAiRecommendation');
+    if (!summaryContainer) return;
+
+    const summaryText = recommendationData?.summary_reco;
+    if (summaryText) {
+      // Format the text with proper line breaks and structure
+      const formattedText = formatAIRecommendation(summaryText);
+      summaryContainer.innerHTML = `<div class="text-sm text-accent2">${formattedText}</div>`;
+    } else {
+      summaryContainer.innerHTML = `
+        <div class="text-yellow-400">
+          <i class="fas fa-info-circle mr-2"></i>
+          No summary recommendation available
+        </div>
+      `;
+    }
+  }
+
+  // Format AI recommendation text for better readability
+  function formatAIRecommendation(text) {
+    if (!text) return '';
+    
+    // Split by periods followed by numbers (like "1. ", "2. ", etc.) to identify numbered lists
+    let formatted = text
+      .replace(/(\d+\.\s)/g, '<br><strong>$1</strong>')  // Add line breaks before numbered items and bold them
+      .replace(/([A-Z][^.!?]*[.!?])/g, '$1<br>')        // Add line breaks after sentences
+      .replace(/\s*<br>\s*<br>\s*/g, '<br>')            // Remove duplicate line breaks
+      .replace(/^\s*<br>/, '')                          // Remove line break at the start
+      .replace(/<br>\s*$/, '')                          // Remove line break at the end
+      .trim();
+    
+    // Clean up and improve formatting
+    formatted = formatted
+      .replace(/Peak Period \((.*?)\):/g, '<br><strong>Peak Period ($1):</strong>')
+      .replace(/Lowest Traffic Volume \((.*?)\):/g, '<br><strong>Lowest Traffic Volume ($1):</strong>')
+      .replace(/Average Traffic Volume \((.*?)\):/g, '<br><strong>Average Traffic Volume ($1):</strong>')
+      .replace(/^\s*<br>/, ''); // Remove initial line break
+    
+    return formatted;
+  }
+
+  // Display no chart data message
+  function displayNoChartData() {
+    const canvas = document.getElementById('historyTrafficChart');
+    const container = document.getElementById('historyChartInsight');
+    
+    if (canvas && canvas.parentElement) {
+      canvas.parentElement.innerHTML = `
+        <div class="flex items-center justify-center h-full text-gray-400">
+          <i class="fas fa-chart-line mr-2"></i>
+          No chart data available
+        </div>
+      `;
+    }
+    
+    if (container) {
+      container.innerHTML = `
+        <div class="text-yellow-400">
+          <i class="fas fa-info-circle mr-2"></i>
+          No detailed recommendations available
+        </div>
+      `;
+    }
+  }
+
+  // Display Chart.js error message
+  function displayChartJsError() {
+    const canvas = document.getElementById('historyTrafficChart');
+    if (canvas && canvas.parentElement) {
+      canvas.parentElement.innerHTML = `
+        <div class="flex items-center justify-center h-full text-red-400">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          Chart.js not loaded. Please check the script tag.
+        </div>
+      `;
+    }
+  }
+
+  // Display error message
+  function displayError() {
+    const canvas = document.getElementById('historyTrafficChart');
+    const container = document.getElementById('historyChartInsight');
+    
+    if (canvas && canvas.parentElement) {
+      canvas.parentElement.innerHTML = `
+        <div class="flex items-center justify-center h-full text-red-400">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          Error loading chart data
+        </div>
+      `;
+    }
+    
+    if (container) {
+      container.innerHTML = `
+        <div class="text-red-400">
+          <i class="fas fa-exclamation-circle mr-2"></i>
+          Error loading recommendations
+        </div>
+      `;
+    }
+  }
+
+  // Setup chart controls for history view
+  function setupHistoryChartControls() {
+    // Remove existing event listeners first to avoid duplicates
+    document.querySelectorAll('.history-chart-type').forEach(button => {
+      button.replaceWith(button.cloneNode(true));
+    });
+
+    document.querySelectorAll('.history-time-tab').forEach(tab => {
+      tab.replaceWith(tab.cloneNode(true));
+    });
+
+    // Chart type controls
+    document.querySelectorAll('.history-chart-type').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const chartType = e.target.dataset.type;
+        
+        // Update active styling
+        chartManager.updateActiveTab(e.target, 'history-chart-type');
+        
+        // Re-render chart with new type
+        if (currentHistoryData && currentHistoryData.prediction_detail) {
+          await chartManager.switchChartType(chartType);
+        }
+      });
+    });
+
+    // Period controls
+    document.querySelectorAll('.history-time-tab').forEach(tab => {
+      tab.addEventListener('click', async (e) => {
+        const period = e.target.dataset.period;
+        
+        // Update active styling
+        chartManager.updateActiveTab(e.target, 'history-time-tab');
+        
+        // Re-render chart and recommendation
+        if (currentHistoryData) {
+          await chartManager.switchPeriod(period);
+        }
+      });
     });
   }
 
-  // Function to save updated version name
-  async function saveVersionName(id, newVersionName, previewTitle) {
-    try {
-      const response = await updateVersionName(id, newVersionName);
-      if (response && response.version_name) {
-        // Update the text content without removing the element
-        previewTitle.textContent = response.version_name;
-        
-        // Re-add the double click listener
-        previewTitle.addEventListener("dblclick", () => {
-          makePreviewTitleEditable(previewTitle, id);
-        });
-        
-        // Also update the corresponding item in the list
-        updateHistoryListItem(id, response.version_name);
-      }
-    } catch (error) {
-      console.error("Error updating version name:", error);
-      // Revert to the new name (what user typed)
-      previewTitle.textContent = newVersionName;
-      previewTitle.addEventListener("dblclick", () => {
-        makePreviewTitleEditable(previewTitle, id);
-      });
+  // Handle history item clicks
+  async function onHistoryItemClick(item, itemElement) {
+    // Update selected styling
+    document.querySelectorAll('[data-metadata-id]').forEach(el => {
+      el.className = el.className.replace(/bg-white\/\d+|border-l-\d+|border-cyan-\d+|glow-on-hover/g, '').trim();
+      el.classList.add('hover:bg-white/5', 'animate-[fadeUp_0.3s_ease-out]');
+    });
+
+    itemElement.classList.add('bg-white/5', 'hover:bg-white/10', 'glow-on-hover', 'border-l-4', 'border-cyan-400');
+
+    // Load this history item's preview
+    const previewTitle = document.querySelector("#dashboard-history-view .flex-1 h2");
+    if (previewTitle) {
+      await loadHistoryPreview(item.id, item.version_name, previewTitle);
     }
   }
 
-  // Helper function to update list item
-  function updateHistoryListItem(id, newName) {
-    const listItem = document.querySelector(`[data-metadata-id="${id}"]`);
-    if (listItem) {
-      const titleElement = listItem.querySelector(".text-white");
-      if (titleElement) {
-        titleElement.textContent = newName;
-      }
-    }
-  }
-
-  // Function to show options menu
+  // Show options menu
   function showOptionsMenu(id, historyItem) {
     const menu = document.createElement("div");
     menu.className = "absolute bg-gray-800 border border-gray-700 rounded shadow-lg p-2 z-10";
     
-    // Get the position of the options dot
     const optionsDot = historyItem.querySelector(".options-dot");
     const dotRect = optionsDot.getBoundingClientRect();
     
-    // Position the menu relative to the options dot
     menu.style.top = `${dotRect.bottom + window.scrollY}px`;
-    menu.style.right = `${window.innerWidth - dotRect.right}px`; // Position from right edge
+    menu.style.right = `${window.innerWidth - dotRect.right}px`;
     
-    document.addEventListener("click", (e) => {
-      if (e.target.classList.contains("menu-update-btn")) {
-        const id = e.target.getAttribute("data-id");
-        updateVersionFromMenu(id);
-      }
-    });
-
-    // Update the menu creation to use event delegation
     menu.innerHTML = `
       <button class="menu-update-btn w-full text-left text-white hover:bg-gray-700 p-1 rounded" 
               data-id="${id}">
@@ -239,7 +504,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     document.body.appendChild(menu);
 
-    // Remove menu when clicking outside
     const closeMenu = (e) => {
       if (!menu.contains(e.target) && e.target !== optionsDot) {
         document.body.removeChild(menu);
@@ -247,36 +511,96 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     };
     
-    // Add a small delay to prevent immediate closing
     setTimeout(() => {
       document.addEventListener("click", closeMenu);
     }, 100);
+
+    // Handle menu button click
+    menu.querySelector('.menu-update-btn').addEventListener('click', () => {
+      const titleElement = document.querySelector("#dashboard-history-view .flex-1 h2");
+      if (titleElement) {
+        editableTitleRenderer.makeEditable(titleElement, id);
+      }
+      document.body.removeChild(menu);
+      document.removeEventListener("click", closeMenu);
+    });
   }
 
-  // Global function for menu action
-  window.updateVersionFromMenu = async (id) => {
-    const previewTitle = document.querySelector("#dashboard-history-view .flex-1 h2");
-    if (previewTitle) {
-      makePreviewTitleEditable(previewTitle, id);
+  // Helper function for week number
+  function getWeekNumber(date) {
+    const firstDay = new Date(date.getFullYear(), 0, 1);
+    return Math.ceil((((date - firstDay) / 86400000) + firstDay.getDay() + 1) / 7);
+  }
+
+  // Helper function to format display dates
+  function formatDisplayDate(dateString) {
+    if (!dateString) return 'Unknown Date';
+    
+    try {
+      // Handle different date formats
+      let date;
+      if (dateString.includes('T')) {
+        // ISO format: "2025-08-25T00:00:00" or similar
+        date = new Date(dateString);
+      } else if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        // Simple format: "2025-08-25"
+        date = new Date(dateString + 'T00:00:00');
+      } else {
+        // Try parsing as is
+        date = new Date(dateString);
+      }
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return dateString; // Return original if parsing failed
+      }
+      
+      // Format to local date string
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'local'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Return original if error occurred
+    }
+  }
+
+  // Update list item name when title is changed
+  editableTitleRenderer.onSave = async (id, newName) => {
+    try {
+      const response = await updateVersionName(id, newName);
+      const finalText = response?.version_name || newName;
+      
+      // Update the list item
+      historyListRenderer.updateItemName(id, finalText);
+      
+      return response;
+    } catch (error) {
+      console.error("Error updating version name:", error);
+      throw error;
     }
   };
 
-  // Initial render on page load
+  // Initial render when the page loads
   await renderHistoryList();
   await renderHistoryPreview();
 
-  // Event listener for History view (trigger re-render)
-  document.getElementById("view-history").addEventListener("click", async () => {
-    toggleView("dashboard-history-view");
-    await renderHistoryList(); // Re-render list on view switch
-    await renderHistoryPreview(); // Re-render preview on view switch
-  });
-
-  // Add CSS for slight height increase
+  // Add CSS for height increase and history-specific elements
   const style = document.createElement("style");
   style.textContent = `
     #dashboard-history-view aside {
-      height: calc(100vh - 64px); /* Slight increase from top-16 (64px) */
+      height: calc(100vh - 64px);
+    }
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+    .history-chart-container {
+      position: relative;
+      height: 300px;
     }
   `;
   document.head.appendChild(style);
