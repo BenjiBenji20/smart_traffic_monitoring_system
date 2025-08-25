@@ -12,7 +12,7 @@ from src.app.models.user import User
 from src.app.schemas.request_schema import PDFRequest
 from src.app.exceptions.custom_exceptions import FileDownloadException
 from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import (
-  prediction_detail, prediction_summary
+  prediction_summary
 )
 
 def download_path() -> str:
@@ -34,41 +34,15 @@ def file_name(file_type: str) -> str:
   return f"traffic_data_report_{timestr}.{file_type}"
   
 
-def pred_json() -> dict:
-  """Send to download route the raw prediction data for for download"""
-  try:
-    pred_d: dict = prediction_detail()
-    pred_s: dict = prediction_summary()
-    
-    if not pred_d or not pred_s:
-      raise HTTPException(504, detail="Failed to get data. Try again.")
-    
-    return {"prediction_summary": pred_s, "prediction_detail": pred_d}
-    
-  except Exception:
-    logging.exception("Failed to get prediction data")
-    raise
-  
-
-async def formatted_ai_recommendation(user_type: str) -> dict:
+async def formatted_ai_recommendation(ai_reco: dict) -> dict:
   """Send formatted ai recommendation to save for download"""
   try:
-    from src.traffic_ai.traffic_recommendation.traffic_recommendation_ai import AIRecommendation
-    pred_data: dict = pred_json()
-    d1: dict = pred_data["prediction_summary"]
-    d2: dict = pred_data["prediction_detail"]
-    
-    ai_reco = AIRecommendation()
-    
-    await asyncio.to_thread(ai_reco.run_ai_recommendation, d1, d2, user_type)
-      
-    raw_reco: dict = ai_reco.reco_json
-    if not raw_reco:
+    if not ai_reco:
       raise HTTPException(504, detail="Failed to get data. Try again.")
     
     formatted_reco: dict = {}
 
-    for key, val in raw_reco.items():
+    for key, val in ai_reco.items():
       # format the \n to become enter space
       formatted_reco[key] = val.encode("utf-8").decode("unicode_escape")
       
@@ -81,44 +55,42 @@ async def formatted_ai_recommendation(user_type: str) -> dict:
       
 # DOWNLOAD FILE FORMATTING FUNCTIONS
 # JSON
-def formatted_json_dl_file(pred_data: dict, reco_data: dict) -> dict: 
-  return {
-    "date": datetime.now().isoformat(),
-    "prediction_summary": {
-      "prediction": pred_data["prediction_summary"],
-      "recommendation": reco_data["summary_reco"]
-    },
-    "prediction_hourly_detail": {
-      "prediction": pred_data["prediction_detail"]["hourly"],
-      "recommendation": reco_data["hourly_reco"]
-    },
-    "prediction_daily_detail": {
-      "prediction": pred_data["prediction_detail"]["daily"],
-      "recommendation": reco_data["daily_reco"]
-    },
-    "prediction_weekly_detail": {
-      "prediction": pred_data["prediction_detail"]["weekly"],
-      "recommendation": reco_data["weekly_reco"]
-    },
-    "prediction_monthly_detail": {
-      "prediction": pred_data["prediction_detail"]["monthly"],
-      "recommendation": reco_data["monthly_reco"]
+def formatted_json_dl_file(d1: dict, d2: dict, reco_data: dict) -> dict: 
+  try:
+    return {
+      "date": datetime.now().isoformat(),
+      "prediction_summary": {
+        "prediction": d1,
+        "recommendation": reco_data["summary_reco"]
+      },
+      "prediction_hourly_detail": {
+        "prediction": d2["hourly"],
+        "recommendation": reco_data["hourly_reco"]
+      },
+      "prediction_daily_detail": {
+        "prediction": d2["daily"],
+        "recommendation": reco_data["daily_reco"]
+      },
+      "prediction_weekly_detail": {
+        "prediction": d2["weekly"],
+        "recommendation": reco_data["weekly_reco"]
+      },
+      "prediction_monthly_detail": {
+        "prediction": d2["monthly"],
+        "recommendation": reco_data["monthly_reco"]
+      }
     }
-  }
+  except Exception as e:
+    logging.exception("Error formatting JSON file")
+    raise HTTPException(status_code=500, detail=f"Failed to format JSON file: {str(e)}")
 
 
 # EXCEL
 import io
 import pandas as pd
-async def generate_excel_file(user_type: str) -> io.BytesIO:
+async def generate_excel_file(d1: dict, d2: dict, reco_data: dict) -> io.BytesIO:
   """Generate Excel file with multiple sheets."""
   try:
-    pred_data: dict = pred_json()  # Assume this returns your data
-    d1: dict = pred_data["prediction_summary"]
-    d2: dict = pred_data["prediction_detail"]
-    
-    reco = await formatted_ai_recommendation(user_type)
-    
     # Flatten d1 for DataFrame creation
     d1_flat = {
       "today": d1["today"],
@@ -166,11 +138,11 @@ async def generate_excel_file(user_type: str) -> io.BytesIO:
     
     # Create DataFrame for AI recommendations
     df_reco = pd.DataFrame([
-      {"Type": "Summary", "Recommendation": reco.get("summary_reco", "")},
-      {"Type": "Hourly", "Recommendation": reco.get("hourly_reco", "")},
-      {"Type": "Daily", "Recommendation": reco.get("daily_reco", "")},
-      {"Type": "Weekly", "Recommendation": reco.get("weekly_reco", "")},
-      {"Type": "Monthly", "Recommendation": reco.get("monthly_reco", "")}
+      {"Type": "Summary", "Recommendation": reco_data.get("summary_reco", "")},
+      {"Type": "Hourly", "Recommendation": reco_data.get("hourly_reco", "")},
+      {"Type": "Daily", "Recommendation": reco_data.get("daily_reco", "")},
+      {"Type": "Weekly", "Recommendation": reco_data.get("weekly_reco", "")},
+      {"Type": "Monthly", "Recommendation": reco_data.get("monthly_reco", "")}
     ])
     
     # Convert into Excel file with multiple sheets
@@ -197,9 +169,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 async def generate_pdf_file(request: PDFRequest, user: User) -> io.BytesIO:
   try:
-    # Fetch backend data for consistency
-    pred_data = pred_json()
-    d1 = pred_data["prediction_summary"]
+    d1 = prediction_summary()
     
     # Create PDF in memory
     output = io.BytesIO()

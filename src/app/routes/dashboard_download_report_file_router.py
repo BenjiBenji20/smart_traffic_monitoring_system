@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.exceptions import HTTPException
+from pydantic import ValidationError
 
-from src.app.schemas.request_schema import PDFRequest
+from src.app.schemas.request_schema import DownloadDataRequest, PDFRequest
 from src.app.models.user import User
 from src.app.services.auth_service import get_current_user
 from src.app.services.report_file_service import *
@@ -14,17 +15,20 @@ dl_file_router = APIRouter(
 )
 
 import json
-@dl_file_router.get("/json")
-async def dl_dot_json(user: User = Depends(get_current_user)): 
+@dl_file_router.post("/json")
+async def dl_dot_json(req_payload: DownloadDataRequest): 
   """Download JSON file in byte format"""
   try:
-    pred_data: dict = pred_json()
-    reco_data: dict = await formatted_ai_recommendation(user.role)
+    reco_data: dict = await formatted_ai_recommendation( req_payload.recommendation)
     
-    if not pred_data or not reco_data:
-      raise FileDownloadException(f"JSON file download failed due to error in {pred_data} or {reco_data}")
+    if not reco_data:
+      raise FileDownloadException(f"JSON file download failed due to error in {reco_data}")
     
-    json_data: dict = formatted_json_dl_file(pred_data, reco_data)
+    json_data: dict = formatted_json_dl_file(
+      req_payload.prediction_summary, 
+      req_payload.prediction_detail, 
+      reco_data
+    )
     
     full_file_path = os.path.join(download_path(), file_name("json"))
     
@@ -42,11 +46,21 @@ async def dl_dot_json(user: User = Depends(get_current_user)):
 
 
 import io
-@dl_file_router.get("/xlsx")
-async def dl_dot_xlsx(user: User = Depends(get_current_user)):
+@dl_file_router.post("/xlsx")
+async def dl_dot_xlsx(req_payload: DownloadDataRequest):
   """Download excel file"""
   try:
-    excel_file: io.BytesIO = await generate_excel_file(user.role)
+    reco_data: dict = await formatted_ai_recommendation( req_payload.recommendation)
+    
+    if not reco_data:
+      raise FileDownloadException(f"Excel file download failed due to error in {reco_data}")
+    
+    excel_file: io.BytesIO = await generate_excel_file(
+      req_payload.prediction_summary, 
+      req_payload.prediction_detail, 
+      reco_data
+    )
+    
     if not excel_file:
       raise FileDownloadException(f"Failed to download excel file")
     

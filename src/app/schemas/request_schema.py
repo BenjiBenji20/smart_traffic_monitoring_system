@@ -19,3 +19,10 @@ class PDFRequest(BaseModel):
   recommendations: dict
   charts: dict
   summary: dict  
+
+
+# download data payload
+class DownloadDataRequest(BaseModel):
+  prediction_detail: dict
+  prediction_summary: dict
+  recommendation: dict
