@@ -1,0 +1,59 @@
+# This compose ensures mysql is fully running before the api_only (FastAPI)
+# starts running
+
+version: '3.8' # docker compose ver
+services: # define the services
+  # data seed worker
+  import_worker:
+    build: 
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+  # application service
+  api_only:
+    build: 
+      context: . # the dir
+      dockerfile: Dockerfile # target the Dockerfile in root
+    ports:
+      - "8080:8080"
+    env_file: # define the env file
+      - .env
+    depends_on:
+      mysql_db: # this service must run after the initialization of db service
+        condition: service_healthy # make sure the mysql is running before start the api-only service
+      import_worker:
+        condition: service_completed_successfully
+    volumes:
+      - ./prophet_training_data.csv:/app/prophet_training_data.csv
+
+  # database service
+  mysql_db:
+    image: mysql:8.0 # pull the mysql tag 8.0 from cloud
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}   # REQUIRED
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD} # needed for healthcheck
+      MYSQL_USER: ${MYSQL_USER}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s # give MySQL some time to start
+    command: --default-authentication-plugin=mysql_native_password # ensures compatibility with pymysql and aiomysql
+    
+volumes:
+  mysql-data:
+    

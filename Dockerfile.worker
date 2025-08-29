@@ -1,0 +1,18 @@
+FROM python:3.13.3-slim
+
+WORKDIR /app
+
+# Install only what's needed for the worker
+COPY worker-requirements.txt .
+RUN pip install --no-cache-dir -r worker-requirements.txt
+
+# Copy scripts, CSV, configs
+COPY scripts/import_sql_dataset.py ./import_sql_dataset.py
+COPY prophet_training_data.csv ./prophet_training_data.csv
+COPY configs ./configs
+
+# Set default working directory
+WORKDIR /app
+
+# Default command to run worker
+CMD ["python", "import_sql_dataset.py"]
