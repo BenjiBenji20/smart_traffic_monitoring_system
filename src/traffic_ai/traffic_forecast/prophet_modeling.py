@@ -5,7 +5,7 @@ from mysql.connector import Error
 class ProphetModel:
   def __init__(self, db_conn, engine):
     try:
-      self.df = pd.read_sql(db_conn, con=engine)
+      self.df = pd.read_sql(db_conn, con=engine) # for dev
 
       # check for availability of ds & y column (required by prophet)
       if not {'ds', 'y'}.issubset(self.df.columns):

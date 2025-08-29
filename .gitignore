@@ -55,7 +55,6 @@ Icon?
 desktop.ini
 
 # --- Datasets / Media (optional: if too big) ---
-*.csv
 *.tsv
 *.jsonl
 *.h5

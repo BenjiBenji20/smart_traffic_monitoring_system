@@ -24,12 +24,13 @@ def forecast_today_exist():
 
 
 def generate_forecast():
+  """query and engine are ignored. The data is come from prophet_training_data.csv"""
   load_dotenv()
   # db connection
   engine = create_engine(f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}/{os.getenv('MYSQL_DATABASE')}")
 
   # sql query
-  query = "SELECT ds, y FROM prophet_trainig_data"
+  query = "SELECT ds, y FROM prophet_training_data"
 
   # train the modelusing the class
   model = ProphetModel(query, engine=engine)

@@ -15,6 +15,7 @@ class Settings(BaseSettings):
   MYSQL_HOST: str
   MYSQL_USER: str
   MYSQL_PASSWORD: SecretStr
+  MYSQL_ROOT_PASSWORD: SecretStr # for docker compose container
   MYSQL_DATABASE: str
 
   SQLALCHEMY_DATABASE_URI: str = ""
