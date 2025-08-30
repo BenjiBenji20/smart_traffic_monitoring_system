@@ -108,3 +108,14 @@ app.add_exception_handler(DuplicateEntryException, duplicate_entry_exception_han
 app.add_exception_handler(UnauthorizedAccessException, unauthorized_access_handler)
 app.add_exception_handler(ForbiddenAccessException, forbidden_access_handler)
 app.add_exception_handler(InvalidTokenException, invalid_token_handler)
+
+
+# static files directory for landing page 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+app.mount("/static", StaticFiles(directory="src/app/client/static"), name="static")
+
+@app.get("/landing-page")
+async def read_landing():
+    return FileResponse("src/app/client/templates/capstone_landing_page.html")
