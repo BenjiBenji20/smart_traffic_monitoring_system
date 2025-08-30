@@ -5,7 +5,12 @@ from mysql.connector import Error
 class ProphetModel:
   def __init__(self, db_conn, engine):
     try:
-      self.df = pd.read_sql(db_conn, con=engine) # for dev
+      #self.df = pd.read_sql(db_conn, con=engine) # for dev
+      self.df = pd.read_csv("prophet_training_data.csv", sep=";")
+      self.df.columns = ["ds", "y"]
+      self.df["ds"] = pd.to_datetime(self.df["ds"])
+      self.df["y"] = pd.to_numeric(self.df["y"], errors="coerce")
+      self.df.dropna(inplace=True)
 
       # check for availability of ds & y column (required by prophet)
       if not {'ds', 'y'}.issubset(self.df.columns):

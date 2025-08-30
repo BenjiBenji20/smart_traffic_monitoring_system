@@ -3,9 +3,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 # db and model
-from src.app.db.db_session import engine, async_session
-from src.app.db.base import Base
-from src.app.models.user import User  # ensure it's imported so Base knows the model
+# from src.app.db.db_session import engine, async_session
+# from src.app.db.base import Base
+# from src.app.models.user import User  # ensure it's imported so Base knows the model
 
 # global exceptions
 from src.app.exceptions.custom_exceptions import *
@@ -74,9 +74,9 @@ async def initialize_ai_recommendations():
 async def life_span(app: FastAPI):
     try:
         # Create database tables
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-            print("Tables created successfully!")
+        # async with engine.begin() as conn:
+        #     await conn.run_sync(Base.metadata.create_all)
+        #     print("Tables created successfully!")
         
         # initialize AI recommendations during startup
         await initialize_ai_recommendations()
@@ -86,7 +86,7 @@ async def life_span(app: FastAPI):
         yield
         
     finally:
-        await engine.dispose()
+        #await engine.dispose()
         print("Application shutdown complete")
         
         
