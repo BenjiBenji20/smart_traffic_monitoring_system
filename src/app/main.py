@@ -39,6 +39,7 @@ from src.traffic_ai.vehicle_detection.shared import detection_state
 # AI recommendation imports
 from src.traffic_ai.traffic_recommendation.traffic_recommendation_ai import AIRecommendation
 from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import prediction_summary, prediction_detail
+from src.traffic_ai.traffic_forecast.traffic_factors_manager import get_traffic_factors
 
 async def store_data_for_history(history_dict: dict, db: AsyncSession) -> History:
     """Store prediction and ai recommendation raw data in history table"""
@@ -71,6 +72,7 @@ async def store_data_for_history(history_dict: dict, db: AsyncSession) -> Histor
          print(f"Error storing history data: {e}")
          raise
 
+
 reco_handler = None
 async def generate_user_recommendations(d1, d2, user_type):
     """Generate recommendations for a specific user type"""
@@ -86,7 +88,8 @@ async def generate_user_recommendations(d1, d2, user_type):
         else:
             print(f"Cache already exists for {user_type}")
         
-        if user_type in ['admin', 'traffic_enforcer', 'city_engineer']:
+        # for now the admin privileged user will only generate recommendations cache
+        if user_type == 'admin':
             ai_reco.run_ai_recommendation(d1, d2, user_type)
             global reco_handler
             reco_handler = ai_reco.reco_json
@@ -105,7 +108,7 @@ async def initialize_ai_recommendations(db: AsyncSession):
         d2 = prediction_detail()
         
         # User types to initialize
-        user_types = ['admin', 'traffic_enforcer', 'city_engineer', 'end_user']
+        user_types = ['admin', 'end_user']
         
         # Create AI recommendation tasks for each user type
         tasks = []
@@ -149,7 +152,12 @@ async def life_span(app: FastAPI):
         async with AsyncSession(engine) as db:
             # initialize AI recommendations during startup and store history data in database
             await initialize_ai_recommendations(db)
-        
+            
+            # initialize traffic factors to store immediately in json cache file
+            print("Initializing traffic factors...")
+            await asyncio.to_thread(get_traffic_factors)
+            
+        print("Traffic factors already initialized!")
         print("Server started - Livestream can be started via API")
         
         yield
