@@ -14,6 +14,8 @@ from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import (
 )
 # traffic recommendations
 from src.traffic_ai.traffic_recommendation.traffic_recommendation_ai import AIRecommendation
+# traffic factors
+from src.traffic_ai.traffic_forecast.traffic_factors_manager import get_traffic_factors
 
 dashboard_user_router = APIRouter(
     prefix="/api/dashboard/user", 
@@ -107,3 +109,10 @@ async def admin_traffic_req_recommendations(req: EndUserPredictionRequest) -> st
 
   return await asyncio.to_thread(model.traffic_request_reco, prediction_data, "end_user")
 
+
+# get traffic factors
+# from src/traffic_ai/traffic_forecast/traffic_factors_manager.py
+# private endpoint
+@dashboard_user_router.get("/factors")
+async def get_prediction_factors() -> dict:
+  return await asyncio.to_thread(get_traffic_factors)
