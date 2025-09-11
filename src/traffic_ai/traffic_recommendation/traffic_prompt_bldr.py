@@ -244,3 +244,232 @@ def admin_request_prompt(request_data):
   prompt += ROLE_PROMPTS["admin"]  
 
   return prompt
+
+
+FACTORS_ANALYSIS_PROMPT = """
+    Provide a detailed, objective analysis of the traffic data for each period. 
+    Break it down by peak and low points, including the time/date, vehicle count, 
+    condition, base traffic, net impact, and final prediction.
+
+    For each contributing factor, explain its impact value, reason, and how it 
+    influences the overall traffic pattern in realistic terms based on urban 
+    traffic dynamics in Malabon City, Barangay Longos C-4.
+
+    IMPORTANT: Provide COMPLETE analysis for each section. Do not truncate responses.
+    Ensure all numerical values are fully included.
+
+    Structure the response as:
+    - Hourly Analysis:
+    - Peak: [complete analysis]
+    - Low: [complete analysis]
+    - Daily Analysis: [complete analysis]
+    - Weekly Analysis: [complete analysis]
+    - Monthly Analysis: [complete analysis]
+
+    STRICTLY: Focus only on analysis and explanations. No introductions, conclusions, 
+    or action items. Be concise yet thorough. Start directly with the structured analysis.
+"""
+
+def analyze_hourly_factors_prompt(analytics_w_factors):
+    prompt = FACTORS_ANALYSIS_PROMPT + "\n"
+    prompt += "Hourly analysis and factors:\n\n"
+    
+    # === PEAK HOURLY ===
+    peak = analytics_w_factors['peak']
+    peak_f = peak['factors']
+    peak_c_f = peak_f['contributing_factors']
+    
+    prompt += (
+        f"Peak analysis and factors:\n"
+        f"Time: {peak['time']} | Predicted vehicles: {peak['value']} | Road condition: {peak['condition']}\n"
+        f"Factors: \nBase vehicles: {peak_f['base_traffic']}\nContributing factors:\n"
+    )
+    
+    i = 1
+    for p in peak_c_f:
+        prompt += (
+            f"{i}. Factor: {p['factor']} | Vehicle volume impact: {p['impact']} | Reason: {p['reason']}\n"
+        )
+        i += 1
+        
+    prompt += (
+        f"Vehicle volume net impact: {peak_f['net_impact']} | Final vehicle prediction: {peak_f['final_prediction']}\n\n"
+    )
+    
+    # === LOW HOURLY ===
+    low = analytics_w_factors['low']
+    low_f = low['factors']
+    low_c_f = low_f['contributing_factors']
+    
+    prompt += (
+        f"Low analysis and factors:\n"
+        f"Time: {low['time']} | Predicted vehicles: {low['value']} | Road condition: {low['condition']}\n"
+        f"Factors: \nBase vehicles: {low_f['base_traffic']}\nContributing factors:\n"
+    )
+    
+    i = 1
+    for p in low_c_f:
+        prompt += (
+            f"{i}. Factor: {p['factor']} | Vehicle volume impact: {p['impact']} | Reason: {p['reason']}\n"
+        )
+        i += 1
+        
+    prompt += (
+        f"Vehicle volume net impact: {low_f['net_impact']} | Final vehicle prediction: {low_f['final_prediction']}\n\n"
+    )
+    
+    return prompt
+
+
+def analyze_daily_factors_prompt(analytics_w_factors):
+    prompt = FACTORS_ANALYSIS_PROMPT + "\n"
+    prompt += "Daily analysis and factors:\n\n"
+    
+    # === PEAK DAILY ===
+    peak = analytics_w_factors['peak']
+    peak_f = peak['factors']
+    peak_c_f = peak_f['contributing_factors']
+    
+    prompt += (
+        f"Peak analysis and factors:\n"
+        f"Date: {peak['date']} | Predicted vehicles: {peak['value']} | Road condition: {peak['condition']}\n"
+        f"Factors: \nBase vehicles: {peak_f['base_traffic']}\nContributing factors:\n"
+    )
+    
+    i = 1
+    for p in peak_c_f:
+        prompt += (
+            f"{i}. Factor: {p['factor']} | Vehicle volume impact: {p['impact']} | Reason: {p['reason']}\n"
+        )
+        i += 1
+        
+    prompt += (
+        f"Vehicle volume net impact: {peak_f['net_impact']} | Final vehicle prediction: {peak_f['final_prediction']}\n\n"
+    )
+    
+    # === LOW DAILY ===
+    low = analytics_w_factors['low']
+    low_f = low['factors']
+    low_c_f = low_f['contributing_factors']
+    
+    prompt += (
+        f"Low analysis and factors:\n"
+        f"Date: {low['date']} | Predicted vehicles: {low['value']} | Road condition: {low['condition']}\n"
+        f"Factors: \nBase vehicles: {low_f['base_traffic']}\nContributing factors:\n"
+    )
+    
+    i = 1
+    for p in low_c_f:
+        prompt += (
+            f"{i}. Factor: {p['factor']} | Vehicle volume impact: {p['impact']} | Reason: {p['reason']}\n"
+        )
+        i += 1
+        
+    prompt += (
+        f"Vehicle volume net impact: {low_f['net_impact']} | Final vehicle prediction: {low_f['final_prediction']}\n\n"
+    )
+    
+    return prompt
+
+
+def analyze_weekly_factors_prompt(analytics_w_factors):
+    prompt = FACTORS_ANALYSIS_PROMPT + "\n"
+    prompt += "Weekly analysis and factors:\n\n"
+    
+    # === PEAK WEEKLY ===
+    peak = analytics_w_factors['peak']
+    peak_f = peak['factors']
+    peak_c_f = peak_f['contributing_factors']
+    
+    prompt += (
+        f"Peak analysis and factors:\n"
+        f"Week start: {peak['week_start']} | Week end: {peak['week_end']} | Predicted vehicles: {peak['value']} | Road condition: {peak['condition']}\n"
+        f"Factors: \nBase vehicles: {peak_f['base_traffic']}\nContributing factors:\n"
+    )
+    
+    i = 1
+    for p in peak_c_f:
+        prompt += (
+            f"{i}. Factor: {p['factor']} | Vehicle volume impact: {p['impact']} | Reason: {p['reason']}\n"
+        )
+        i += 1
+        
+    prompt += (
+        f"Vehicle volume net impact: {peak_f['net_impact']} | Final vehicle prediction: {peak_f['final_prediction']}\n\n"
+    )
+    
+    # === LOW WEEKLY ===
+    low = analytics_w_factors['low']
+    low_f = low['factors']
+    low_c_f = low_f['contributing_factors']
+    
+    prompt += (
+        f"Low analysis and factors:\n"
+        f"Week start: {low['week_start']} | Week end: {low['week_end']} | Predicted vehicles: {low['value']} | Road condition: {low['condition']}\n"
+        f"Factors: \nBase vehicles: {low_f['base_traffic']}\nContributing factors:\n"
+    )
+    
+    i = 1
+    for p in low_c_f:
+        prompt += (
+            f"{i}. Factor: {p['factor']} | Vehicle volume impact: {p['impact']} | Reason: {p['reason']}\n"
+        )
+        i += 1
+        
+    prompt += (
+        f"Vehicle volume net impact: {low_f['net_impact']} | Final vehicle prediction: {low_f['final_prediction']}\n\n"
+    )
+    
+    return prompt
+
+
+def analyze_monthly_factors_prompt(analytics_w_factors):
+    prompt = FACTORS_ANALYSIS_PROMPT + "\n"
+    prompt += "Monthly analysis and factors:\n\n"
+    
+    # === PEAK MONTHLY ===
+    peak = analytics_w_factors['peak']
+    peak_f = peak['factors']
+    peak_c_f = peak_f['contributing_factors']
+    
+    prompt += (
+        f"Peak analysis and factors:\n"
+        f"Month: {peak['month']} | Predicted vehicles: {peak['value']} | Road condition: {peak['condition']}\n"
+        f"Factors: \nBase vehicles: {peak_f['base_traffic']}\nContributing factors:\n"
+    )
+    
+    i = 1
+    for p in peak_c_f:
+        prompt += (
+            f"{i}. Factor: {p['factor']} | Vehicle volume impact: {p['impact']} | Reason: {p['reason']}\n"
+        )
+        i += 1
+        
+    prompt += (
+        f"Vehicle volume net impact: {peak_f['net_impact']} | Final vehicle prediction: {peak_f['final_prediction']}\n\n"
+    )
+    
+    # === LOW MONTHLY ===
+    low = analytics_w_factors['low']
+    low_f = low['factors']
+    low_c_f = low_f['contributing_factors']
+    
+    prompt += (
+        f"Low analysis and factors:\n"
+        f"Month: {low['month']} | Predicted vehicles: {low['value']} | Road condition: {low['condition']}\n"
+        f"Factors: \nBase vehicles: {low_f['base_traffic']}\nContributing factors:\n"
+    )
+    
+    i = 1
+    for p in low_c_f:
+        prompt += (
+            f"{i}. Factor: {p['factor']} | Vehicle volume impact: {p['impact']} | Reason: {p['reason']}\n"
+        )
+        i += 1
+        
+    prompt += (
+        f"Vehicle volume net impact: {low_f['net_impact']} | Final vehicle prediction: {low_f['final_prediction']}\n\n"
+    )
+    
+    return prompt
+  
