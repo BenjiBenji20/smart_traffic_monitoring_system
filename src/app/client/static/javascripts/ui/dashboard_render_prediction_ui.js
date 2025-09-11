@@ -322,7 +322,7 @@ export function getChartConfig(period, chartType, data) {
       },
       scales: {
         y: {
-          beginAtZero: true,
+          beginAtZero: false,
           grid: { color: 'rgba(224, 225, 221, 0.1)' },
           ticks: { color: '#E0E1DD' }
         },
@@ -563,7 +563,7 @@ function getPredictionChartConfig(period, chartType, data) {
       },
       scales: {
         y: {
-          beginAtZero: true,
+          beginAtZero: false,
           grid: { color: 'rgba(224, 225, 221, 0.1)' },
           ticks: { color: '#E0E1DD' }
         },
