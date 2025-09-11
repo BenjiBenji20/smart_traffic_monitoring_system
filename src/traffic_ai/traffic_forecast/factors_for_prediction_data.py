@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 def generate_explanation(cached_forecast):
     """
@@ -11,11 +11,19 @@ def generate_explanation(cached_forecast):
     # Get today's date to filter future predictions
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     
+    # get the first day of the current year 1/1/year
+    current_year = date.today().year
+    current_day_of_year = pd.to_datetime(date(current_year, 1, 1))
+    
+    # get the first day of the current week
+    days_since_monday = today.weekday()
+    first_day_of_current_week = (today - timedelta(days=days_since_monday)).date()
+    
     return {
         "hourly": generate_hourly_explanations(cached_forecast['hourly'], today),
-        "daily": generate_daily_explanations(cached_forecast['daily'], today),
+        "daily": generate_daily_explanations(cached_forecast['daily'], first_day_of_current_week),
         "weekly": generate_weekly_explanations(cached_forecast['weekly'], today),
-        "monthly": generate_monthly_explanations(cached_forecast['monthly'], today)
+        "monthly": generate_monthly_explanations(cached_forecast['monthly'], current_day_of_year)
     }
 
 
@@ -125,7 +133,7 @@ def generate_monthly_explanations(monthly_data, today):
         factors = generate_monthly_factors(month_date, available_impact)
         
         explanations.append({
-            "month": month_date.strftime("%Y-%m"),
+            "month": month_date.strftime("%Y-%m-%d"),
             "base_traffic": round(base_traffic, 2),
             "contributing_factors": factors,
             "net_impact": round(sum(f['impact'] for f in factors), 2),
@@ -170,7 +178,7 @@ def get_future_records(data, start_date, count):
         df['ds'] = pd.to_datetime(df['ds'])
     
     # Filter data to get records from start_date onwards
-    future_data = df[df['ds'] >= start_date].copy()
+    future_data = df[df['ds'] >= pd.to_datetime(start_date)].copy()
     
     # Return the requested number of records
     return future_data.head(count)
