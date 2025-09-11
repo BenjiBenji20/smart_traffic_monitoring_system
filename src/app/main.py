@@ -40,6 +40,7 @@ from src.traffic_ai.vehicle_detection.shared import detection_state
 from src.traffic_ai.traffic_recommendation.traffic_recommendation_ai import AIRecommendation
 from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import prediction_summary, prediction_detail
 from src.traffic_ai.traffic_forecast.traffic_factors_manager import get_traffic_factors
+from src.traffic_ai.traffic_recommendation.traffic_factors_ai_analysis import AITrafficFactorsAnalysis
 
 async def store_data_for_history(history_dict: dict, db: AsyncSession) -> History:
     """Store prediction and ai recommendation raw data in history table"""
@@ -107,18 +108,9 @@ async def initialize_ai_recommendations(db: AsyncSession):
         d1 = prediction_summary()
         d2 = prediction_detail()
         
-        # User types to initialize
-        user_types = ['admin', 'end_user']
-        
-        # Create AI recommendation tasks for each user type
-        tasks = []
-        for user_type in user_types:
-            task = asyncio.create_task(generate_user_recommendations(d1, d2, user_type))
-            tasks.append(task)
-        
-        # Wait for all recommendations to complete
-        await asyncio.gather(*tasks)
-        
+        # only load for admin
+        await generate_user_recommendations(d1, d2, 'admin')
+
         #  create a payload
         history_dict = {
             "prediction_summary": d1,
@@ -157,7 +149,13 @@ async def life_span(app: FastAPI):
             print("Initializing traffic factors...")
             await asyncio.to_thread(get_traffic_factors)
             
-        print("Traffic factors already initialized!")
+            # initialize ai traffic factors analysis
+            print("Initializing traffic factors ai analysis")
+            ai = AITrafficFactorsAnalysis()
+            await asyncio.to_thread(ai.get_traffic_factors_ai_analysis)
+            
+        print("Traffic factors successfully initialized!")
+        print("Traffic factors ai analysis successfully initialized!")
         print("Server started - Livestream can be started via API")
         
         yield
