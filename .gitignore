@@ -81,3 +81,9 @@ yarn-error.log
 
 # --- Render / Deployment ---
 .secrets/
+
+# --- Cache files ---
+cache/
+
+# test files
+/test.py
