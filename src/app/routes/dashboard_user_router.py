@@ -12,8 +12,9 @@ from src.app.schemas.request_schema import AdminPredictionRequest, EndUserPredic
 from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import (
   prediction_summary, prediction_detail, admin_prediction_req, user_prediction_req
 )
-# traffic recommendations
+# traffic ai
 from src.traffic_ai.traffic_recommendation.traffic_recommendation_ai import AIRecommendation
+from src.traffic_ai.traffic_recommendation.traffic_factors_ai_analysis import AITrafficFactorsAnalysis
 # traffic factors
 from src.traffic_ai.traffic_forecast.traffic_factors_manager import get_traffic_factors
 
@@ -116,3 +117,12 @@ async def admin_traffic_req_recommendations(req: EndUserPredictionRequest) -> st
 @dashboard_user_router.get("/factors")
 async def get_prediction_factors() -> dict:
   return await asyncio.to_thread(get_traffic_factors)
+
+
+# get traffic factors ai analysis
+# from src/traffic_ai/traffic_recommendation/traffic_factors_ai_analysis.py
+# private endpoint
+@dashboard_user_router.get("/ai-analysis")
+async def get_traffic_factors_ai_analysis() -> dict:
+  ai = AITrafficFactorsAnalysis()
+  return await asyncio.to_thread(ai.get_traffic_factors_ai_analysis)

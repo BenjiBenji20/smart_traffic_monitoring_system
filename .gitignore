@@ -83,7 +83,7 @@ yarn-error.log
 .secrets/
 
 # --- Cache files ---
-cache/
+cache/*.json
 
 # test files
 /test.py
