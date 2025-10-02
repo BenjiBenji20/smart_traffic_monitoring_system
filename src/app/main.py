@@ -53,7 +53,7 @@ async def initialize_ai_recommendations():
         d2 = prediction_detail()
         
         # User types to initialize
-        user_types = ['admin', 'traffic_enforcer', 'city_engineer', 'end_user']
+        user_types = ['end_user']
         
         # Create AI recommendation tasks for each user type
         tasks = []
