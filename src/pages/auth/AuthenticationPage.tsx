@@ -9,41 +9,52 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 
-import { AuthUserValidator, type AuthUserModel } from "@/models/auth";
 import React from "react"
 import { Link } from "react-router"
+
+import { type AuthUserModel } from "@/models/auth";
+import { authenticate, isAuthenticated } from "@/api/authentication_api"
+
 
 export function AuthenticationPage({
     className,
     ...props
 }: React.ComponentProps<"div">) {
-    const [authentication, setAuthentication] = React.useState<AuthUserModel>({
+    const [credentials, setCredentials] = React.useState<AuthUserModel>({
         username: "",
         password: ""
     });
 
     const handleInputChange = (field: keyof AuthUserModel, value: string) => {
-        setAuthentication(prev => ({
+        setCredentials(prev => ({
             ...prev,
             [field]: value
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Validate the data
         try {
-            AuthUserValidator.validate(authentication);
-            console.log("Authentication data:", authentication);
-            /// Authentication fetch from api layer logic
-        } catch (error) {
-            if (error instanceof Error) {
-                console.error("Authentication Validation failed:", error.message);
-            } else {
-                console.error("Authentication Validation failed:", error);
+            // process authentication
+            await authenticate(credentials);
+
+            if (isAuthenticated()) {
+                // show success prompt
+                toast.success("Login Successful!", {
+                    description: "Redirecting to your dashboard account.",
+                });
             }
+        } catch (error) {
+            console.error("Authentication Validation failed:", error);
+
+            // show error prompt (unsuccessful login)
+            toast.error("Authentication Failed", {
+                description: "Invalid username or password",
+            });
         }
     };
 
@@ -68,7 +79,7 @@ export function AuthenticationPage({
                                             type="text"
                                             placeholder="username"
                                             required
-                                            value={authentication.username}
+                                            value={credentials.username}
                                             onChange={(e) => handleInputChange('username', e.target.value)}
                                         />
                                     </div>
@@ -87,7 +98,7 @@ export function AuthenticationPage({
                                             type="password"
                                             placeholder="Password"
                                             required
-                                            value={authentication.password}
+                                            value={credentials.password}
                                             onChange={(e) => handleInputChange('password', e.target.value)}
                                         />
                                     </div>
