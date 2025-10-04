@@ -73,8 +73,8 @@ function isTokenValid(): boolean {
 
 // authenticate function
 export async function authenticate(credentials: AuthUserModel) {
-    // Validate the data
     try {
+        // Validate the data
         AuthUserValidator.validate(credentials);
 
         /// Authentication fetch from api layer logic

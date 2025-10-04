@@ -10,9 +10,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-import { RegistrationValidator, type RegisterUserModel, type Role } from "@/models/auth";
+import { type RegisterUserModel, type Role } from "@/models/auth";
 import React from "react"
 import { Link } from "react-router"
+import { register } from "@/api/registration_api"
+import { toast } from "sonner"
 
 export function RegistrationPage({
     className,
@@ -34,20 +36,27 @@ export function RegistrationPage({
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate the data
         try {
-            RegistrationValidator.validate(registration);
             console.log("Registration data:", registration);
+
             // Registration fetch from api layer logic
+            await register(registration);
+
+            // on success registration
+            toast.success("Registration Successful!", {
+                description: "Your account has been successfully registered!",
+            });
+
         } catch (error) {
-            if (error instanceof Error) {
-                console.error("Registration Validation failed:", error.message);
-            } else {
-                console.error("VaRegistration lidation failed:", error);
-            }
+            console.error("Registration failed:", error);
+
+            // show error prompt
+            toast.error("Registration Failed", {
+                description: "Invalid registration form data",
+            });
         }
     };
 
