@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 
 import { AuthUserValidator, type AuthUserModel } from "@/models/auth";
 import React from "react"
+import { Link } from "react-router"
 
 export function AuthenticationPage({
     className,
@@ -74,12 +75,12 @@ export function AuthenticationPage({
                                     <div className="grid gap-3">
                                         <div className="flex items-center">
                                             <Label htmlFor="password">Password</Label>
-                                            <a
-                                                href="#"
+                                            <Link
+                                                to="#"
                                                 className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                                             >
                                                 Forgot your password?
-                                            </a>
+                                            </Link>
                                         </div>
                                         <Input
                                             id="password"
@@ -104,9 +105,9 @@ export function AuthenticationPage({
                                 </div>
                                 <div className="mt-4 text-center text-sm">
                                     Don&apos;t have an account?{" "}
-                                    <a href="#" className="underline underline-offset-4">
+                                    <Link to="/registration" className="underline underline-offset-4">
                                         Sign up
-                                    </a>
+                                    </Link>
                                 </div>
                             </form>
                         </CardContent>

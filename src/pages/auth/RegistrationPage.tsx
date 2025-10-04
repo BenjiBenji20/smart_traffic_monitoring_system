@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 
 import { RegistrationValidator, type RegisterUserModel, type Role } from "@/models/auth";
 import React from "react"
+import { Link } from "react-router"
 
 export function RegistrationPage({
     className,
@@ -166,11 +167,17 @@ export function RegistrationPage({
                                 </Button>
                                 <div className="mt-4 text-center text-xs text-muted-foreground">
                                     By clicking continue, you agree to our{" "}
-                                    <a href="#" className="underline underline-offset-4">Terms of Service</a>
+                                    <Link to="#" className="underline underline-offset-4">Terms of Service</Link>
                                     {" "}and{" "}
-                                    <a href="#" className="underline underline-offset-4">Privacy Policy</a>.
+                                    <Link to="#" className="underline underline-offset-4">Privacy Policy</Link>.
                                 </div>
 
+                                <div className="mt-4 text-center text-sm">
+                                    Already have an account?{" "}
+                                    <Link to="/" className="underline underline-offset-4">
+                                        Sign in
+                                    </Link>
+                                </div>
                             </form>
                         </CardContent>
                     </Card>
