@@ -620,3 +620,242 @@ canvas {
 #dashboard-history-view.active {
   display: block;
 }
+
+/* Traffic Factors Container */
+#traffic-factors {
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    color: #E0E1DD;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Table Container */
+.traffic-table-container {
+    background: #1B263B;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+
+}
+
+/* Table Header */
+.traffic-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+}
+
+.traffic-table-header h2 {
+    color: #E0E1DD;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Time Period Buttons */
+.time-periods {
+    display: flex;
+    gap: 8px;
+}
+
+.time-tab-popup {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #415A77;
+    color: #E0E1DD;
+}
+
+.time-tab-popup.active,
+.time-tab-popup:hover {
+    background: #00C2FF;
+    color: #0D1B2A;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 194, 255, 0.3);
+}
+
+/* Table Styling */
+.traffic-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.traffic-table th {
+    color: #E0E1DD;
+    font-weight: 600;
+    text-align: left;
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    text-align: center;
+    border-bottom: 2px solid #00C2FF;
+}
+
+.traffic-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #415A77;
+    color: #E0E1DD;
+    font-size: small;
+}
+
+.traffic-table tr:last-child td {
+    border-bottom: none;
+}
+
+.traffic-table tr:hover {
+    background-color: rgba(65, 90, 119, 0.2);
+}
+
+/* Factor Group Rows */
+.factor-group {
+    background-color: rgba(0, 194, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.factor-group:hover {
+    background-color: rgba(0, 194, 255, 0.1);
+    transform: translateY(1px);
+}
+
+/* Impact Value Colors */
+.traffic-table td:nth-child(3) {
+    font-weight: 600;
+}
+
+.traffic-table td:nth-child(3):contains("+") {
+    color: #4ADE80; /* Green for positive impact */
+}
+
+.traffic-table td:nth-child(3):contains("-") {
+    color: #F87171; /* Red for negative impact */
+}
+
+/* Rowspan Styling */
+.traffic-table td[rowspan] {
+    background: rgba(65, 90, 119, 0.3);
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+/* AI Analysis Section */
+.traffic-table-ai {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #415A77;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+    .traffic-table {
+        font-size: 0.85rem;
+    }
+    
+    .traffic-table th, 
+    .traffic-table td {
+        padding: 12px 14px;
+    }
+    
+    .traffic-table-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .time-periods {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    #traffic-factors,
+    .traffic-table-container {
+        padding: 16px;
+    }
+    
+    .traffic-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .traffic-table th, 
+    .traffic-table td {
+        padding: 10px 12px;
+    }
+}
+
+/* Animation for table rows */
+@keyframes fadeInRow {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.traffic-table tbody tr {
+    animation: fadeInRow 0.3s ease forwards;
+}
+
+.traffic-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.traffic-table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+.traffic-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.traffic-table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+.traffic-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+
+/* Custom scrollbar for table */
+.traffic-table-container::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.traffic-table-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.traffic-table-container::-webkit-scrollbar-thumb {
+    background: #415A77;
+    border-radius: 4px;
+}
+
+.traffic-table-container::-webkit-scrollbar-thumb:hover {
+    background: #00C2FF;
+}
+
+
+/* FACTORS CHART */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Color-blind friendly colors */
+:root {
+    --base-traffic: rgba(0, 194, 255, 0.6);
+    --final-prediction: rgba(255, 153, 0, 0.6);
+}

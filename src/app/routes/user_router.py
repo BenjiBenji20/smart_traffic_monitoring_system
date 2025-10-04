@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import APIRouter, Depends, Header, HTTPException, Response
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 
+from src.app.exceptions.custom_exceptions import InvalidTokenException
 from src.app.models.user import User
 from src.app.services.register_user_service import register_user_service
 from src.app.services.auth_service import auth_user, generate_access_token, generate_refresh_token, get_current_user, refresh_token
@@ -48,8 +49,9 @@ async def auth_for_token(
     "refresh_token": refresh_token,
     "token_type": "bearer"
   }
+  
 
-
+# SOON TO DELETE AFTER CAPSTONE. REFRESH SHOULD BE ACCESS IN COOKIES
 @user_router.post("/auth/refresh")
 async def refresh_access_token(authorization: str = Header(...)):
   if not authorization.startswith("Bearer "):
@@ -57,6 +59,22 @@ async def refresh_access_token(authorization: str = Header(...)):
 
   token = authorization.split(" ")[1]
   return refresh_token(token)
+
+
+# [UPDATED] WILL USED IN REACT CLIENT
+@user_router.post("/auth/refresh2")
+async def refresh_access_token_route(request: Request):
+  """Get the refresh token from request body or cookies"""
+  try:
+    token = request.cookies.get("refresh_token")
+  
+    if not token:
+      raise InvalidTokenException("No refresh token provided")
+    
+    return refresh_token(token)
+  except Exception:
+    # Handle specific refresh token errors appropriately
+    raise InvalidTokenException("Invalid or expired refresh token")
 
 
 # logout endpoint to mark user inactive

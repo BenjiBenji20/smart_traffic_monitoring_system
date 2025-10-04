@@ -21,5 +21,6 @@ PUBLIC_ROUTES = {
 }
 
 CLIENT_ORIGINS = [
-  settings.CLIENT_ORIGINS
+  settings.CLIENT_ORIGINS,
+  settings.REACT_CLIENT_ORIGIN
 ]

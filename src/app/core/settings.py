@@ -27,6 +27,7 @@ class Settings(BaseSettings):
 
   # cors settings
   CLIENT_ORIGINS: str
+  REACT_CLIENT_ORIGIN: str
 
   # livestream pi http addresses
   PI_HOME_WIFI: str

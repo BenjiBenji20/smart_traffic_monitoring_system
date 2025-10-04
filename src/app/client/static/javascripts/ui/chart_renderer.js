@@ -53,7 +53,7 @@ export class ChartRenderer {
         },
         scales: {
           y: {
-            beginAtZero: true,
+            beginAtZero: false,
             grid: { color: 'rgba(224, 225, 221, 0.1)' },
             ticks: { color: '#E0E1DD' }
           },

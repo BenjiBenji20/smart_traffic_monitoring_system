@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Traffic Monitoring - Malabon City</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../static/stylesheets/admin_dashboard_style.css">
-  </head>
-  <body class="bg-primary text-accent2 min-h-screen">
+</head>
+
+<body class="bg-primary text-accent2 min-h-screen">
     <!-- Notification Toast Container (same as sign-in page) -->
     <div id="notification-toast" class="fixed top-4 right-4 z-50 w-80 max-w-full"></div>
 
     <!-- Fixed Header -->
-    <header class="fixed top-0 left-0 right-0 h-16 bg-secondary z-20 flex items-center justify-between px-4 md:px-6 border-b border-accent1">
+    <header
+        class="fixed top-0 left-0 right-0 h-16 bg-secondary z-20 flex items-center justify-between px-4 md:px-6 border-b border-accent1">
         <div class="flex items-center">
             <button id="mobileMenuBtn" class="mr-2 md:hidden text-highlight">
                 <i class="fas fa-bars text-xl"></i>
@@ -30,17 +33,20 @@
                 <div class="w-8 h-8 rounded-full bg-highlight flex items-center justify-center">
                     <i class="fas fa-user text-primary"></i>
                 </div>
-                <i id="dropdownChevron" class="fas fa-chevron-down ml-1 text-xs text-accent2/60 transition-transform"></i>
+                <i id="dropdownChevron"
+                    class="fas fa-chevron-down ml-1 text-xs text-accent2/60 transition-transform"></i>
             </button>
-            
+
             <!-- Dropdown Menu -->
-            <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-gradient-to-b from-gray-800 to-gray-900 rounded-md shadow-lg border border-blue-500/30 z-30 hidden">
+            <div id="userDropdown"
+                class="absolute right-0 mt-2 w-48 bg-gradient-to-b from-gray-800 to-gray-900 rounded-md shadow-lg border border-blue-500/30 z-30 hidden">
                 <div class="px-4 py-3 border-b border-blue-500/30">
                     <p id="userFullName" class="text-sm font-medium text-white"></p>
                     <p id="userRole" class="text-xs text-blue-300 capitalize"></p>
                 </div>
                 <div class="py-1">
-                    <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500/10 text-red-400 hover:text-red-300 transition-all duration-200">
+                    <button id="logoutBtn"
+                        class="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500/10 text-red-400 hover:text-red-300 transition-all duration-200">
                         <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
                     </button>
                 </div>
@@ -60,41 +66,58 @@
     </div>
 
     <!-- Left Navigation Panel -->
-    <nav id="leftNav" class="bg-gradient-to-b from-[#1e1e2f] to-[#141420] w-0 md:w-[80px] lg:w-[240px] h-screen fixed top-16 left-0 z-10 overflow-y-auto transition-all duration-300 shadow-lg backdrop-blur-lg">
-    <div class="p-4 flex flex-col h-full">
-        
-        <!-- Navigation Links -->
-        <div class="flex-grow">
-            <!-- Dashboard with Subsections -->
-            <div class="mb-3">
-                <button id="dashboardToggle" class="flex items-center justify-between w-full p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors duration-200 glow-on-hover">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas fa-home text-highlight text-lg"></i>
-                        <span class="whitespace-nowrap font-medium text-gray-200">Dashboard</span>
-                    </div>
-                    <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
-                </button>
+    <nav id="leftNav"
+        class="bg-gradient-to-b from-[#1e1e2f] to-[#141420] w-0 md:w-[80px] lg:w-[240px] h-screen fixed top-16 left-0 z-10 overflow-y-auto transition-all duration-300 shadow-lg backdrop-blur-lg">
+        <div class="p-4 flex flex-col h-full">
 
-                <div id="dashboardSubmenu" class="ml-8 mt-1 space-y-2 max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
-                    <a href="#live-traffic" class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Live Traffic Feed</a>
-                    <a href="#traffic-summary" class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Summary of Traffic Predictions</a>
-                    <a href="#traffic-analysis" class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Traffic Analysis</a>
+            <!-- Navigation Links -->
+            <div class="flex-grow">
+                <!-- Dashboard with Subsections -->
+                <div class="mb-3">
+                    <button id="dashboardToggle"
+                        class="flex items-center justify-between w-full p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors duration-200 glow-on-hover">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-home text-highlight text-lg"></i>
+                            <span class="whitespace-nowrap font-medium text-gray-200">Dashboard</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                    </button>
+
+                    <div id="dashboardSubmenu"
+                        class="ml-8 mt-1 space-y-2 max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
+                        <a href="#live-traffic"
+                            class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Live
+                            Traffic Feed</a>
+                        <a href="#traffic-summary"
+                            class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Summary
+                            of Traffic Predictions</a>
+                        <a href="#traffic-analysis"
+                            class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">Traffic Prediction
+                            Analysis</a>
+                        <a href="#traffic-factors" 
+                            class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">
+                            Traffic Factors Analysis</a>
+                        <a href="#factors-table" 
+                            class="block text-sm text-gray-400 hover:text-highlight transition-colors smooth-scroll">
+                            Traffic Factors Analysis - Table View</a>
+                    </div>
                 </div>
+
+                <!-- History -->
+                <a id="view-history" href="#history"
+                    class="flex items-center p-3 mb-2 rounded-lg hover:bg-secondary/50 glow-on-hover transition-colors duration-200">
+                    <i class="fas fa-history text-highlight mr-3 text-lg"></i>
+                    <span class="whitespace-nowrap font-medium text-gray-200">History</span>
+                </a>
+
             </div>
 
-            <!-- History -->
-            <a id="view-history" href="#history" class="flex items-center p-3 mb-2 rounded-lg hover:bg-secondary/50 glow-on-hover transition-colors duration-200">
-                <i class="fas fa-history text-highlight mr-3 text-lg"></i>
-                <span class="whitespace-nowrap font-medium text-gray-200">History</span>
-            </a>
-
+            <!-- Collapse Button (Desktop) -->
+            <button id="navToggle"
+                class="hidden md:block text-highlight p-2 rounded-lg hover:bg-secondary/50 self-start transition-colors">
+                <i class="fas fa-chevron-left"></i>
+            </button>
         </div>
-        
-        <!-- Collapse Button (Desktop) -->
-        <button id="navToggle" class="hidden md:block text-highlight p-2 rounded-lg hover:bg-secondary/50 self-start transition-colors">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-    </div>
     </nav>
 
     <!-- Main Content Area -->
@@ -116,237 +139,373 @@
                     </div>
 
                     <div class="flex flex-col md:flex-row gap-4">
-                    <!-- Vehicle Counts (Left Side) -->
-                    <div class="w-full md:w-[200px] bg-secondary rounded-lg p-4">
-                    <h3 class="text-lg font-semibold mb-4 text-center">Vehicle Counts</h3>
-                    <div class="space-y-4">
-                        <!-- Cars -->
-                        <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-car text-highlight text-2xl"></i>
-                                <span class="text-sm">Cars</span>
+                        <!-- Vehicle Counts (Left Side) -->
+                        <div class="w-full md:w-[200px] bg-secondary rounded-lg p-4">
+                            <h3 class="text-lg font-semibold mb-4 text-center">Vehicle Counts</h3>
+                            <div class="space-y-4">
+                                <!-- Cars -->
+                                <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-car text-highlight text-2xl"></i>
+                                        <span class="text-sm">Cars</span>
+                                    </div>
+                                    <div class="font-bold text-lg" id="count_car">0</div>
+                                </div>
+                                <!-- Trucks -->
+                                <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-truck text-highlight text-2xl"></i>
+                                        <span class="text-sm">Trucks</span>
+                                    </div>
+                                    <div class="font-bold text-lg" id="count_truck">0</div>
+                                </div>
+                                <!-- Bicycles -->
+                                <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-bicycle text-highlight text-2xl"></i>
+                                        <span class="text-sm">Bicycles</span>
+                                    </div>
+                                    <div class="font-bold text-lg" id="count_bicycle">0</div>
+                                </div>
+                                <!-- Motorbikes -->
+                                <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-motorcycle text-highlight text-2xl"></i>
+                                        <span class="text-sm">Motorbikes</span>
+                                    </div>
+                                    <div class="font-bold text-lg" id="count_motorbike">0</div>
+                                </div>
+                                <!-- Total -->
+                                <div
+                                    class="bg-highlight text-primary rounded-lg p-3 flex items-center justify-between glow-on-hover">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-road text-primary text-2xl"></i>
+                                        <span class="text-sm">Total</span>
+                                    </div>
+                                    <div class="font-bold text-lg" id="count_total">0</div>
+                                </div>
                             </div>
-                            <div class="font-bold text-lg" id="count_car">0</div>
                         </div>
-                        <!-- Trucks -->
-                        <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-truck text-highlight text-2xl"></i>
-                                <span class="text-sm">Trucks</span>
+
+                        <!-- Livestream (Right Side) -->
+                        <div class="flex-1">
+                            <div id="videoContainer"
+                                class="relative aspect-video max-w-[640px] mb-4 rounded-lg overflow-hidden border border-highlight">
+                                <img id="videoStream" src="https://via.placeholder.com/480x270" alt="Live Traffic Feed"
+                                    class="w-full h-full object-cover">
+                                <canvas id="overlay"
+                                    class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
+                                <div
+                                    class="absolute top-0 left-0 right-0 bg-secondary/80 p-2 flex justify-between text-sm">
+                                    <span id="live_location">Barangay Longos C-4 Road, Malabon</span>
+                                    <span id="live_datetime">Loading...</span>
+                                </div>
                             </div>
-                            <div class="font-bold text-lg" id="count_truck">0</div>
-                        </div>
-                        <!-- Bicycles -->
-                        <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-bicycle text-highlight text-2xl"></i>
-                                <span class="text-sm">Bicycles</span>
+
+                            <div class="flex flex-wrap justify-between items-center gap-1 p-4 bg-accent1/20 rounded-lg">
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        class="bg-highlight text-primary px-2 py-1 rounded-lg glow-on-hover font-medium">
+                                        <i class="fas fa-play mr-2"></i> Start
+                                    </button>
+                                    <button
+                                        class="bg-accent1 text-accent2 px-2 py-1 rounded-lg glow-on-hover font-medium">
+                                        <i class="fas fa-stop mr-2"></i> Stop
+                                    </button>
+                                </div>
+                                <!-- Center - Stream mode buttons -->
+                                <div class="flex items-center gap-2">
+                                    <!-- Mode buttons will be inserted here by script -->
+                                </div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <!-- Pi selection and test connection will be inserted here by script -->
+                                </div>
                             </div>
-                            <div class="font-bold text-lg" id="count_bicycle">0</div>
-                        </div>
-                        <!-- Motorbikes -->
-                        <div class="bg-accent1 rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-motorcycle text-highlight text-2xl"></i>
-                                <span class="text-sm">Motorbikes</span>
-                            </div>
-                            <div class="font-bold text-lg" id="count_motorbike">0</div>
-                        </div>
-                        <!-- Total -->
-                        <div class="bg-highlight text-primary rounded-lg p-3 flex items-center justify-between glow-on-hover">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-road text-primary text-2xl"></i>
-                                <span class="text-sm">Total</span>
-                            </div>
-                            <div class="font-bold text-lg" id="count_total">0</div>
                         </div>
                     </div>
                 </div>
 
-            <!-- Livestream (Right Side) -->
-            <div class="flex-1">
-                <div id="videoContainer" class="relative aspect-video max-w-[640px] mb-4 rounded-lg overflow-hidden border border-highlight">
-                    <img id="videoStream" src="https://via.placeholder.com/480x270" alt="Live Traffic Feed" class="w-full h-full object-cover">
-                    <canvas id="overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
-                    <div class="absolute top-0 left-0 right-0 bg-secondary/80 p-2 flex justify-between text-sm">
-                        <span id="live_location">Barangay Longos C-4 Road, Malabon</span>
-                        <span id="live_datetime">Loading...</span>
+                <!-- Traffic Prediction Container -->
+                <div id="traffic-summary" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
+                    <h2 class="text-xl font-semibold mb-4">Summary of Traffic Predictions</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-calendar-day text-highlight text-xl mr-2"></i>
+                                <h3 class="font-medium">Today</h3>
+                            </div>
+                            <div class="text-3xl font-bold mb-2" id="todayPrediction">0</div>
+                            <div class="text-sm text-accent2/80">Peak at 5:30 PM</div>
+                        </div>
+                        <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-calendar-week text-highlight text-xl mr-2"></i>
+                                <h3 class="font-medium">This Week</h3>
+                            </div>
+                            <div class="text-3xl font-bold mb-2" id="weekPrediction">0</div>
+                            <div class="text-sm text-accent2/80">Worst on Friday</div>
+                        </div>
+                        <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-calendar-alt text-highlight text-xl mr-2"></i>
+                                <h3 class="font-medium">Next 3 Months</h3>
+                            </div>
+                            <div class="text-3xl font-bold mb-2" id="monthPrediction">0</div>
+                            <div class="text-sm text-accent2/80">Improving trend</div>
+                        </div>
+                    </div>
+
+                    <!-- AI Recommendation -->
+                    <div class="flex items-start mb-4">
+                        <div class="bg-highlight text-primary rounded-full p-3 mr-4">
+                            <i class="fas fa-robot text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h2 class="text-xl font-semibold mb-2">AI Recommendation</h2>
+                            <div class="bg-accent1 rounded-lg p-4" id="aiRecommendation">
+                                Analyzing current traffic patterns... Please wait while I generate recommendations.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex flex-wrap justify-between items-center gap-1 p-4 bg-accent1/20 rounded-lg">
-                    <div class="flex items-center gap-2">
-                    <button class="bg-highlight text-primary px-2 py-1 rounded-lg glow-on-hover font-medium">
-                        <i class="fas fa-play mr-2"></i> Start
-                    </button>
-                    <button class="bg-accent1 text-accent2 px-2 py-1 rounded-lg glow-on-hover font-medium">
-                        <i class="fas fa-stop mr-2"></i> Stop
-                    </button>
-                    </div>
-                    <!-- Center - Stream mode buttons -->
-                    <div class="flex items-center gap-2">
-                        <!-- Mode buttons will be inserted here by script -->
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                    <!-- Pi selection and test connection will be inserted here by script -->
-                    </div>
-                </div>
-            </div>
-            </div>
-            </div>
-            
-            <!-- Traffic Prediction Container -->
-            <div id="traffic-summary" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
-                <h2 class="text-xl font-semibold mb-4">Summary of Traffic Predictions</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
-                        <div class="flex items-center mb-3">
-                            <i class="fas fa-calendar-day text-highlight text-xl mr-2"></i>
-                            <h3 class="font-medium">Today</h3>
+                <!-- Chart Prediction Section -->
+                <div id="traffic-analysis" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Traffic Prediction Analysis</h2>
+                        <div class="flex flex-wrap gap-1">
+                            <!-- Time period tabs -->
+                            <div class="flex gap-1 mr-4">
+                                <button class="time-tab bg-highlight text-primary px-3 py-1 rounded-lg text-sm"
+                                    data-period="hourly">Hourly</button>
+                                <button class="time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm"
+                                    data-period="daily">Daily</button>
+                                <button class="time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm"
+                                    data-period="weekly">Weekly</button>
+                                <button class="time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm"
+                                    data-period="monthly">Monthly</button>
+                            </div>
+                            <!-- Chart type selector -->
+                            <div class="flex gap-1">
+                                <button class="chart-type bg-highlight text-primary px-3 py-1 rounded-lg text-sm"
+                                    data-type="line">
+                                    <i class="fas fa-chart-line mr-1"></i> Line
+                                </button>
+                                <button class="chart-type bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm"
+                                    data-type="bar">
+                                    <i class="fas fa-chart-bar mr-1"></i> Bar
+                                </button>
+                            </div>
                         </div>
-                        <div class="text-3xl font-bold mb-2" id="todayPrediction">0</div>
-                        <div class="text-sm text-accent2/80">Peak at 5:30 PM</div>
                     </div>
-                    <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
-                        <div class="flex items-center mb-3">
-                            <i class="fas fa-calendar-week text-highlight text-xl mr-2"></i>
-                            <h3 class="font-medium">This Week</h3>
-                        </div>
-                        <div class="text-3xl font-bold mb-2" id="weekPrediction">0</div>
-                        <div class="text-sm text-accent2/80">Worst on Friday</div>
+
+                    <div class="chart-container mb-4">
+                        <canvas id="trafficChart" class="w-full h-64">
+                            <!-- Generated using JS -->
+                        </canvas>
                     </div>
-                    <div class="bg-accent1 rounded-lg p-4 glow-on-hover">
-                        <div class="flex items-center mb-3">
-                            <i class="fas fa-calendar-alt text-highlight text-xl mr-2"></i>
-                            <h3 class="font-medium">Next 3 Months</h3>
+
+                    <!-- AI Recommendation Container (Chart-Specific) -->
+                    <div class="flex items-start mt-4">
+                        <div class="bg-highlight text-primary rounded-full p-3 mr-1">
+                            <i class="fas fa-robot text-xl"></i>
                         </div>
-                        <div class="text-3xl font-bold mb-2" id="monthPrediction">0</div>
-                        <div class="text-sm text-accent2/80">Improving trend</div>
+                        <div>
+                            <h3 class="font-medium mb-2">AI Recommendation and Analysis</h3>
+                            <div class="bg-accent1 rounded-lg p-4" id="chartInsight">
+                                Start the server to view traffic data analysis using AI
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- AI Recommendation -->
-                <div class="flex items-start mb-4">
-                    <div class="bg-highlight text-primary rounded-full p-3 mr-4">
-                        <i class="fas fa-robot text-xl"></i>
+                <!-- TRAFFIC FACTORS CHART -->
+                <div id="traffic-factors" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Traffic Factors Analysis</h2>
+                        <div class="flex flex-wrap gap-1">
+                            <!-- Time period tabs -->
+                            <div class="flex gap-1 mr-4">
+                                <button class="time-tab-2 bg-highlight text-primary px-3 py-1 rounded-lg text-sm active" data-period="hourly">Hourly</button>
+                                <button class="time-tab-2 bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="daily">Daily</button>
+                                <button class="time-tab-2 bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="weekly">Weekly</button>
+                                <button class="time-tab-2 bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="monthly">Monthly</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <h2 class="text-xl font-semibold mb-2">AI Recommendation</h2>
-                        <div class="bg-accent1 rounded-lg p-4" id="aiRecommendation">
-                            Analyzing current traffic patterns... Please wait while I generate recommendations.
+                    
+                    <div class="chart-container mb-4">
+                        <canvas id="traffic-factors-chart" class="w-full h-64">
+                            <!-- Chart will be generated using JS -->
+                        </canvas>
+                    </div>
+                    
+                    <!-- AI Analysis -->
+                    <div class="flex items-start mt-4">
+                        <div class="bg-highlight text-primary rounded-full p-3 mr-3">
+                            <i class="fas fa-robot text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium mb-2">AI Analysis Insight</h3>
+                            <div class="bg-accent1 rounded-lg p-4" id="factorsChartInsight">
+                                Start the server to view traffic data analysis using AI
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            
-            <!-- Chart Prediction Section -->
-            <div id="traffic-analysis" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold">Traffic Analysis</h2>
-                    <div class="flex flex-wrap gap-1">
-                        <!-- Time period tabs -->
-                        <div class="flex gap-1 mr-4">
-                            <button class="time-tab bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-period="hourly">Hourly</button>
-                            <button class="time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="daily">Daily</button>
-                            <button class="time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="weekly">Weekly</button>
-                            <button class="time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="monthly">Monthly</button>
+                <!-- TRAFFIC FACTORS TABLE-->
+                <!-- <div id="factors-table" class="traffic-table-container">
+                    <div class="traffic-table-header">
+                        <h2>Traffic Factors Analysis - Table View</h2>
+                        <div class="time-periods">
+                            <button class="time-tab-popup bg-highlight text-primary px-3 py-1 rounded-lg text-sm active" data-period="hourly">Hourly</button>
+                            <button class="time-tab-popup bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="daily">Daily</button>
+                            <button class="time-tab-popup bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="weekly">Weekly</button>
+                            <button class="time-tab-popup bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="monthly">Monthly</button>
                         </div>
-                        <!-- Chart type selector -->
-                        <div class="flex gap-1">
-                            <button class="chart-type bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-type="line">
-                                <i class="fas fa-chart-line mr-1"></i> Line
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="traffic-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Factors</th>
+                                    <th>Impacts</th>
+                                    <th>Reasons</th>
+                                    <th>Net Impact</th>
+                                    <th>Prediction</th>
+                                </tr>
+                            </thead>
+                            <tbody id="traffic-table-body">
+                                <tr class="factor-group">
+                                    <td rowspan="3">2023-10-15 08:00</td>
+                                    <td>Weather</td>
+                                    <td>+12%</td>
+                                    <td>Clear skies encouraged outdoor activities</td>
+                                    <td rowspan="3">+18%</td>
+                                    <td rowspan="3">Stable growth</td>
+                                </tr>
+                                <tr class="factor-group">
+                                    <td>Event</td>
+                                    <td>+15%</td>
+                                    <td>Local festival downtown</td>
+                                </tr>
+                                <tr class="factor-group">
+                                    <td>Social Media</td>
+                                    <td>-9%</td>
+                                    <td>Platform algorithm changes</td>
+                                </tr>
+                                <tr class="factor-group">
+                                    <td rowspan="3">2023-10-15 09:00</td>
+                                    <td>Holiday</td>
+                                    <td>+22%</td>
+                                    <td>National holiday increasing leisure traffic</td>
+                                    <td rowspan="3">+25%</td>
+                                    <td rowspan="3">Peak expected</td>
+                                </tr>
+                                <tr class="factor-group">
+                                    <td>Marketing</td>
+                                    <td>+10%</td>
+                                    <td>New campaign launched</td>
+                                </tr>
+                                <tr class="factor-group">
+                                    <td>Technical</td>
+                                    <td>-7%</td>
+                                    <td>Server downtime in some regions</td>
+                                </tr>
+                                <tr class="factor-group">
+                                    <td rowspan="2">2023-10-15 10:00</td>
+                                    <td>Seasonal</td>
+                                    <td>+8%</td>
+                                    <td>Beginning of shopping season</td>
+                                    <td rowspan="2">+5%</td>
+                                    <td rowspan="2">Moderate growth</td>
+                                </tr>
+                                <tr class="factor-group">
+                                    <td>Competitor</td>
+                                    <td>-3%</td>
+                                    <td>Competitor promotion activity</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div> -->
+
+                <!-- Download Button -->
+                <button id="downloadBtn" class="download-btn">
+                    <i class="fas fa-download mr-2"></i> Download Traffic Data Report
+                </button>
+
+                <!-- Download Options Modal -->
+                <div id="downloadModal" class="download-modal">
+                    <div class="download-modal-content">
+                        <div class="download-modal-header">
+                            <h3>Download Format</h3>
+                            <button class="close-modal">&times;</button>
+                        </div>
+                        <div class="download-options">
+                            <button class="download-option" data-format="json">
+                                <i class="fab fa-js-square text-yellow-400 text-2xl"></i>
+                                <span>JSON</span>
+                                <small>Raw data format</small>
                             </button>
-                            <button class="chart-type bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-type="bar">
-                                <i class="fas fa-chart-bar mr-1"></i> Bar
+                            <button class="download-option" data-format="excel">
+                                <i class="fas fa-file-excel text-green-500 text-2xl"></i>
+                                <span>Excel</span>
+                                <small>Spreadsheet format</small>
+                            </button>
+                            <button class="download-option" data-format="pdf">
+                                <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
+                                <span>PDF</span>
+                                <small>Printable report</small>
                             </button>
                         </div>
                     </div>
                 </div>
-                
-                <div class="chart-container mb-4">
-                    <canvas id="trafficChart" class="w-full h-64">
-                        <!-- Generated using JS -->
-                    </canvas>
-                </div>
-                
-                <!-- AI Recommendation Container (Chart-Specific) -->
-                <div class="flex items-start mt-4">
-                    <div class="bg-highlight text-primary rounded-full p-3 mr-1">
-                        <i class="fas fa-robot text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-medium mb-2">AI Recommendation and Analysis Insight</h3>
-                        <div class="bg-accent1 rounded-lg p-4" id="chartInsight">
-                            Start the server to view traffic data analysis using AI
-                        </div>
-                    </div>
-                </div>
             </div>
-            
-            <!-- Download Button -->
-            <button id="downloadBtn" class="download-btn">
-                <i class="fas fa-download mr-2"></i> Download Traffic Data Report
-            </button>
 
-            <!-- Download Options Modal -->
-            <div id="downloadModal" class="download-modal">
-                <div class="download-modal-content">
-                    <div class="download-modal-header">
-                        <h3>Download Format</h3>
-                        <button class="close-modal">&times;</button>
-                    </div>
-                    <div class="download-options">
-                        <button class="download-option" data-format="json">
-                            <i class="fab fa-js-square text-yellow-400 text-2xl"></i>
-                            <span>JSON</span>
-                            <small>Raw data format</small>
-                        </button>
-                        <button class="download-option" data-format="excel">
-                            <i class="fas fa-file-excel text-green-500 text-2xl"></i>
-                            <span>Excel</span>
-                            <small>Spreadsheet format</small>
-                        </button>
-                        <button class="download-option" data-format="pdf">
-                            <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
-                            <span>PDF</span>
-                            <small>Printable report</small>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            </div>
-        
-        <!-- Right Insights/Interaction Panel -->
+            <!-- Right Insights/Interaction Panel -->
             <aside class="fixed right-0 top-16 h-[calc(100%-4rem)] w-0 lg:w-[340px] bg-secondary p-6 overflow-y-auto transition-all duration-300 hidden lg:block">
                 <!-- Prediction Results -->
                 <div class="mb-6 fade-in">
                     <h2 class="text-xl font-semibold mb-4">Traffic Predictions</h2>
                     <!-- Time Period Controls -->
                     <div class="flex gap-1 mb-4">
-                        <button class="prediction-time-tab bg-accent1 text-accent2 px-2 py-2 rounded-md text-xs opacity-50 cursor-not-allowed" data-period="hourly" disabled>Hourly</button>
-                        <button class="prediction-time-tab bg-accent1 text-accent2 px-2 py-2 rounded-md text-xs opacity-50 cursor-not-allowed" data-period="daily" disabled>Daily</button>
-                        <button class="prediction-time-tab bg-accent1 text-accent2 px-2 py-2 rounded-md text-xs opacity-50 cursor-not-allowed" data-period="weekly" disabled>Weekly</button>
-                        <button class="prediction-time-tab bg-accent1 text-accent2 px-2 py-2 rounded-md text-xs opacity-50 cursor-not-allowed" data-period="monthly" disabled>Monthly</button>
+                        <button
+                            class="prediction-time-tab bg-accent1 text-accent2 px-2 py-2 rounded-md text-xs opacity-50 cursor-not-allowed"
+                            data-period="hourly" disabled>Hourly</button>
+                        <button
+                            class="prediction-time-tab bg-accent1 text-accent2 px-2 py-2 rounded-md text-xs opacity-50 cursor-not-allowed"
+                            data-period="daily" disabled>Daily</button>
+                        <button
+                            class="prediction-time-tab bg-accent1 text-accent2 px-2 py-2 rounded-md text-xs opacity-50 cursor-not-allowed"
+                            data-period="weekly" disabled>Weekly</button>
+                        <button
+                            class="prediction-time-tab bg-accent1 text-accent2 px-2 py-2 rounded-md text-xs opacity-50 cursor-not-allowed"
+                            data-period="monthly" disabled>Monthly</button>
                     </div>
 
                     <!-- Chart Type Controls -->
                     <div class="flex gap-2 mb-3">
                         <span id="request-date-display" class="text-xs">Request Date: </span>
-                        <button class="prediction-chart-type bg-highlight text-primary px-3 py-1 rounded-md text-xs" data-type="line">
+                        <button class="prediction-chart-type bg-highlight text-primary px-3 py-1 rounded-md text-xs"
+                            data-type="line">
                             <i class="fas fa-chart-line mr-1"></i> Line
                         </button>
-                        <button class="prediction-chart-type bg-accent1 text-accent2 px-3 py-1 rounded-md text-xs" data-type="bar">
+                        <button class="prediction-chart-type bg-accent1 text-accent2 px-3 py-1 rounded-md text-xs"
+                            data-type="bar">
                             <i class="fas fa-chart-bar mr-1"></i> Bar
                         </button>
                     </div>
-                    
+
                     <!-- Prediction Chart -->
                     <div class="bg-accent1 rounded-lg p-3 glow-on-hover mb-4 prediction-chart-container">
                         <h3 class="text-sm font-medium mb-2">Predicted Traffic Volume</h3>
                         <canvas id="predictionChart" class="w-full h-32"></canvas>
                     </div>
-                    
+
                     <!-- AI Recommendation for Predictions -->
                     <div class="bg-accent1 rounded-lg p-4 border-l-4 border-highlight">
                         <div class="flex items-start space-x-3">
@@ -360,15 +519,17 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- User Input Field -->
                 <div class="fade-in">
                     <div class="bg-accent1 rounded-lg p-4">
                         <div class="mb-3">
                             <label class="block text-sm mb-1">Select future date for prediction:</label>
-                            <input type="datetime-local" id="prediction_date" class="w-full bg-secondary rounded-lg p-2 text-sm mb-2">
+                            <input type="datetime-local" id="prediction_date"
+                                class="w-full bg-secondary rounded-lg p-2 text-sm mb-2">
                         </div>
-                        <button class="prediction-request-btn w-full bg-highlight text-primary py-2 rounded-lg font-medium glow-on-hover">
+                        <button
+                            class="prediction-request-btn w-full bg-highlight text-primary py-2 rounded-lg font-medium glow-on-hover">
                             <i class="fas fa-chart-line mr-2"></i> Request Traffic Predictions
                         </button>
                     </div>
@@ -378,10 +539,12 @@
 
         <div id="dashboard-history-view">
             <!-- History List (Right Panel) -->
-            <aside class="w-[340px] bg-gradient-to-b from-[#1e1e2f] to-[#141420] border-l border-blue-500/30 fixed right-0 top-16 h-screen overflow-y-auto animate-[slideInRight_0.4s_ease-out] p-4">
+            <aside
+                class="w-[340px] bg-gradient-to-b from-[#1e1e2f] to-[#141420] border-l border-blue-500/30 fixed right-0 top-16 h-screen overflow-y-auto animate-[slideInRight_0.4s_ease-out] p-4">
                 <h2 class="text-lg font-semibold text-white mb-4">Version History</h2>
                 <div class="space-y-2">
-                    <div class="rounded-lg px-3 py-2 cursor-pointer transition bg-white/5 hover:bg-white/10 glow-on-hover border-l-4 border-cyan-400 animate-[fadeUp_0.3s_ease-out]">
+                    <div
+                        class="rounded-lg px-3 py-2 cursor-pointer transition bg-white/5 hover:bg-white/10 glow-on-hover border-l-4 border-cyan-400 animate-[fadeUp_0.3s_ease-out]">
                         <p class="text-sm font-semibold text-white">2025-08-22 14:30</p>
                     </div>
                 </div>
@@ -389,11 +552,12 @@
 
             <!-- History Preview (Main Area) -->
             <div class="flex-1 p-6 animate-[fadeScale_0.3s_ease-in-out]">
-                <h2 class="text-xl font-bold text-white mb-6 border-b-2 border-cyan-400 inline-block">History Preview</h2>
+                <h2 class="text-xl font-bold text-white mb-6 border-b-2 border-cyan-400 inline-block">History Preview
+                </h2>
                 <div class="grid gap-6">
                     <div class="rounded-2xl bg-white/5 backdrop-blur-lg border border-white/10 p-6 shadow-lg">
                         <h3 class="text-lg font-bold text-white mb-4">Version Details</h3>
-                        
+
                         <!-- Traffic Prediction Summary Container -->
                         <div id="history-traffic-summary" class="bg-secondary rounded-xl p-4 mb-6 fade-in">
                             <h2 class="text-xl font-semibold mb-4">Summary of Traffic Predictions</h2>
@@ -432,7 +596,8 @@
                                 <div class="flex-1">
                                     <h2 class="text-xl font-semibold mb-2">AI Recommendation Summary</h2>
                                     <div class="bg-accent1 rounded-lg p-4" id="historyAiRecommendation">
-                                        Analyzing current traffic patterns... Please wait while I generate recommendations.
+                                        Analyzing current traffic patterns... Please wait while I generate
+                                        recommendations.
                                     </div>
                                 </div>
                             </div>
@@ -445,29 +610,41 @@
                                 <div class="flex flex-wrap gap-1">
                                     <!-- Time period tabs -->
                                     <div class="flex gap-1 mr-4">
-                                        <button class="history-time-tab bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-period="hourly">Hourly</button>
-                                        <button class="history-time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="daily">Daily</button>
-                                        <button class="history-time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="weekly">Weekly</button>
-                                        <button class="history-time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-period="monthly">Monthly</button>
+                                        <button
+                                            class="history-time-tab bg-highlight text-primary px-3 py-1 rounded-lg text-sm"
+                                            data-period="hourly">Hourly</button>
+                                        <button
+                                            class="history-time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm"
+                                            data-period="daily">Daily</button>
+                                        <button
+                                            class="history-time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm"
+                                            data-period="weekly">Weekly</button>
+                                        <button
+                                            class="history-time-tab bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm"
+                                            data-period="monthly">Monthly</button>
                                     </div>
                                     <!-- Chart type selector -->
                                     <div class="flex gap-1">
-                                        <button class="history-chart-type bg-highlight text-primary px-3 py-1 rounded-lg text-sm" data-type="line">
+                                        <button
+                                            class="history-chart-type bg-highlight text-primary px-3 py-1 rounded-lg text-sm"
+                                            data-type="line">
                                             <i class="fas fa-chart-line mr-1"></i> Line
                                         </button>
-                                        <button class="history-chart-type bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm" data-type="bar">
+                                        <button
+                                            class="history-chart-type bg-accent1 text-accent2 px-3 py-1 rounded-lg text-sm"
+                                            data-type="bar">
                                             <i class="fas fa-chart-bar mr-1"></i> Bar
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="history-chart-container mb-4">
                                 <canvas id="historyTrafficChart" class="w-full h-64">
                                     <!-- Chart will be generated using Chart.js -->
                                 </canvas>
                             </div>
-                            
+
                             <!-- AI Recommendation Container (Chart-Specific) -->
                             <div class="flex items-start mt-4">
                                 <div class="bg-highlight text-primary rounded-full p-3 mr-1">
@@ -507,7 +684,7 @@
                                     <small>Spreadsheet format</small>
                                 </button>
                                 <!-- Not yet working -->
-                                 <button class="download-option" data-format="pdf">
+                                <button class="download-option" data-format="pdf">
                                     <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
                                     <span>PDF</span>
                                     <small>Printable report</small>
@@ -568,5 +745,10 @@
     <script type="module" src="../static/javascripts/ui/chart_renderer.js"></script>
     <script type="module" src="../static/javascripts/ui/ai_recommendation_renderer.js"></script>
     <script type="module" src="../static/javascripts/ui/render_dashboard_history_ui.js"></script>
-  </body>
+
+    <!-- TRAFFIC FACTORS -->
+     <script type="module" src="../static/javascripts/ui/traff_factors_ui.js"></script>
+     <script type="module" src="../static/javascripts/api/dashboard_factors_api.js"></script>
+</body>
+
 </html>
