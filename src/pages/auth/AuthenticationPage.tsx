@@ -16,6 +16,8 @@ import { Link } from "react-router"
 
 import { type AuthUserModel } from "@/models/auth";
 import { authenticate, isAuthenticated } from "@/api/authentication_api"
+import { NavMenu } from "@/components/nav/NavMenu"
+import { Footer } from "@/components/footer/Footer"
 
 
 export function AuthenticationPage({
@@ -59,72 +61,78 @@ export function AuthenticationPage({
     };
 
     return (
-        <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-            <div className="w-full max-w-sm">
-                <div className={cn("flex flex-col gap-6", className)} {...props}>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Login to your account</CardTitle>
-                            <CardDescription>
-                                Enter your credentials to login to your account
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handleSubmit}>
-                                <div className="flex flex-col gap-6">
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="username">Username</Label>
-                                        <Input
-                                            id="username"
-                                            type="text"
-                                            placeholder="username"
-                                            required
-                                            value={credentials.username}
-                                            onChange={(e) => handleInputChange('username', e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="grid gap-3">
-                                        <div className="flex items-center">
-                                            <Label htmlFor="password">Password</Label>
-                                            <Link
-                                                to="#"
-                                                className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                                            >
-                                                Forgot your password?
-                                            </Link>
+        <>
+            <NavMenu />
+
+            <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+                <div className="w-full max-w-sm">
+                    <div className={cn("flex flex-col gap-6", className)} {...props}>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Login to your account</CardTitle>
+                                <CardDescription>
+                                    Enter your credentials to login to your account
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="flex flex-col gap-6">
+                                        <div className="grid gap-3">
+                                            <Label htmlFor="username">Username</Label>
+                                            <Input
+                                                id="username"
+                                                type="text"
+                                                placeholder="username"
+                                                required
+                                                value={credentials.username}
+                                                onChange={(e) => handleInputChange('username', e.target.value)}
+                                            />
                                         </div>
-                                        <Input
-                                            id="password"
-                                            type="password"
-                                            placeholder="Password"
-                                            required
-                                            value={credentials.password}
-                                            onChange={(e) => handleInputChange('password', e.target.value)}
-                                        />
-                                    </div>
+                                        <div className="grid gap-3">
+                                            <div className="flex items-center">
+                                                <Label htmlFor="password">Password</Label>
+                                                <Link
+                                                    to="#"
+                                                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                                                >
+                                                    Forgot your password?
+                                                </Link>
+                                            </div>
+                                            <Input
+                                                id="password"
+                                                type="password"
+                                                placeholder="Password"
+                                                required
+                                                value={credentials.password}
+                                                onChange={(e) => handleInputChange('password', e.target.value)}
+                                            />
+                                        </div>
 
-                                    {/* OAUTH2 SOCIAL LOGIN COMING SOON */}
+                                        {/* OAUTH2 SOCIAL LOGIN COMING SOON */}
 
-                                    <div className="flex flex-col gap-3">
-                                        <Button type="submit" className="w-full">
-                                            Login
-                                        </Button>
-                                        <Button variant="outline" className="w-full">
-                                            Login with Google
-                                        </Button>
+                                        <div className="flex flex-col gap-3">
+                                            <Button type="submit" className="w-full">
+                                                Login
+                                            </Button>
+                                            <Button variant="outline" className="w-full">
+                                                Login with Google
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="mt-4 text-center text-sm">
-                                    Don&apos;t have an account?{" "}
-                                    <Link to="/registration" className="underline underline-offset-4">
-                                        Sign up
-                                    </Link>
-                                </div>
-                            </form>
-                        </CardContent>
-                    </Card>
+                                    <div className="mt-4 text-center text-sm">
+                                        Don&apos;t have an account?{" "}
+                                        <Link to="/registration" className="underline underline-offset-4">
+                                            Sign up
+                                        </Link>
+                                    </div>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <Footer />
+        </>
     );
 }
