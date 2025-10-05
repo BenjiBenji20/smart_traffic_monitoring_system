@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { LogOut, User, Settings, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isAuthenticated, signOut } from "@/api/authentication_api";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 interface ProfileProps {
     className?: string;
@@ -28,18 +31,37 @@ export function Profile({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const handleLogout = () => {
-        console.log("Logging out...");
-        // Add your logout logic here
-        setIsOpen(false);
-    };
+    const navigator = useNavigate();
+
+    const handleSignOut = async () => {
+        try {
+            const isSuccessfull = await signOut();
+
+            if (!isAuthenticated() && isSuccessfull) {
+                toast.success("Sign-out Successfull", {
+                    description: "Redirecting...\nplease wait while clearing your session..."
+                });
+
+                setTimeout(() => {
+                    navigator("/"); // navigate back to signin page
+                }, 3500);
+            }
+        } catch (error) {
+            console.error("Sign-out Validation failed:", error);
+
+            // show error prompt
+            toast.error("Sign-out Failed", {
+                description: "Sign-out failed...",
+            });
+        }
+    }
 
     return (
         <div className={cn("relative", className)} ref={dropdownRef}>
             {/* Profile Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-3 p-1 rounded-lg hover:bg-accent transition-colors"
+                className="flex items-center gap-3 p-1 rounded-lg hover:bg-accent transition-colors w-full"
             >
                 {/* Profile Image */}
                 <div className="flex-shrink-0">
@@ -51,14 +73,14 @@ export function Profile({
                 </div>
 
                 {/* User Info - Hidden on mobile, visible on desktop */}
-                <div className="hidden sm:block text-left">
-                    <p className="text-sm font-medium text-foreground">{username}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
+                <div className="hidden sm:block text-left flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{username}</p>
+                    <p className="text-xs text-muted-foreground capitalize truncate">{userRole}</p>
                 </div>
 
                 <ChevronDown
                     className={cn(
-                        "h-4 w-4 text-muted-foreground transition-transform",
+                        "h-4 w-4 text-muted-foreground transition-transform flex-shrink-0",
                         isOpen && "rotate-180"
                     )}
                 />
@@ -88,7 +110,7 @@ export function Profile({
                         <div className="border-t my-1"></div>
 
                         <button
-                            onClick={handleLogout}
+                            onClick={handleSignOut}
                             className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-destructive transition-colors"
                         >
                             <LogOut className="h-4 w-4 mr-3" />

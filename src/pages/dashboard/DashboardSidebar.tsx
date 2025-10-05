@@ -4,16 +4,11 @@
 import { cn } from "@/lib/utils"
 import { SidebarMenuItem } from "@/components/sidebar/sidebar-menu-item"
 import { Submenu } from "@/components/sidebar/submenu"
-import { UserProfileFooter } from "@/components/sidebar/user-profile-footer"
 import { Home, BarChart, Users, Mail, Settings, History } from "lucide-react"
+import { Profile } from "@/components/ui/profile"
 
 export function DashboardSidebar() {
     const isCollapsed = false;
-    const user = {
-        name: "John Doe",
-        email: "john@example.com",
-        role: "Admin"
-    }
 
     return (
         <div className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background z-40">
@@ -103,13 +98,7 @@ export function DashboardSidebar() {
                 </div>
 
                 {/* User Profile Footer */}
-                <UserProfileFooter
-                    user={user}
-                    isCollapsed={isCollapsed}
-                    onLogout={() => console.log("Logout")}
-                    onProfileClick={() => console.log("Profile")}
-                    onSettingsClick={() => console.log("Settings")}
-                />
+                <Profile className="w-full mx-auto px-6 py-4" /> 
             </aside>
         </div>
     )

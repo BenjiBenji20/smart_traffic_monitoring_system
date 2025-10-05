@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
 import React from "react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 
 import { type AuthUserModel } from "@/models/auth";
 import { authenticate, isAuthenticated } from "@/api/authentication_api"
@@ -36,6 +36,8 @@ export function AuthenticationPage({
         }));
     };
 
+    const navigator = useNavigate();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -46,14 +48,19 @@ export function AuthenticationPage({
 
             if (isAuthenticated()) {
                 // show success prompt
-                toast.success("Login Successful!", {
+                toast.success("Sign-in Successful!", {
                     description: "Redirecting to your dashboard account.",
                 });
+
+                // Redirect after a brief delay to show the toast
+                setTimeout(() => {
+                    navigator('/dashboard');
+                }, 3500);
             }
         } catch (error) {
             console.error("Authentication Validation failed:", error);
 
-            // show error prompt (unsuccessful login)
+            // show error prompt (unsuccessful Sign-in)
             toast.error("Authentication Failed", {
                 description: "Invalid username or password",
             });
