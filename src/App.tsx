@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 
 import { AuthenticationPage } from "./pages/auth/AuthenticationPage";
 import { RegistrationPage } from "./pages/auth/RegistrationPage";
+import { DashboardPage } from "./pages/dashboard/DashboardPage";
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<AuthenticationPage />} />
                 <Route path="/registration" element={<RegistrationPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
             </Routes>
 
             <Toaster />

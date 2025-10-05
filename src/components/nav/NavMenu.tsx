@@ -13,6 +13,7 @@ import {
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { ModeToggle } from "../mode-toggle"
+import { Logo } from "../ui/logo"
 
 export function NavMenu() {
     return (
@@ -116,9 +117,7 @@ export function NavMenu() {
                 </NavigationMenuList>
             </NavigationMenu>
 
-            <div className=" w-[300px]">
-                <img src="../../../public/vite.svg" alt="logo" />
-            </div>
+            <Logo className="w-[300px]" />
         </div>
     )
 }
