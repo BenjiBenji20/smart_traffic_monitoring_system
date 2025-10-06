@@ -1,12 +1,50 @@
-// pages/DashboardPage.tsx
 import { DashboardSidebar } from "./DashboardSidebar"
 import { DashboardNav } from "./DashboardNav"
+import { useEffect, useState } from "react"
+import type { UserModel } from "@/models/user_model"
+import { getUserProfile } from "@/api/user_api";
+import { toast } from "sonner";
+import { DashboardPageSkeleton } from "@/components/skeleton/dashboard-page-skeleton";
 
 export function DashboardPage() {
+    const [userData, setUserData] = useState<UserModel | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                setIsLoading(true);
+
+                // wait for your auth context to be ready
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const user = await getUserProfile();
+                setUserData(user);
+            } catch (error) {
+                console.error("Failed to fetch user profile:", error);
+                setError("Failed to load user data");
+                toast.error("Failed to load user data");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchUserData();
+    }, []);
+
+    if (isLoading) {
+        // soon pag sinipag loading skeleton lalagay
+        return <div><DashboardPageSkeleton /></div>;
+    }
+
+    if (error || !userData) {
+        return <div>{error || "Failed to load profile"}</div>;
+    }
+
     return (
         <>
-            <DashboardNav />
-            <DashboardSidebar />
+            <DashboardNav userData={userData} />
+            <DashboardSidebar userData={userData} />
 
             {/* Main content with sidebar offset */}
             <main className="ml-64 mt-16 p-6 min-h-screen">

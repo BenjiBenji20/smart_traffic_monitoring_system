@@ -6,8 +6,9 @@ import { SidebarMenuItem } from "@/components/sidebar/sidebar-menu-item"
 import { Submenu } from "@/components/sidebar/submenu"
 import { Home, BarChart, Users, Mail, Settings, History } from "lucide-react"
 import { Profile } from "@/components/ui/profile"
+import type { UserModel } from "@/models/user_model"
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ userData }: { userData: UserModel }) {
     const isCollapsed = false;
 
     return (
@@ -98,7 +99,7 @@ export function DashboardSidebar() {
                 </div>
 
                 {/* User Profile Footer */}
-                <Profile className="w-full mx-auto px-6 py-4" /> 
+                <Profile className="w-full mx-auto px-6 py-4" user={ userData }/> 
             </aside>
         </div>
     )

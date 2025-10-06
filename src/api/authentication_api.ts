@@ -9,7 +9,7 @@ let refreshPromise: Promise<void> | null = null; // Store the refresh promise
 
 // Create axios instance with interceptors
 const securedRequest: AxiosInstance = axios.create({
-    baseURL: '/api/user',
+    baseURL: '/api',
     withCredentials: true,
 });
 
@@ -17,8 +17,9 @@ const securedRequest: AxiosInstance = axios.create({
 // Request interceptor to attach access token and refresh 2mins before expiration
 securedRequest.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
+
         // Skip token refresh logic for refresh endpoint itself
-        if (config.url?.includes('/auth/refresh2')) {
+        if (config.url?.includes('/user/auth/refresh2')) {
             return config;
         }
 
@@ -52,7 +53,7 @@ securedRequest.interceptors.response.use(
         const originalRequest = error.config;
 
         // Skip retry logic for refresh endpoint to prevent infinite loops
-        if (originalRequest.url?.includes('/auth/refresh2')) {
+        if (originalRequest.url?.includes('/user/auth/refresh2')) {
             return Promise.reject(error);
         }
 
@@ -194,7 +195,7 @@ export async function reinitializeAuth(): Promise<boolean> {
 // Sign-out function
 export async function signOut(): Promise<boolean> {
     try {
-        const response = await securedRequest.post("/sign-out");
+        const response = await securedRequest.post("/user/sign-out");
 
         if (response.status === 200) {
             console.log("Signing out...");

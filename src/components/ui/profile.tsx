@@ -4,18 +4,18 @@ import { cn } from "@/lib/utils";
 import { isAuthenticated, signOut } from "@/api/authentication_api";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import type { UserModel } from "@/models/user_model";
 
 interface ProfileProps {
     className?: string;
-    username?: string;
-    userRole?: string;
+    user: UserModel;
 }
 
-export function Profile({
-    className,
-    username = "John Doe",
-    userRole = "admin"
-}: ProfileProps) {
+export function Profile(
+    { className, user }: ProfileProps,
+) {
+    const { username, role } = user;
+
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -75,7 +75,7 @@ export function Profile({
                 {/* User Info - Hidden on mobile, visible on desktop */}
                 <div className="hidden sm:block text-left flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{username}</p>
-                    <p className="text-xs text-muted-foreground capitalize truncate">{userRole}</p>
+                    <p className="text-xs text-muted-foreground capitalize truncate">{role}</p>
                 </div>
 
                 <ChevronDown
@@ -92,7 +92,7 @@ export function Profile({
                     {/* User Info Section */}
                     <div className="px-4 py-3 border-b">
                         <p className="text-sm font-medium text-foreground">{username}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{role}</p>
                     </div>
 
                     {/* Menu Items */}
