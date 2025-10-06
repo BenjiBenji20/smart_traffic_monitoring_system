@@ -6,6 +6,42 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import type { UserModel } from "@/models/user_model";
 
+function ProfileAvatar({ username, className = "" }: { username: string; className?: string }) {
+    const firstLetter = username.charAt(0).toUpperCase();
+    const bgColor = getAvatarColor(username);
+
+    return (
+        <div
+            className={cn(
+                "h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium text-white",
+                bgColor,
+                className
+            )}
+        >
+            {firstLetter}
+        </div>
+    );
+}
+
+// Helper function to generate consistent color based on username
+function getAvatarColor(username: string): string {
+    const colors = [
+        "bg-red-500", "bg-blue-500", "bg-green-500",
+        "bg-yellow-500", "bg-purple-500", "bg-pink-500",
+        "bg-indigo-500", "bg-teal-500", "bg-orange-500"
+    ];
+
+    // Simple hash to get consistent color for same username
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+}
+
+
 interface ProfileProps {
     className?: string;
     user: UserModel;
@@ -64,13 +100,7 @@ export function Profile(
                 className="flex items-center gap-3 p-1 rounded-lg hover:bg-accent transition-colors w-full"
             >
                 {/* Profile Image */}
-                <div className="flex-shrink-0">
-                    <img
-                        src="/vite.svg"
-                        alt="Profile"
-                        className="h-8 w-8 rounded-full object-cover"
-                    />
-                </div>
+                <ProfileAvatar username={username} />
 
                 {/* User Info - Hidden on mobile, visible on desktop */}
                 <div className="hidden sm:block text-left flex-1 min-w-0">
