@@ -4,7 +4,7 @@ import { NavigationMenu } from "@/components/ui/navigation-menu"
 import { SearchBar } from "@/components/ui/search-bar"
 import { Logo } from "@/components/ui/logo"
 import { Profile } from "@/components/ui/profile"
-import { ModeToggle } from "@/components/mode-toggle"
+import { ModeToggle } from "@/components/ui/mode-toggle"
 import type { UserModel } from "@/models/user_model"
 
 export function DashboardNav({ userData }: { userData: UserModel }) {

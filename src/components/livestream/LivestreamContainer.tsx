@@ -1,4 +1,3 @@
-// src/components/livestream/LivestreamContainer.tsx
 import { useEffect, useState } from 'react';
 import { LivestreamVideo } from '@/components/livestream/LivestreamVideo';
 import { LivestreamControls } from '@/components/livestream/LivestreamControls';
@@ -6,7 +5,7 @@ import { VehicleCountsSidebar } from '@/components/livestream/VehicleCountsSideb
 import { useLivestream } from '@/hooks/useLivestream';
 import { useVehicleCounts } from '@/hooks/useVehicleCounts';
 
-export function LivestreamContainer() {
+export function DashboardLivestreamSection() {
   const [dateTime, setDateTime] = useState('');
 
   const {
