@@ -5,6 +5,7 @@ import type { UserModel } from "@/models/user_model"
 import { getUserProfile } from "@/api/user_api";
 import { toast } from "sonner";
 import { DashboardPageSkeleton } from "@/components/skeleton/dashboard-page-skeleton";
+import { DashboardLivestreamSection } from "./DashboardLivestreamSection";
 
 export function DashboardPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
@@ -45,10 +46,13 @@ export function DashboardPage() {
         <>
             <DashboardNav userData={userData} />
             <DashboardSidebar userData={userData} />
+            
+            {/* I'LL EMBED LIVESTREAM COMPONENT HERE */}
 
             {/* Main content with sidebar offset */}
-            <main className="ml-64 mt-16 p-6 min-h-screen">
+            <main className="ml-64 p-6 min-h-screen">
                 <div className="space-y-6">
+                    <DashboardLivestreamSection />
                     <h1 className="text-3xl font-bold">Modern Dashboard</h1>
                     <p>Clean, borderless design for 2025</p>
 

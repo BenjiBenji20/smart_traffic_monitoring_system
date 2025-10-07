@@ -97,7 +97,7 @@ export function Profile(
             {/* Profile Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-3 p-1 rounded-lg hover:bg-accent transition-colors w-full"
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors w-full"
             >
                 {/* Profile Image */}
                 <ProfileAvatar username={username} />
