@@ -8,15 +8,22 @@ import { DashboardPageSkeleton } from "@/components/skeleton/dashboard-page-skel
 import { DashboardLivestreamSection } from "@/components/livestream/LivestreamContainer";
 import { ErrorPage } from "../error/ErrorPage";
 import { useNavigate } from "react-router";
+import { PredictionChart } from "@/components/chart/PredictionChart";
+import type { RequestPredictionResponse } from "@/models/prediction.types";
+import { predictionRequest } from "@/api/prediction_api";
+import { PredictionRequestForm } from "@/components/ui/prediction-request-form";
 
 export function DashboardPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showErrorPage, setShowErrorPage] = useState<boolean>(false);
+    const [isError, setIsError] = useState<boolean>(false);
+    const [requestPredictionData, setRequestPredictionData] =
+        useState<RequestPredictionResponse | null>(null);
     const navigator = useNavigate();
 
     useEffect(() => {
-        const fetchUserData = async () => {
+        const fetchAllData = async () => {
             try {
                 setIsLoading(true);
 
@@ -25,26 +32,42 @@ export function DashboardPage() {
 
                 const user = await getUserProfile();
                 setUserData(user);
+                setIsError(false);
             } catch (error) {
-                console.error("Failed to fetch user profile:", error);
+                console.error("Failed to fetch data:", error);
                 setShowErrorPage(true);
-                toast.error("Failed to load user data");
+                setIsError(true);
+                toast.error("Failed to load data");
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchUserData();
+
+        fetchAllData();
     }, []);
 
+    const handlePredictionRequest = async (endDate: string) => {
+        try {
+            // Fetch prediction data
+            const predictionData = await predictionRequest({ end: endDate });
+            setRequestPredictionData(predictionData);
+            setIsError(false);
+        } catch (error) {
+            console.error("Failed to fetch prediction request data:", error);
+            setIsError(true);
+            toast.error("Failed to load prediction request data");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     if (isLoading) {
-        // show dashboard skeleton during 1sec timeout
         return <div><DashboardPageSkeleton /></div>;
     }
 
     return (
         <>
-            {/* Guard against malicious entry */}
-            {!userData || showErrorPage ? (
+            {!userData || isError || showErrorPage ? (
                 <ErrorPage
                     title="Failed to load data"
                     message="Could not connect to the server. Please check your connection."
@@ -75,11 +98,28 @@ export function DashboardPage() {
                                     Card 3
                                 </div>
                             </div>
+
+                            <div className="container mx-auto p-10">
+                                {/* Only show chart if prediction data exists */}
+                                {requestPredictionData && (
+                                    <PredictionChart
+                                        data={requestPredictionData?.forecast || null}
+                                        title="Request Traffic Prediction"
+                                        height={200}
+                                        width="50%"
+                                    />
+                                )}
+
+                                {/* Prediction request form */}
+                                <PredictionRequestForm
+                                    onRequestPrediction={handlePredictionRequest}
+                                    isLoading={isLoading}
+                                />
+                            </div>
                         </div>
                     </main>
                 </>
             )}
-
         </>
-    )
+    );
 }
