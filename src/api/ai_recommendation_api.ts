@@ -35,7 +35,7 @@ export async function recommendationDict(): Promise<trafficRecommendationDict> {
 }
 
 
-export async function AIAnalysis(): Promise<trafficFactorsAnalysis> {
+export async function recommendationFactorsAnalysis(): Promise<trafficFactorsAnalysis> {
     const response = await securedRequest.get<trafficFactorsAnalysis>(
         `${BASEURL}/ai-analysis`
     );

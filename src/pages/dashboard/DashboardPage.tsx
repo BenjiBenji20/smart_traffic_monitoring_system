@@ -8,10 +8,19 @@ import { DashboardPageSkeleton } from "@/components/skeleton/dashboard-page-skel
 import { DashboardLivestreamSection } from "@/components/livestream/LivestreamContainer";
 import { ErrorPage } from "../error/ErrorPage";
 import { useNavigate } from "react-router";
-import type { RequestPredictionResponse } from "@/types/prediction.types";
-import { predictionRequest } from "@/api/prediction_api";
-import { recommendationStr } from "@/api/ai_recommendation_api";
-import type { trafficRecommendationStr } from "@/types/ai_recommendation.types";
+import type {
+    PredictionSummary,
+    PredictionData,
+    PredictionFactorsAnalysis,
+    RequestPredictionResponse
+} from "@/types/prediction.types";
+import { predictionDetail, predictionFactorsAnalysis, predictionRequest, predictionSummary } from "@/api/prediction_api";
+import { recommendationDict, recommendationFactorsAnalysis, recommendationStr } from "@/api/ai_recommendation_api";
+import type {
+    trafficFactorsAnalysis,
+    trafficRecommendationDict,
+    trafficRecommendationStr
+} from "@/types/ai_recommendation.types";
 import { RequestPrediction } from "@/components/request_prediction/RequestPrediction";
 
 export function DashboardPage() {
@@ -30,10 +39,22 @@ export function DashboardPage() {
     // Add timestamp to force re-animation on new requests
     const [requestTimestamp, setRequestTimestamp] = useState(0);
 
+    // Prediction Data
+    const [predictionSummaryData, setPredictionSummaryData] = useState<PredictionSummary | null>(null);
+    const [predictionDetailData, setPredictionDetailData] = useState<PredictionData | null>(null);
+    const [predictionFactorsAnalysisData, setPredictionFactorsAnalysisData] =
+        useState<PredictionFactorsAnalysis | null>(null);
+
+    // Prediction AI Recommendation
+    const [recommendationDetailData, setRecommendationDetailData] =
+        useState<trafficRecommendationDict | null>(null);
+    const [recommendationFactorsAnalysisData, setRecommendationFactorsAnalysisData] =
+        useState<trafficFactorsAnalysis | null>(null);
+
     const navigator = useNavigate();
 
     useEffect(() => {
-        const fetchAllData = async () => {
+        const fetchAllDashboardData = async () => {
             try {
                 setIsLoading(true);
 
@@ -42,6 +63,27 @@ export function DashboardPage() {
 
                 const user = await getUserProfile();
                 setUserData(user);
+
+                const predictionSummaryRes = await predictionSummary();
+                setPredictionSummaryData(predictionSummaryRes);
+                // console.log("\npredictionSummaryRes", predictionSummaryRes);
+
+                const predictionDetailRes = await predictionDetail();
+                setPredictionDetailData(predictionDetailRes);
+                // console.log("\npredictionDetailRes", predictionDetailRes);
+
+                const predictionFactorsAnalysisRes = await predictionFactorsAnalysis();
+                setPredictionFactorsAnalysisData(predictionFactorsAnalysisRes);
+                // console.log("\npredictionFactorsAnalysisRes", predictionFactorsAnalysisRes);
+
+                const recommendationDetailRes = await recommendationDict();
+                setRecommendationDetailData(recommendationDetailRes);
+                // console.log("\nrecommendationDetailRes", recommendationDetailRes);
+
+                const recommendationFactorsAnalysisRes = await recommendationFactorsAnalysis();
+                setRecommendationFactorsAnalysisData(recommendationFactorsAnalysisRes);
+                // console.log("\nrecommendationFactorsAnalysisRes", recommendationFactorsAnalysisRes);
+
                 setIsError(false);
             } catch (error) {
                 console.error("Failed to fetch data:", error);
@@ -53,7 +95,7 @@ export function DashboardPage() {
             }
         };
 
-        fetchAllData();
+        fetchAllDashboardData();
     }, []);
 
     const handlePredictionRequest = async (endDate: string) => {
@@ -87,49 +129,53 @@ export function DashboardPage() {
 
     return (
         <>
-            {!userData || isError || showErrorPage ? (
-                <ErrorPage
-                    title="Failed to load data"
-                    message="Could not connect to the server. Please check your connection."
-                    onRetry={() => window.location.reload()}
-                    onGoHome={() => navigator('/')}
-                />
-            ) : (
-                <>
-                    <div className="fixed top-0 left-0 right-0 z-50">
-                        <DashboardNav userData={userData} />
-                    </div>
+            {
+                !userData || isError || showErrorPage ||
+                    !predictionSummaryData || !predictionDetailData || !predictionFactorsAnalysisData ||
+                    !recommendationDetailData || !recommendationFactorsAnalysisData ?
+                    (
+                        <ErrorPage
+                            title="Failed to load data"
+                            message="Could not connect to the server. Please check your connection."
+                            onRetry={() => window.location.reload()}
+                            onGoHome={() => navigator('/')}
+                        />
+                    ) : (
+                        <>
+                            <div className="fixed top-0 left-0 right-0 z-50">
+                                <DashboardNav userData={userData} />
+                            </div>
 
-                    {/* Main content with sidebar offset */}
-                    <main className="ml-64 pt-16 min-h-screen">
-                        <div className="flex">
-                            {/* Left side - Main content */}
-                            <div className="flex-1 p-6">
-                                <div className="space-y-6">
-                                    <DashboardSidebar userData={userData} />
-                                    <DashboardLivestreamSection />
+                            {/* Main content with sidebar offset */}
+                            <main className="ml-64 pt-16 min-h-screen">
+                                <div className="flex">
+                                    {/* Left side - Main content */}
+                                    <div className="flex-1 p-6">
+                                        <div className="space-y-6">
+                                            <DashboardSidebar userData={userData} />
+                                            <DashboardLivestreamSection />
 
-                                    {/* sections */}
-                                    <div className="space-y-6">
-                                        {/* Add your other dashboard components here */}
+                                            {/* sections */}
+                                            <div className="space-y-6">
+                                                {/* Add your other dashboard components here */}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Right side - Fixed Prediction Panel */}
+                                    <div className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
+                                        <RequestPrediction
+                                            requestPredictionData={requestPredictionData}
+                                            requestRecommendationData={requestRecommendationData}
+                                            isPredictionLoading={isPredictionLoading}
+                                            requestTimestamp={requestTimestamp}
+                                            handlePredictionRequest={handlePredictionRequest}
+                                        />
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Right side - Fixed Prediction Panel */}
-                            <div className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
-                                <RequestPrediction
-                                    requestPredictionData={requestPredictionData}
-                                    requestRecommendationData={requestRecommendationData}
-                                    isPredictionLoading={isPredictionLoading}
-                                    requestTimestamp={requestTimestamp}
-                                    handlePredictionRequest={handlePredictionRequest}
-                                />
-                            </div>
-                        </div>
-                    </main>
-                </>
-            )}
+                            </main>
+                        </>
+                    )}
         </>
     );
 }
