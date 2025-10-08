@@ -1,12 +1,16 @@
 export type trafficRecommendationStr = string;
 
 export interface trafficFactorsAnalysis {
-    hourly: string;
-    daily: string;
-    weekly: string;
-    monthly: string;
+    hourly_anal: string;
+    daily_anal: string;
+    weekly_anal: string;
+    monthly_anal: string;
 }
 
-export interface trafficRecommendationDict extends trafficFactorsAnalysis {
-    summary: string;
+export interface trafficRecommendationDict {
+    hourly_reco: string;
+    daily_reco: string;
+    weekly_reco: string;
+    monthly_reco: string;
+    summary_reco: string;
 }

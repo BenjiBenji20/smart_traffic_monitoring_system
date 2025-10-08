@@ -10,7 +10,7 @@ import type { UserModel } from "@/types/user_model"
 export function DashboardNav({ userData }: { userData: UserModel }) {
 
     return (
-        <div className="flex w-full items-center justify-between px-70 py-2">
+        <div className="flex w-full items-center justify-between px-70 py-2 bg-background">
             <NavigationMenu viewport={false} className="max-w-[50%]">
                 <div className="flex items-center gap-3 flex-1">
                     <Profile className="mr-1" user={ userData }/>

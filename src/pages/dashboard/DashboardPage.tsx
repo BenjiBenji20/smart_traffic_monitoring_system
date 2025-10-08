@@ -22,6 +22,7 @@ import type {
     trafficRecommendationStr
 } from "@/types/ai_recommendation.types";
 import { RequestPrediction } from "@/components/request_prediction/RequestPrediction";
+import { PredictionSummarySection } from "@/components/sections/PredictionSummarySection";
 
 export function DashboardPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
@@ -155,9 +156,15 @@ export function DashboardPage() {
                                             <DashboardSidebar userData={userData} />
                                             <DashboardLivestreamSection />
 
-                                            {/* sections */}
-                                            <div className="space-y-6">
-                                                {/* Add your other dashboard components here */}
+                                            {/* ALL SECTIONS */}
+                                            <div className="space-y-6 max-w-[845px]">
+                                                {/* Prediction Summary Section */}
+                                                <PredictionSummarySection
+                                                    summaryData={predictionSummaryData}
+                                                    isLoading={false}
+                                                    requestTimestamp={requestTimestamp}
+                                                    AIRecommendationData={recommendationDetailData?.summary_reco}
+                                                />
                                             </div>
                                         </div>
                                     </div>
