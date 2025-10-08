@@ -8,7 +8,7 @@ import { LineChart, BarChart, TrendingUp } from 'lucide-react';
 import { ChartRenderer } from '../chart/ChartRenderer';
 
 interface PredictionChartProps {
-    data: PredictionData | null; 
+    data: PredictionData | null;
     title?: string;
     height?: number;
     width?: string | number;
@@ -95,18 +95,17 @@ export function PredictionChart({
     const hasAnyData = data && availablePeriods.length > 0;
 
     return (
-        <Card className="w-full" style={{ width: typeof width === 'number' ? `${width}px` : width }}>
-            <CardHeader className="pb-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <Card className="w-full px-2" style={{ width: typeof width === 'number' ? `${width}px` : width }}>
+            <CardHeader className="pb-2 px-3"> 
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <CardTitle className="text-lg">{title}</CardTitle>
 
-                    {/* Chart Type Controls - Always visible */}
                     <div className="flex gap-1">
                         <Button
                             variant={chartType === 'line' ? 'default' : 'outline'}
                             size="sm"
                             onClick={() => setChartType('line')}
-                            className="h-8 px-3"
+                            className="h-6 px-2"
                             disabled={!hasAnyData}
                         >
                             <LineChart className="h-3 w-3 mr-1" />
@@ -116,7 +115,7 @@ export function PredictionChart({
                             variant={chartType === 'bar' ? 'default' : 'outline'}
                             size="sm"
                             onClick={() => setChartType('bar')}
-                            className="h-8 px-3"
+                            className="h-6 px-2"
                             disabled={!hasAnyData}
                         >
                             <BarChart className="h-3 w-3 mr-1" />
@@ -126,29 +125,30 @@ export function PredictionChart({
                 </div>
 
                 {/* Time Period Tabs - Always visible */}
-                <div className="flex gap-1 overflow-x-auto">
-                    {(['hourly', 'daily', 'weekly', 'monthly'] as TimePeriod[]).map((period) => {
-                        const hasData = availablePeriods.includes(period);
-                        return (
-                            <Button
-                                key={period}
-                                variant={currentPeriod === period ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => hasData && setCurrentPeriod(period)}
-                                disabled={!hasData}
-                                className={`capitalize text-xs px-3 py-1 h-7 ${!hasData ? 'opacity-50 cursor-not-allowed' : ''
-                                    }`}
-                            >
-                                {period}
-                            </Button>
-                        );
-                    })}
+                <div className="flex gap-3 overflow-x-auto pt-1">
+                    <div className="flex gap-1">
+                        {(['hourly', 'daily', 'weekly', 'monthly'] as TimePeriod[]).map((period) => {
+                            const hasData = availablePeriods.includes(period);
+                            return (
+                                <Button
+                                    key={period}
+                                    variant={currentPeriod === period ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => hasData && setCurrentPeriod(period)}
+                                    disabled={!hasData}
+                                    className={`capitalize text-xs px-2 py-1 h-6 ${!hasData ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    {period}
+                                </Button>
+                            );
+                        })}
+                    </div>
                 </div>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="px-0 py-0">
                 {/* Chart Container - Always rendered */}
-                <div style={{ width: '100%', height: `${height}px`, minHeight: '300px' }}>
+                <div style={{ width: '100%', height: `${height}px`, minHeight: '100px' }}>
                     {hasAnyData && chartData.length > 0 ? (
                         <ChartRenderer
                             data={chartData}
@@ -158,10 +158,10 @@ export function PredictionChart({
                         />
                     ) : (
                         // Empty state placeholder
-                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                            <TrendingUp className="h-16 w-16 mb-4 opacity-20" />
-                            <p className="text-lg font-medium">Predicted Traffic Volume</p>
-                            <p className="text-sm mt-2">Request a prediction to see AI insights</p>
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground px-1 py-6">
+                            <TrendingUp className="h-6 w-6 mb-1 opacity-20" />
+                            <p className="text-xs font-medium mb-0.5">Predicted Traffic Volume</p>
+                            <p className="text-[10px]">Request a prediction</p>
                         </div>
                     )}
                 </div>

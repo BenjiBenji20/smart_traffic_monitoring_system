@@ -44,10 +44,10 @@ export function PredictionRequestForm({
 
     return (
         <div className="fade-in">
-            <Card>
+            <Card className='h-43'>
                 <CardContent className="p-4">
-                    <div className="mb-3">
-                        <Label htmlFor="prediction_date" className="block text-sm mb-1">
+                    <div>
+                        <Label htmlFor="prediction_date" className="font-semibold mb-4">
                             Select future date for prediction:
                         </Label>
                         <Input

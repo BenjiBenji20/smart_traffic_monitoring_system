@@ -8,18 +8,28 @@ import { DashboardPageSkeleton } from "@/components/skeleton/dashboard-page-skel
 import { DashboardLivestreamSection } from "@/components/livestream/LivestreamContainer";
 import { ErrorPage } from "../error/ErrorPage";
 import { useNavigate } from "react-router";
-import { PredictionChart } from "@/components/chart/PredictionChart";
 import type { RequestPredictionResponse } from "@/types/prediction.types";
 import { predictionRequest } from "@/api/prediction_api";
-import { PredictionRequestForm } from "@/components/ui/prediction-request-form";
+import { recommendationStr } from "@/api/ai_recommendation_api";
+import type { trafficRecommendationStr } from "@/types/ai_recommendation.types";
+import { RequestPrediction } from "@/components/request_prediction/RequestPrediction";
 
 export function DashboardPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showErrorPage, setShowErrorPage] = useState<boolean>(false);
     const [isError, setIsError] = useState<boolean>(false);
+
     const [requestPredictionData, setRequestPredictionData] =
         useState<RequestPredictionResponse | null>(null);
+    const [requestRecommendationData, setRequestRecommendationData] =
+        useState<trafficRecommendationStr | null>(null);
+
+    // Add state for prediction request loading
+    const [isPredictionLoading, setIsPredictionLoading] = useState(false);
+    // Add timestamp to force re-animation on new requests
+    const [requestTimestamp, setRequestTimestamp] = useState(0);
+
     const navigator = useNavigate();
 
     useEffect(() => {
@@ -48,16 +58,26 @@ export function DashboardPage() {
 
     const handlePredictionRequest = async (endDate: string) => {
         try {
+            setIsPredictionLoading(true); // Set prediction loading state
+
             // Fetch prediction data
             const predictionData = await predictionRequest({ end: endDate });
             setRequestPredictionData(predictionData);
+
+            const recommendationData = await recommendationStr({ end: endDate });
+            setRequestRecommendationData(recommendationData);
+
+            // Update timestamp to force re-animation
+            setRequestTimestamp(Date.now());
+
             setIsError(false);
+            toast.success("Prediction generated successfully!");
         } catch (error) {
             console.error("Failed to fetch prediction request data:", error);
             setIsError(true);
             toast.error("Failed to load prediction request data");
         } finally {
-            setIsLoading(false);
+            setIsPredictionLoading(false); // Reset prediction loading
         }
     };
 
@@ -76,44 +96,34 @@ export function DashboardPage() {
                 />
             ) : (
                 <>
-                    <DashboardNav userData={userData} />
+                    <div className="fixed top-0 left-0 right-0 z-50">
+                        <DashboardNav userData={userData} />
+                    </div>
 
                     {/* Main content with sidebar offset */}
-                    <main className="ml-64 p-6 min-h-screen">
-                        <div className="space-y-6">
-                            <DashboardSidebar userData={userData} />
-                            <DashboardLivestreamSection />
-                            <h1 className="text-3xl font-bold">Modern Dashboard</h1>
-                            <p>Clean, borderless design for 2025</p>
+                    <main className="ml-64 pt-16 min-h-screen">
+                        <div className="flex">
+                            {/* Left side - Main content */}
+                            <div className="flex-1 p-6">
+                                <div className="space-y-6">
+                                    <DashboardSidebar userData={userData} />
+                                    <DashboardLivestreamSection />
 
-                            {/* dashboard content here */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <div className="p-6 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/50">
-                                    Card 1
-                                </div>
-                                <div className="p-6 rounded-xl bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/50 dark:to-green-900/50">
-                                    Card 2
-                                </div>
-                                <div className="p-6 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/50 dark:to-purple-900/50">
-                                    Card 3
+                                    {/* sections */}
+                                    <div className="space-y-6">
+                                        {/* Add your other dashboard components here */}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="container mx-auto p-10">
-                                {/* Only show chart if prediction data exists */}
-                                {requestPredictionData && (
-                                    <PredictionChart
-                                        data={requestPredictionData?.forecast || null}
-                                        title="Request Traffic Prediction"
-                                        height={200}
-                                        width="50%"
-                                    />
-                                )}
-
-                                {/* Prediction request form */}
-                                <PredictionRequestForm
-                                    onRequestPrediction={handlePredictionRequest}
-                                    isLoading={isLoading}
+                            {/* Right side - Fixed Prediction Panel */}
+                            <div className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
+                                <RequestPrediction
+                                    requestPredictionData={requestPredictionData}
+                                    requestRecommendationData={requestRecommendationData}
+                                    isPredictionLoading={isPredictionLoading}
+                                    requestTimestamp={requestTimestamp}
+                                    handlePredictionRequest={handlePredictionRequest}
                                 />
                             </div>
                         </div>
