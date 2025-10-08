@@ -24,6 +24,7 @@ import type {
 import { RequestPrediction } from "@/components/request_prediction/RequestPrediction";
 import { PredictionSummarySection } from "@/components/sections/PredictionSummarySection";
 import { PredictionDetailSection } from "@/components/sections/PredictionDetailSection";
+import { PredictionFactorsSection } from "@/components/sections/PredictionFactorsSection";
 
 export function DashboardPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
@@ -173,6 +174,14 @@ export function DashboardPage() {
                                                     isLoading={false}
                                                     requestTimestamp={requestTimestamp}
                                                     AIRecommendationData={recommendationDetailData as unknown as Record<string, string>}
+                                                />
+
+                                                {/* Prediction Factors Section */}
+                                                <PredictionFactorsSection
+                                                    predictionChartData={predictionFactorsAnalysisData}
+                                                    isLoading={false}
+                                                    requestTimestamp={requestTimestamp}
+                                                    AIRecommendationData={recommendationFactorsAnalysisData as unknown as Record<string, string>}
                                                 />
                                             </div>
                                         </div>

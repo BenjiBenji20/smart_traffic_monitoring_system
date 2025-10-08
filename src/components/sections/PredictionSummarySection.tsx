@@ -22,6 +22,9 @@ export function PredictionSummarySection({
         <div className="space-y-4">
             {/* Combined Section with Compact Layout */}
             <div className="bg-muted/30 rounded-lg p-4 border">
+                <div>
+                    <h4 className="text-xl font-bold tracking-tight mb-4">Summary of Traffic Predictions</h4>
+                </div>
                 {/* Compact Prediction Summary */}
                 <div className="pb-4 border-b">
                     <PredictionSummaryComp

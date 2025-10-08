@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
-import { BarChart3 } from "lucide-react";
+import type { PredictionFactorsAnalysis, TimePeriod } from "@/types/prediction.types";
+import { useEffect, useState } from "react";
+import { SharedTimePeriodButtons } from "../chart/shared-time-period-btn";
 import { AIRecommendation } from "../recommendation/ai_recommendation";
-import type { PredictionData, TimePeriod } from "@/types/prediction.types";
-import { PredictionChart } from "../chart/PredictionChart";
-import { SharedTimePeriodButtons } from '../chart/shared-time-period-btn';
+import { BarChart3 } from "lucide-react";
+import { TrafficFactorsChart } from "../chart/FactorsChart";
 
-interface PredictionDetailSectionProps {
-    predictionChartData: PredictionData;
+interface PredictionFactorsSectionProps {
+    predictionChartData: PredictionFactorsAnalysis;
     AIRecommendationData: Record<string, string> | string | null;
     isLoading?: boolean;
     requestTimestamp: number;
 }
 
-export function PredictionDetailSection({
+export function PredictionFactorsSection({
     predictionChartData,
     AIRecommendationData,
     isLoading,
     requestTimestamp
-}: PredictionDetailSectionProps) {
+}: PredictionFactorsSectionProps) {
     const [currentPeriod, setCurrentPeriod] = useState<TimePeriod>('hourly');
 
     // Check which periods have data in the chart
@@ -57,14 +57,13 @@ export function PredictionDetailSection({
 
                 {/* Prediction Chart - Hide internal buttons, controlled by shared state */}
                 <div className="pb-4 border-b">
-                    <PredictionChart
+                    <TrafficFactorsChart
                         data={predictionChartData}
-                        title="Traffic Predictions and Analysis"
+                        title="Traffic Predictions and Factors"
                         height={300}
-                        width="100%"
                         currentPeriod={currentPeriod}
                         onPeriodChange={setCurrentPeriod}
-                        showPeriodButtons={!hasMultiplePeriods} // Hide buttons if we have shared buttons
+                        showPeriodButtons={!hasMultiplePeriods} 
                     />
                 </div>
 
@@ -72,8 +71,8 @@ export function PredictionDetailSection({
                 <div className="pt-4">
                     <AIRecommendation
                         data={AIRecommendationData}
-                        currentPeriod={currentPeriod} // Pass period (component ignores if data is string)
-                        title="AI Analysis Insight"
+                        currentPeriod={currentPeriod} 
+                        title="Traffic Factors Analysis Insight"
                         icon={<BarChart3 className="h-6 w-6" />}
                         persistAnimation={false}
                         loading={isLoading}
