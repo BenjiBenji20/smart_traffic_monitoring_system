@@ -1,4 +1,4 @@
-import { RegistrationValidator, type RegisterUserModel } from "@/models/auth";
+import { RegistrationValidator, type RegisterUserModel } from "@/types/auth";
 import axios from "axios";
 
 

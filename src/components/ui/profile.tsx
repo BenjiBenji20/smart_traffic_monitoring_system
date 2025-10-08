@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { isAuthenticated, signOut } from "@/api/authentication_api";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import type { UserModel } from "@/models/user_model";
+import type { UserModel } from "@/types/user_model";
 
 function ProfileAvatar({ username, className = "" }: { username: string; className?: string }) {
     const firstLetter = username.charAt(0).toUpperCase();

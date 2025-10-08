@@ -1,7 +1,7 @@
 // src/hooks/useVehicleCounts.ts
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { livestreamApi } from '@/api/livestream_api';
-import type { VehicleCounts } from '@/models/livestream.types';
+import type { VehicleCounts } from '@/types/livestream.types';
 
 interface UseVehicleCountsProps {
   isStreaming: boolean;

@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Play, Square, Wifi, Eye, Bot, Loader2 } from 'lucide-react';
-import type { DetectionMode } from '@/models/livestream.types';
+import type { DetectionMode } from '@/types/livestream.types';
 
 interface LivestreamControlsProps {
   isStreaming: boolean;

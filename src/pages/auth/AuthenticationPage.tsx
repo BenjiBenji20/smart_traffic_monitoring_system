@@ -14,7 +14,7 @@ import { toast } from "sonner"
 import React from "react"
 import { Link, useNavigate } from "react-router"
 
-import { type AuthUserModel } from "@/models/auth";
+import { type AuthUserModel } from "@/types/auth";
 import { authenticate, isAuthenticated } from "@/api/authentication_api"
 import { NavMenu } from "@/components/nav/NavMenu"
 import { Footer } from "@/components/footer/Footer"

@@ -3,7 +3,7 @@ import { useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { useDetectionOverlay } from '@/hooks/useDetectionOverlay';
 import { livestreamApi } from '@/api/livestream_api';
-import type { DetectionMode, DetectionData } from '@/models/livestream.types';
+import type { DetectionMode, DetectionData } from '@/types/livestream.types';
 
 interface LivestreamVideoProps {
   isStreaming: boolean;

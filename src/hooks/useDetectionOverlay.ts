@@ -1,6 +1,6 @@
 // src/hooks/useDetectionOverlay.ts
 import { useEffect, useRef, useCallback } from 'react';
-import type { DetectedObject, ScaleFactors } from '@/models/livestream.types';
+import type { DetectedObject, ScaleFactors } from '@/types/livestream.types';
 
 interface UseDetectionOverlayProps {
   videoRef: React.RefObject<HTMLImageElement>;

@@ -1,7 +1,7 @@
 import { DashboardSidebar } from "../../components/sidebar/DashboardSidebar"
 import { DashboardNav } from "../../components/nav/DashboardNav"
 import { useEffect, useState } from "react"
-import type { UserModel } from "@/models/user_model"
+import type { UserModel } from "@/types/user_model"
 import { getUserProfile } from "@/api/user_api";
 import { toast } from "sonner";
 import { DashboardPageSkeleton } from "@/components/skeleton/dashboard-page-skeleton";
@@ -9,7 +9,7 @@ import { DashboardLivestreamSection } from "@/components/livestream/LivestreamCo
 import { ErrorPage } from "../error/ErrorPage";
 import { useNavigate } from "react-router";
 import { PredictionChart } from "@/components/chart/PredictionChart";
-import type { RequestPredictionResponse } from "@/models/prediction.types";
+import type { RequestPredictionResponse } from "@/types/prediction.types";
 import { predictionRequest } from "@/api/prediction_api";
 import { PredictionRequestForm } from "@/components/ui/prediction-request-form";
 

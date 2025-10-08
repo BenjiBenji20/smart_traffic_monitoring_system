@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
-import { AuthUserValidator, type AuthUserModel } from '@/models/auth';
+import { AuthUserValidator, type AuthUserModel } from '@/types/auth';
 
 // In-memory storage
 let accessToken: string | null = null;

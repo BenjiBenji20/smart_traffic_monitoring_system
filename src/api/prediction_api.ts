@@ -1,4 +1,4 @@
-import type { RequestPredictionRequest, RequestPredictionResponse } from "@/models/prediction.types";
+import type { RequestPredictionRequest, RequestPredictionResponse } from "@/types/prediction.types";
 import securedRequest from "./authentication_api";
 import { formatDateWithoutMS } from "@/utils/format-date";
 

@@ -6,7 +6,7 @@ import { SidebarMenuItem } from "@/components/sidebar/sidebar-menu-item"
 import { Submenu } from "@/components/sidebar/submenu"
 import { Home, BarChart, Users, Mail, Settings, History } from "lucide-react"
 import { Profile } from "@/components/ui/profile"
-import type { UserModel } from "@/models/user_model"
+import type { UserModel } from "@/types/user_model"
 
 export function DashboardSidebar({ userData }: { userData: UserModel }) {
     const isCollapsed = false;

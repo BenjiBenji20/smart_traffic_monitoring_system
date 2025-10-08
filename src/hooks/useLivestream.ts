@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { livestreamApi } from '../api/livestream_api';
-import type { DetectionMode, DetectionData } from '@/models/livestream.types';
+import type { DetectionMode, DetectionData } from '@/types/livestream.types';
 
 export function useLivestream() {
   const [isStreaming, setIsStreaming] = useState(false);

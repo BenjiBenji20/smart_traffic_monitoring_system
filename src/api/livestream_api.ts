@@ -8,7 +8,7 @@ import type {
   StatsResponse,
   ConnectionTestResponse,
   DetectionMode
-} from '@/models/livestream.types';
+} from '@/types/livestream.types';
 
 const API_BASE = '/dashboard/livestream';
 

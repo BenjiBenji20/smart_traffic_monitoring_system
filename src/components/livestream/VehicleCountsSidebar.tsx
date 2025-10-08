@@ -1,6 +1,6 @@
 import { Car, Truck, Bike, BikeIcon, AlertTriangle } from 'lucide-react';
 import { VehicleCountCard } from './VehicleCountCard';
-import type { VehicleCounts } from '@/models/livestream.types';
+import type { VehicleCounts } from '@/types/livestream.types';
 
 interface VehicleCountsSidebarProps {
   counts: VehicleCounts;

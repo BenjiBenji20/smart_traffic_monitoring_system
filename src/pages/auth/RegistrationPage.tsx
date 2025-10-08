@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-import { type RegisterUserModel, type Role } from "@/models/auth";
+import { type RegisterUserModel, type Role } from "@/types/auth";
 import React from "react"
 import { Link } from "react-router"
 import { register } from "@/api/registration_api"

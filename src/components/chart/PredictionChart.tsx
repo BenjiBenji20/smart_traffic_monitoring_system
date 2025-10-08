@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { PredictionData, TimePeriod, ChartType } from '@/models/prediction.types';
+import type { PredictionData, TimePeriod, ChartType } from '@/types/prediction.types';
 import { LineChart, BarChart, TrendingUp } from 'lucide-react';
 import { ChartRenderer } from '../chart/ChartRenderer';
 
