@@ -13,6 +13,10 @@ interface PredictionChartProps {
     height?: number;
     width?: string | number;
     fontSize?: number;
+    // accept external period control
+    currentPeriod?: TimePeriod;
+    onPeriodChange?: (period: TimePeriod) => void;
+    showPeriodButtons?: boolean; // Control whether to show buttons
 }
 
 export function PredictionChart({
@@ -20,10 +24,16 @@ export function PredictionChart({
     title = "Traffic Predictions",
     height = 320,
     width = "100%",
-    fontSize = 12
+    fontSize = 12,
+    currentPeriod: externalPeriod,
+    onPeriodChange,
+    showPeriodButtons = true
 }: PredictionChartProps) {
-    const [currentPeriod, setCurrentPeriod] = useState<TimePeriod>('hourly');
+    const [internalPeriod, setInternalPeriod] = useState<TimePeriod>('hourly');
     const [chartType, setChartType] = useState<ChartType>('line');
+
+    // Use external period if provided, otherwise use internal
+    const currentPeriod = externalPeriod !== undefined ? externalPeriod : internalPeriod;
 
     // Check which periods have data
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -36,41 +46,51 @@ export function PredictionChart({
     // Set first available period as default
     useEffect(() => {
         if (availablePeriods.length > 0 && !availablePeriods.includes(currentPeriod)) {
-            setCurrentPeriod(availablePeriods[0]);
+            const firstPeriod = availablePeriods[0];
+            if (onPeriodChange) {
+                onPeriodChange(firstPeriod);
+            } else {
+                setInternalPeriod(firstPeriod);
+            }
         }
-    }, [availablePeriods, currentPeriod]);
+    }, [availablePeriods, currentPeriod, onPeriodChange]);
+
+    // Handle period change
+    const handlePeriodChange = (period: TimePeriod) => {
+        if (onPeriodChange) {
+            onPeriodChange(period); // Notify parent
+        } else {
+            setInternalPeriod(period); // Use internal state
+        }
+    };
 
     // Format labels based on period
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formatLabel = (item: any, period: TimePeriod) => {
         try {
             switch (period) {
-                case 'hourly':
-                    {
-                        const hourlyDate = new Date(item.time);
-                        return isNaN(hourlyDate.getTime()) ? item.time : `${hourlyDate.getHours().toString().padStart(2, '0')}:00`;
-                    }
-                case 'daily':
-                    {
-                        const dailyDate = new Date(item.date);
-                        return isNaN(dailyDate.getTime()) ? item.date : dailyDate.toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric'
-                        });
-                    }
-                case 'weekly':
-                    {
-                        const weekDate = new Date(item.week_start);
-                        return isNaN(weekDate.getTime()) ? item.week_start : `Week ${getWeekNumber(weekDate)}`;
-                    }
-                case 'monthly':
-                    {
-                        const monthDate = new Date(item.month_start);
-                        return isNaN(monthDate.getTime()) ? item.month_start : monthDate.toLocaleDateString('en-US', {
-                            month: 'short',
-                            year: 'numeric'
-                        });
-                    }
+                case 'hourly': {
+                    const hourlyDate = new Date(item.time);
+                    return isNaN(hourlyDate.getTime()) ? item.time : `${hourlyDate.getHours().toString().padStart(2, '0')}:00`;
+                }
+                case 'daily': {
+                    const dailyDate = new Date(item.date);
+                    return isNaN(dailyDate.getTime()) ? item.date : dailyDate.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                }
+                case 'weekly': {
+                    const weekDate = new Date(item.week_start);
+                    return isNaN(weekDate.getTime()) ? item.week_start : `Week ${getWeekNumber(weekDate)}`;
+                }
+                case 'monthly': {
+                    const monthDate = new Date(item.month_start);
+                    return isNaN(monthDate.getTime()) ? item.month_start : monthDate.toLocaleDateString('en-US', {
+                        month: 'short',
+                        year: 'numeric'
+                    });
+                }
                 default:
                     return 'Unknown';
             }
@@ -91,7 +111,6 @@ export function PredictionChart({
         };
     }) || [];
 
-    // Check if we have any data at all
     const hasAnyData = data && availablePeriods.length > 0;
 
     return (
@@ -124,30 +143,31 @@ export function PredictionChart({
                     </div>
                 </div>
 
-                {/* Time Period Tabs - Always visible */}
-                <div className="flex gap-3 overflow-x-auto pt-1">
-                    <div className="flex gap-1">
-                        {(['hourly', 'daily', 'weekly', 'monthly'] as TimePeriod[]).map((period) => {
-                            const hasData = availablePeriods.includes(period);
-                            return (
-                                <Button
-                                    key={period}
-                                    variant={currentPeriod === period ? 'default' : 'outline'}
-                                    size="sm"
-                                    onClick={() => hasData && setCurrentPeriod(period)}
-                                    disabled={!hasData}
-                                    className={`capitalize text-xs px-2 py-1 h-6 ${!hasData ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                    {period}
-                                </Button>
-                            );
-                        })}
+                {/* Time Period Tabs - Conditionally visible */}
+                {showPeriodButtons && (
+                    <div className="flex gap-3 overflow-x-auto pt-1">
+                        <div className="flex gap-1">
+                            {(['hourly', 'daily', 'weekly', 'monthly'] as TimePeriod[]).map((period) => {
+                                const hasData = availablePeriods.includes(period);
+                                return (
+                                    <Button
+                                        key={period}
+                                        variant={currentPeriod === period ? 'default' : 'outline'}
+                                        size="sm"
+                                        onClick={() => hasData && handlePeriodChange(period)}
+                                        disabled={!hasData}
+                                        className={`capitalize text-xs px-2 py-1 h-6 ${!hasData ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        {period}
+                                    </Button>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
+                )}
             </CardHeader>
 
             <CardContent className="px-0 py-0">
-                {/* Chart Container - Always rendered */}
                 <div style={{
                     width: '100%',
                     height: hasAnyData && chartData.length > 0 ? `${height}px` : '110px',
@@ -161,7 +181,6 @@ export function PredictionChart({
                             fontSize={fontSize}
                         />
                     ) : (
-                        // Empty state placeholder
                         <div className="flex flex-col items-center justify-center h-full text-muted-foreground px-1 py-6">
                             <TrendingUp className="h-6 w-6 mb-1 opacity-20" />
                             <p className="text-[12px] font-medium mb-0.5">Predicted Traffic Volume</p>
@@ -174,7 +193,6 @@ export function PredictionChart({
     );
 }
 
-// Helper function to get week number
 function getWeekNumber(date: Date): number {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
     const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;

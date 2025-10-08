@@ -36,7 +36,7 @@ export function PredictionSummarySection({
                     <AIRecommendation
                         data={AIRecommendationData}
                         title="AI Recommendation"
-                        icon={<Bot className="h-4 w-4" />}
+                        icon={<Bot className="h-6 w-6" />}
                         persistAnimation={false}
                         loading={isLoading}
                         key={requestTimestamp}
