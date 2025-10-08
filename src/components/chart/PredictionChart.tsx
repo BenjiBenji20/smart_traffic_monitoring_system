@@ -96,7 +96,7 @@ export function PredictionChart({
 
     return (
         <Card className="w-full px-2" style={{ width: typeof width === 'number' ? `${width}px` : width }}>
-            <CardHeader className="pb-2 px-3"> 
+            <CardHeader className="pb-2 px-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <CardTitle className="text-lg">{title}</CardTitle>
 
@@ -148,7 +148,11 @@ export function PredictionChart({
 
             <CardContent className="px-0 py-0">
                 {/* Chart Container - Always rendered */}
-                <div style={{ width: '100%', height: `${height}px`, minHeight: '100px' }}>
+                <div style={{
+                    width: '100%',
+                    height: hasAnyData && chartData.length > 0 ? `${height}px` : '110px',
+                    minHeight: '80px'
+                }}>
                     {hasAnyData && chartData.length > 0 ? (
                         <ChartRenderer
                             data={chartData}
@@ -160,8 +164,8 @@ export function PredictionChart({
                         // Empty state placeholder
                         <div className="flex flex-col items-center justify-center h-full text-muted-foreground px-1 py-6">
                             <TrendingUp className="h-6 w-6 mb-1 opacity-20" />
-                            <p className="text-xs font-medium mb-0.5">Predicted Traffic Volume</p>
-                            <p className="text-[10px]">Request a prediction</p>
+                            <p className="text-[12px] font-medium mb-0.5">Predicted Traffic Volume</p>
+                            <p className="text-[12px]">Request a prediction</p>
                         </div>
                     )}
                 </div>
