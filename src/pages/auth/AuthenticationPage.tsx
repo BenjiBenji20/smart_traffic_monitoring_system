@@ -69,6 +69,7 @@ export function AuthenticationPage({
 
     return (
         <>
+        <title>C4Vision - Sign-in</title>
             <NavMenu />
 
             <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">

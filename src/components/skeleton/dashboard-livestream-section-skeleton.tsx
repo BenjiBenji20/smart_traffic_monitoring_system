@@ -20,6 +20,7 @@ export function LivestreamContainerSkeleton() {
                     <Skeleton className="h-12 w-full" />
                     <Skeleton className="h-12 w-full" />
                     <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-19 w-full" />
                 </div>
 
                 {/* Video Feed - RIGHT */}

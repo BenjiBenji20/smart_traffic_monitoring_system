@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 
 import { type RegisterUserModel, type Role } from "@/types/auth";
 import React from "react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { register } from "@/api/registration_api"
 import { toast } from "sonner"
 import { NavMenu } from "@/components/nav/NavMenu"
@@ -38,6 +38,8 @@ export function RegistrationPage({
         }));
     };
 
+    const navigator = useNavigate();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -52,6 +54,7 @@ export function RegistrationPage({
                 description: "Your account has been successfully registered!",
             });
 
+            navigator("/");
         } catch (error) {
             console.error("Registration failed:", error);
 
@@ -64,6 +67,7 @@ export function RegistrationPage({
 
     return (
         <>
+            <title>C4Vision - Sign-up</title>
             <NavMenu />
 
             <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">

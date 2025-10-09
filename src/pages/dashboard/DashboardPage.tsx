@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import type { UserModel } from "@/types/user_model"
 import { getUserProfile } from "@/api/user_api";
 import { toast } from "sonner";
-import { DashboardPageSkeleton } from "@/components/skeleton/dashboard-page-skeleton";
+import { DashboardPageSkeleton } from "@/components/skeleton/DashboardPageSkeleton";
 import { DashboardLivestreamSection } from "@/components/livestream/DashboardLivestreamSection";
 import { ErrorPage } from "../error/ErrorPage";
 import { useNavigate } from "react-router";

@@ -10,7 +10,7 @@ export function Logo({ className }: LogoProps) {
           {/* Logo Image */}
           <div className="flex-shrink-0">
               <img
-                  src="/vite.svg"
+                  src="/RaspberryPiLOGO.png"
                   alt="Smart Traffic Monitoring Logo"
                   className="h-10 w-10"
               />

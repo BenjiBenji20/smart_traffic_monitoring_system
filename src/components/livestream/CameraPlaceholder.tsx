@@ -16,7 +16,7 @@ export function CameraPlaceholder({
     size = "md"
 }: CameraPlaceholderProps) {
     const sizeClasses = {
-        sm: "pt-10 mt-4 h-20", 
+        sm: "pt-10 mt-4 h-21", 
         md: "p-6 pt-8 h-32",
         lg: "p-8 pt-10 h-40"
     };

@@ -16,6 +16,7 @@ import { HistoryListSidebar } from "@/components/sidebar/HistoryListSidebar";
 import { ChartCaptureService } from "@/services/chart-capture-service";
 import type { PredictionData, PredictionSummary } from "@/types/prediction.types";
 import type { trafficRecommendationDict } from "@/types/ai_recommendation.types";
+import { HistoryPageSkeleton } from "@/components/skeleton/HistoryPageSkeleton";
 
 
 export function HistoryPage() {
@@ -102,7 +103,7 @@ export function HistoryPage() {
     };
 
     if (isLoading) {
-        return <></>; // return history page skeleton
+        return <><HistoryPageSkeleton /></>; // return history page skeleton
     }
 
     return (
@@ -134,7 +135,7 @@ export function HistoryPage() {
                                             {/* ALL SECTIONS */}
                                             <div className="space-y-6 max-w-[845px]">
                                                 {historyData && (
-                                                    <div>
+                                                    <div className="space-y-6">
                                                         <h2 className="text-xl font-bold mb-4">
                                                             {historyData.version_name}
                                                         </h2>
