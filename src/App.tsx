@@ -4,9 +4,13 @@ import { AuthenticationPage } from "./pages/auth/AuthenticationPage";
 import { RegistrationPage } from "./pages/auth/RegistrationPage";
 import { DashboardPage } from "./pages/dashboard/DashboardPage";
 import { ProtectedRoute } from "./middleware/token_filter";
+import { HistoryPage } from "./pages/history/HistoryPage";
 
 
 function App() {
+
+    
+
     return (
         <>
             <Routes>
@@ -15,6 +19,11 @@ function App() {
                 <Route path="/dashboard" element={
                     <ProtectedRoute>
                         <DashboardPage />
+                    </ProtectedRoute>
+                } />
+                <Route path="/history" element={
+                    <ProtectedRoute>
+                        <HistoryPage />
                     </ProtectedRoute>
                 } />
             </Routes>

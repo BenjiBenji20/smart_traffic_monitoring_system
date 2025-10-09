@@ -19,7 +19,7 @@ export function Logo({ className }: LogoProps) {
           {/* Text Content */}
           <div className="flex flex-col">
               <h2 className="text-lg font-semibold text-foreground tracking-tight">
-                  Smart Traffic
+                  C4Vision
               </h2>
               <p className="text-xs text-muted-foreground">
                   powered by <span className="text-primary">AI</span>

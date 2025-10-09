@@ -7,9 +7,18 @@ import { Submenu } from "@/components/sidebar/submenu"
 import { Home, BarChart, Users, Mail, Settings, History } from "lucide-react"
 import { Profile } from "@/components/ui/profile"
 import type { UserModel } from "@/types/user_model"
+import { useLocation } from "react-router"
 
 export function DashboardSidebar({ userData }: { userData: UserModel }) {
     const isCollapsed = false;
+    const location = useLocation(); // Get current route
+    
+    // Determine active state based on current path
+    const isDashboardActive = location.pathname === "/dashboard";
+    const isHistoryActive = location.pathname === "/history";
+    const isUsersActive = location.pathname === "/users";
+    const isMessagesActive = location.pathname === "/messages";
+    const isSettingsActive = location.pathname === "/settings";
 
     return (
         <div className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background z-40">
@@ -24,7 +33,7 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                         icon={<Home className="h-4 w-4" />}
                         name="Dashboard"
                         href="/dashboard"
-                        isActive={true}
+                        isActive={isDashboardActive}
                         isCollapsed={isCollapsed}
                     />
 
@@ -70,6 +79,7 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                     <SidebarMenuItem
                         icon={<Users className="h-4 w-4" />}
                         name="Users"
+                        isActive={isUsersActive}
                         href="/users"
                         isCollapsed={isCollapsed}
                     />
@@ -78,6 +88,7 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                         icon={<Mail className="h-4 w-4" />}
                         name="Messages"
                         href="/messages"
+                        isActive={isMessagesActive}
                         badge="5"
                         isCollapsed={isCollapsed}
                     />
@@ -86,6 +97,7 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                         icon={<History className="h-4 w-4" />}
                         name="History"
                         href="/history"
+                        isActive={isHistoryActive}
                         isCollapsed={isCollapsed}
                     />
 
@@ -93,6 +105,7 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                         icon={<Settings className="h-4 w-4" />}
                         name="Settings"
                         href="/settings"
+                        isActive={isSettingsActive}
                         isCollapsed={isCollapsed}
                     />
                 </div>

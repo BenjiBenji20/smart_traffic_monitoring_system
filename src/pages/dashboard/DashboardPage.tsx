@@ -156,7 +156,7 @@ export function DashboardPage() {
 
     return (
         <>
-            <title>Smart Traffic Monitoring System | Dashboard</title>
+            <title>C4Vision - Dashboard</title>
             {
                 !userData || isError || showErrorPage ||
                     !predictionSummaryData || !predictionDetailData || !predictionFactorsAnalysisData ||
