@@ -29,41 +29,40 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                     />
 
                     <Submenu
-                        title="Analytics"
+                        title="Section"
                         icon={<BarChart className="h-4 w-4" />}
                         defaultOpen={false}
                         isCollapsed={isCollapsed}
                     >
                         <SidebarMenuItem
-                            name="Traffic Flow"
-                            href="/analytics/traffic"
+                            name="Traffic Livestream"
+                            href="/dashboard"
+                            sectionId="livestream-section"
                             isCollapsed={isCollapsed}
                         />
                         <SidebarMenuItem
-                            name="Peak Hours"
-                            href="/analytics/peak-hours"
+                            name="Prediction Summary"
+                            href="/dashboard"
+                            sectionId="prediction-summary-section"
+                            isCollapsed={isCollapsed}
+                        />
+                        <SidebarMenuItem
+                            name="Traffic Predictions and Analysis"
+                            href="/dashboard"
+                            sectionId="prediction-detailed-section"
+                            isCollapsed={isCollapsed}
+                        />
+                        <SidebarMenuItem
+                            name="Traffic Predictions and Factors"
+                            href="/dashboard"
+                            sectionId="prediction-factors-section"
                             isCollapsed={isCollapsed}
                         />
                         <SidebarMenuItem
                             name="Reports"
-                            href="/analytics/reports"
+                            href="/dashboard"
+                            sectionId="download-reports-section"
                             badge="3"
-                            isCollapsed={isCollapsed}
-                        />
-                        {/* Add more items to test scroll */}
-                        <SidebarMenuItem
-                            name="Real-time Data"
-                            href="/analytics/realtime"
-                            isCollapsed={isCollapsed}
-                        />
-                        <SidebarMenuItem
-                            name="Historical Data"
-                            href="/analytics/historical"
-                            isCollapsed={isCollapsed}
-                        />
-                        <SidebarMenuItem
-                            name="Performance"
-                            href="/analytics/performance"
                             isCollapsed={isCollapsed}
                         />
                     </Submenu>
@@ -99,7 +98,7 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                 </div>
 
                 {/* User Profile Footer */}
-                <Profile className="w-full mx-auto px-6 py-4" user={ userData }/> 
+                <Profile className="w-full mx-auto px-6 py-4" user={userData} />
             </aside>
         </div>
     )

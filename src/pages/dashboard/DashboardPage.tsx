@@ -67,7 +67,7 @@ export function DashboardPage() {
     const handleChartsReady = useCallback((chartRefs: Map<string, HTMLDivElement>) => {
         chartCaptureService.registerChartContainers(chartRefs);
         setIsChartsReady(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const navigator = useNavigate();
@@ -156,6 +156,7 @@ export function DashboardPage() {
 
     return (
         <>
+            <title>Smart Traffic Monitoring System | Dashboard</title>
             {
                 !userData || isError || showErrorPage ||
                     !predictionSummaryData || !predictionDetailData || !predictionFactorsAnalysisData ||
@@ -180,46 +181,56 @@ export function DashboardPage() {
                                     <div className="flex-1 p-6">
                                         <div className="space-y-6">
                                             <DashboardSidebar userData={userData} />
-                                            <DashboardLivestreamSection />
+                                            <div id="livestream-section">
+                                                <DashboardLivestreamSection />
+                                            </div>
 
                                             {/* ALL SECTIONS */}
                                             <div className="space-y-6 max-w-[845px]">
                                                 {/* Prediction Summary Section */}
-                                                <PredictionSummarySection
-                                                    summaryData={predictionSummaryData}
-                                                    isLoading={false}
-                                                    requestTimestamp={requestTimestamp}
-                                                    AIRecommendationData={recommendationDetailData?.summary_reco}
-                                                />
+                                                <div id="prediction-summary-section">
+                                                    <PredictionSummarySection
+                                                        summaryData={predictionSummaryData}
+                                                        isLoading={false}
+                                                        requestTimestamp={requestTimestamp}
+                                                        AIRecommendationData={recommendationDetailData?.summary_reco}
+                                                    />
+                                                </div>
 
                                                 {/* Prediction Detail Section */}
-                                                <PredictionDetailSection
-                                                    predictionChartData={predictionDetailData}
-                                                    isLoading={false}
-                                                    requestTimestamp={requestTimestamp}
-                                                    AIRecommendationData={recommendationDetailData as unknown as Record<string, string>}
-                                                />
+                                                <div id="prediction-detailed-section">
+                                                    <PredictionDetailSection
+                                                        predictionChartData={predictionDetailData}
+                                                        isLoading={false}
+                                                        requestTimestamp={requestTimestamp}
+                                                        AIRecommendationData={recommendationDetailData as unknown as Record<string, string>}
+                                                    />
+                                                </div>
 
                                                 {/* Prediction Factors Section */}
-                                                <PredictionFactorsSection
-                                                    predictionChartData={predictionFactorsAnalysisData}
-                                                    isLoading={false}
-                                                    requestTimestamp={requestTimestamp}
-                                                    AIRecommendationData={recommendationFactorsAnalysisData as unknown as Record<string, string>}
-                                                />
+                                                <div id="prediction-factors-section">
+                                                    <PredictionFactorsSection
+                                                        predictionChartData={predictionFactorsAnalysisData}
+                                                        isLoading={false}
+                                                        requestTimestamp={requestTimestamp}
+                                                        AIRecommendationData={recommendationFactorsAnalysisData as unknown as Record<string, string>}
+                                                    />
+                                                </div>
 
-                                                {/* Hidden Chart Renderer for PDF */}
-                                                <HiddenChartRenderer
-                                                    data={predictionDetailData}
-                                                    onChartsReady={handleChartsReady}
-                                                />
+                                                <div id="download-reports-section">
+                                                    {/* Hidden Chart Renderer for PDF */}
+                                                    <HiddenChartRenderer
+                                                        data={predictionDetailData}
+                                                        onChartsReady={handleChartsReady}
+                                                    />
 
-                                                {/* Download Button with Modal */}
-                                                <DownloadButton
-                                                    payload={downloadPayload!}
-                                                    disabled={!downloadPayload || !isChartsReady}
-                                                    variant="outline"
-                                                />
+                                                    {/* Download Button with Modal */}
+                                                    <DownloadButton
+                                                        payload={downloadPayload!}
+                                                        disabled={!downloadPayload || !isChartsReady}
+                                                        variant="outline"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
