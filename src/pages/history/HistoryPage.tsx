@@ -2,14 +2,21 @@ import { DashboardNav } from "@/components/nav/DashboardNav";
 import { ErrorPage } from "../error/ErrorPage";
 import { useNavigate } from "react-router";
 import { DashboardSidebar } from "@/components/sidebar/DashboardSidebar";
-// import { PredictionSummarySection } from "@/components/sections/PredictionSummarySection";
-// import { PredictionDetailSection } from "@/components/sections/PredictionDetailSection";
-// import { HiddenChartRenderer } from "@/components/chart/HiddenChartRenderer";
-// import { DownloadButton } from "@/components/download-button/DownloadButton";
-import { useEffect, useState } from "react";
+import { PredictionSummarySection } from "@/components/sections/PredictionSummarySection";
+import { PredictionDetailSection } from "@/components/sections/PredictionDetailSection";
+import { HiddenChartRenderer } from "@/components/chart/HiddenChartRenderer";
+import { DownloadButton } from "@/components/download-button/DownloadButton";
+import { useCallback, useEffect, useState } from "react";
 import type { UserModel } from "@/types/user_model";
 import { getUserProfile } from "@/api/user_api";
 import { toast } from "sonner";
+import type { HistoryData, HistoryListData } from "@/types/history.types";
+import { getAllHistoryRecord, getOneHistoryRecord, updateVersionName } from "@/api/history_api";
+import { HistoryListSidebar } from "@/components/sidebar/HistoryListSidebar";
+import { ChartCaptureService } from "@/services/chart-capture-service";
+import type { PredictionData, PredictionSummary } from "@/types/prediction.types";
+import type { trafficRecommendationDict } from "@/types/ai_recommendation.types";
+
 
 export function HistoryPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
@@ -17,7 +24,16 @@ export function HistoryPage() {
     const [showErrorPage, setShowErrorPage] = useState<boolean>(false);
     const [isError, setIsError] = useState<boolean>(false);
 
+    const [historyListData, setHistoryListData] = useState<HistoryListData | null>(null);
+    const [historyData, setHistoryData] = useState<HistoryData | null>(null);
+
     const navigator = useNavigate();
+
+    // on click when version is selected
+    const handleVersionSelect = async (id: string) => {
+        const historyResponse = await getOneHistoryRecord(id);
+        setHistoryData(historyResponse);
+    };
 
     useEffect(() => {
         const fetchAllHistoryData = async () => {
@@ -29,6 +45,15 @@ export function HistoryPage() {
 
                 const user = await getUserProfile();
                 setUserData(user);
+
+                const historyListResponse = await getAllHistoryRecord();
+                setHistoryListData(historyListResponse);
+
+                // Auto-load the first history record
+                if (historyListResponse.data.length > 0) {
+                    const firstRecord = historyListResponse.data[0];
+                    await handleVersionSelect(firstRecord.id);
+                }
 
                 setIsError(false);
             } catch (error) {
@@ -44,6 +69,38 @@ export function HistoryPage() {
         fetchAllHistoryData();
     }, []);
 
+    const chartCaptureService = new ChartCaptureService();
+    const [isChartsReady, setIsChartsReady] = useState(false);
+
+    const handleChartsReady = useCallback((chartRefs: Map<string, HTMLDivElement>) => {
+        chartCaptureService.registerChartContainers(chartRefs);
+        setIsChartsReady(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const handleVersionUpdate = async (id: string, newName: string) => {
+        try {
+            const success = await updateVersionName(id, newName);
+            if (success) {
+                // Update local state
+                setHistoryListData(prev =>
+                    prev ? {
+                        ...prev,
+                        data: prev.data.map(item =>
+                            item.id === id ? { ...item, version_name: newName } : item
+                        )
+                    } : null
+                );
+                toast.success('Version name updated successfully');
+            } else {
+                throw new Error('Update failed');
+            }
+        } catch (error) {
+            toast.error('Failed to update version name');
+            throw error; // Re-throw to let component handle loading state
+        }
+    };
+
     if (isLoading) {
         return <></>; // return history page skeleton
     }
@@ -52,7 +109,7 @@ export function HistoryPage() {
         <>
             <title>C4Vision - History</title>
             {
-                !userData || isError || showErrorPage ? //||
+                !userData || isError || showErrorPage || !historyListData ? //||
                     // !predictionSummaryData || !predictionDetailData || !recommendationDetailData ?
                     (
                         <ErrorPage
@@ -77,46 +134,66 @@ export function HistoryPage() {
 
                                             {/* ALL SECTIONS */}
                                             <div className="space-y-6 max-w-[845px]">
-                                                {/* Prediction Summary Section */}
-                                                {/* <div id="prediction-summary-section">
-                                                    <PredictionSummarySection
-                                                        summaryData={predictionSummaryData}
-                                                        isLoading={false}
-                                                        requestTimestamp={requestTimestamp}
-                                                        AIRecommendationData={recommendationDetailData?.summary_reco}
-                                                    />
-                                                </div> */}
+                                                {historyData && (
+                                                    <div>
+                                                        <h2 className="text-xl font-bold mb-4">
+                                                            {historyData.version_name}
+                                                        </h2>
+                                                        {/* Prediction Summary Section */}
+                                                        <PredictionSummarySection
+                                                            summaryData={
+                                                                historyData.prediction_summary as PredictionSummary
+                                                            }
+                                                            isLoading={isLoading}
+                                                            AIRecommendationData={historyData.ai_recommendation}
+                                                            requestTimestamp={0}
+                                                        />
 
-                                                {/* Prediction Detail Section */}
-                                                {/* <div id="prediction-detailed-section">
-                                                    <PredictionDetailSection
-                                                        predictionChartData={predictionDetailData}
-                                                        isLoading={false}
-                                                        requestTimestamp={requestTimestamp}
-                                                        AIRecommendationData={recommendationDetailData as unknown as Record<string, string>}
-                                                    />
-                                                </div> */}
+                                                        {/* Prediction Detail Section */}
+                                                        <div id="prediction-detailed-section">
+                                                            <PredictionDetailSection
+                                                                predictionChartData={historyData.prediction_detail}
+                                                                isLoading={false}
+                                                                requestTimestamp={0}
+                                                                AIRecommendationData={historyData.ai_recommendation as unknown as Record<string, string>}
+                                                            />
+                                                        </div>
 
-                                                <div id="download-reports-section">
-                                                    {/* Hidden Chart Renderer for PDF */}
-                                                    {/* <HiddenChartRenderer
-                                                        data={predictionDetailData}
-                                                        onChartsReady={handleChartsReady}
-                                                    /> */}
+                                                        <div id="download-reports-section">
+                                                            {/* Hidden Chart Renderer for PDF */}
+                                                            <HiddenChartRenderer
+                                                                data={historyData.prediction_detail}
+                                                                onChartsReady={handleChartsReady}
+                                                            />
 
-                                                    {/* Download Button with Modal */}
-                                                    {/* <DownloadButton
-                                                        payload={downloadPayload!}
-                                                        disabled={!downloadPayload || !isChartsReady}
-                                                        variant="outline"
-                                                    /> */}
-                                                </div>
+                                                            {/* Download Button with Modal */}
+                                                            <DownloadButton
+                                                                payload={{
+                                                                    prediction_summary:
+                                                                        historyData.prediction_summary as PredictionSummary,
+                                                                    prediction_detail:
+                                                                        historyData.prediction_detail as PredictionData,
+                                                                    recommendation:
+                                                                        historyData.ai_recommendation as trafficRecommendationDict
+                                                                }!}
+                                                                disabled={!historyData || !isChartsReady}
+                                                                variant="outline"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Right side - Fixed Prediction Panel */}
+                                    {/* Right side - Fixed History Sidebar */}
                                     <div id="history-selection" className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
+                                        <HistoryListSidebar
+                                            historyData={historyListData.data}
+                                            onVersionSelect={handleVersionSelect}
+                                            onVersionUpdate={handleVersionUpdate}
+                                            className="h-full"
+                                        />
                                     </div>
                                 </div>
                             </main>
