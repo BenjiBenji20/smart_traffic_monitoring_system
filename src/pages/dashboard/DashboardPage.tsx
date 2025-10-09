@@ -1,6 +1,6 @@
 import { DashboardSidebar } from "../../components/sidebar/DashboardSidebar"
 import { DashboardNav } from "../../components/nav/DashboardNav"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { UserModel } from "@/types/user_model"
 import { getUserProfile } from "@/api/user_api";
 import { toast } from "sonner";
@@ -27,6 +27,8 @@ import { PredictionDetailSection } from "@/components/sections/PredictionDetailS
 import { PredictionFactorsSection } from "@/components/sections/PredictionFactorsSection";
 import type { FileDownloadPayload } from "@/types/download_file.types";
 import { DownloadButton } from "@/components/download-button/DownloadButton";
+import { ChartCaptureService } from "@/services/chart-capture-service";
+import { HiddenChartRenderer } from "@/components/chart/HiddenChartRenderer";
 
 export function DashboardPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
@@ -59,12 +61,22 @@ export function DashboardPage() {
     // Download button
     const [downloadPayload, setDownloadPayload] = useState<FileDownloadPayload | null>(null);
 
+    const chartCaptureService = new ChartCaptureService();
+    const [isChartsReady, setIsChartsReady] = useState(false);
+
+    const handleChartsReady = useCallback((chartRefs: Map<string, HTMLDivElement>) => {
+        chartCaptureService.registerChartContainers(chartRefs);
+        setIsChartsReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const navigator = useNavigate();
 
     useEffect(() => {
         const fetchAllDashboardData = async () => {
             try {
                 setIsLoading(true);
+                setIsChartsReady(false); // Reset charts ready state
 
                 // wait for your auth context to be ready
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -196,10 +208,16 @@ export function DashboardPage() {
                                                     AIRecommendationData={recommendationFactorsAnalysisData as unknown as Record<string, string>}
                                                 />
 
+                                                {/* Hidden Chart Renderer for PDF */}
+                                                <HiddenChartRenderer
+                                                    data={predictionDetailData}
+                                                    onChartsReady={handleChartsReady}
+                                                />
+
                                                 {/* Download Button with Modal */}
                                                 <DownloadButton
                                                     payload={downloadPayload!}
-                                                    disabled={!downloadPayload}
+                                                    disabled={!downloadPayload || !isChartsReady}
                                                     variant="outline"
                                                 />
                                             </div>

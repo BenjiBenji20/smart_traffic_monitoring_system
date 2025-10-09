@@ -1,6 +1,8 @@
-import type { FileDownloadPayload } from "@/types/download_file.types";
+import type { FileDownloadPayload, PDFRequestPayload } from "@/types/download_file.types";
 import securedRequest from "./authentication_api";
 import { formatDateWithoutMS } from "@/utils/format-date";
+import { PDFPayloadService } from '@/services/pdf-payload-service';
+import axios from "axios";
 
 const BASEURL = "/dashboard/download-file";
 
@@ -16,7 +18,7 @@ const extractFilename = (contentDisposition: string | null, defaultName: string)
 
 
 // Helper function to handle file download
-const handleFileDownload = (blob: Blob, filename: string, fileType: 'JSON' | 'Excel') => {
+const handleFileDownload = (blob: Blob, filename: string, fileType: 'JSON' | 'Excel' | 'PDF') => {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -87,5 +89,53 @@ export async function downloadExcelFile(payload: FileDownloadPayload): Promise<{
     } catch (error) {
         console.error("Error downloading Excel file:", error);
         throw new Error(`Failed to download Excel file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+}
+
+const pdfPayloadService = new PDFPayloadService();
+
+export async function downloadPDFFile(payload: FileDownloadPayload): Promise<{ success: boolean; message: string }> {
+    try {
+        // Build PDF-specific payload with chart images
+        const pdfPayload: PDFRequestPayload = await pdfPayloadService.buildPDFPayload(
+            payload.prediction_summary,
+            payload.recommendation,
+            payload.prediction_detail
+        );
+
+        const response = await securedRequest.post(
+            `${BASEURL}/pdf`,
+            pdfPayload,
+            {
+                responseType: 'blob',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+
+        const filename = extractFilename(
+            response.headers['content-disposition'],
+            `traffic_data_report_${formatDateWithoutMS(new Date())}.pdf`
+        );
+
+        return handleFileDownload(blob, filename, 'PDF');
+    } catch (error: unknown) {
+        console.error("Error downloading PDF file:", error);
+
+        if (axios.isAxiosError(error)) {
+            if (error.response?.data instanceof Blob) {
+                const errorText = await error.response.data.text();
+                console.error("Backend error response:", errorText);
+            } else {
+                console.error("Axios error:", error.message);
+            }
+        } else {
+            console.error("Unexpected error:", error);
+        }
+
+        throw new Error(`Failed to download PDF file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }

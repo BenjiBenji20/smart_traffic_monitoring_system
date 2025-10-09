@@ -11,7 +11,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Download, FileJson, FileSpreadsheet, FileText, Loader2 } from "lucide-react";
-import { downloadJSONFile, downloadExcelFile } from "@/api/download_file_api";
+import { downloadJSONFile, downloadExcelFile, downloadPDFFile } from "@/api/download_file_api";
 import type { FileDownloadPayload } from "@/types/download_file.types";
 
 interface DownloadModalProps {
@@ -58,14 +58,12 @@ export function DownloadButton({
                     result = await downloadExcelFile(payload);
                     break;
                 case 'pdf':
-                    // PDF implementation will be added later
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate PDF download
-                    result = { success: true, message: "PDF file downloaded successfully" };
+                    result = await downloadPDFFile(payload);
                     break;
             }
 
-            toast.success("Download successfull!", {
-                description: "File Downloaded successfully"
+            toast.success("Download successful!", {
+                description: "File downloaded successfully"
             });
         } catch (error) {
             console.error(`Download failed:`, error);
