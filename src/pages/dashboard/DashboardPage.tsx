@@ -25,6 +25,8 @@ import { RequestPrediction } from "@/components/request_prediction/RequestPredic
 import { PredictionSummarySection } from "@/components/sections/PredictionSummarySection";
 import { PredictionDetailSection } from "@/components/sections/PredictionDetailSection";
 import { PredictionFactorsSection } from "@/components/sections/PredictionFactorsSection";
+import type { FileDownloadPayload } from "@/types/download_file.types";
+import { DownloadButton } from "@/components/download-button/DownloadButton";
 
 export function DashboardPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
@@ -53,6 +55,9 @@ export function DashboardPage() {
         useState<trafficRecommendationDict | null>(null);
     const [recommendationFactorsAnalysisData, setRecommendationFactorsAnalysisData] =
         useState<trafficFactorsAnalysis | null>(null);
+
+    // Download button
+    const [downloadPayload, setDownloadPayload] = useState<FileDownloadPayload | null>(null);
 
     const navigator = useNavigate();
 
@@ -86,6 +91,13 @@ export function DashboardPage() {
                 const recommendationFactorsAnalysisRes = await recommendationFactorsAnalysis();
                 setRecommendationFactorsAnalysisData(recommendationFactorsAnalysisRes);
                 // console.log("\nrecommendationFactorsAnalysisRes", recommendationFactorsAnalysisRes);
+
+                // pass each fetched data to download payload to use in button
+                setDownloadPayload({
+                    prediction_summary: predictionSummaryRes,
+                    prediction_detail: predictionDetailRes,
+                    recommendation: recommendationDetailRes
+                });
 
                 setIsError(false);
             } catch (error) {
@@ -182,6 +194,13 @@ export function DashboardPage() {
                                                     isLoading={false}
                                                     requestTimestamp={requestTimestamp}
                                                     AIRecommendationData={recommendationFactorsAnalysisData as unknown as Record<string, string>}
+                                                />
+
+                                                {/* Download Button with Modal */}
+                                                <DownloadButton
+                                                    payload={downloadPayload!}
+                                                    disabled={!downloadPayload}
+                                                    variant="outline"
                                                 />
                                             </div>
                                         </div>
