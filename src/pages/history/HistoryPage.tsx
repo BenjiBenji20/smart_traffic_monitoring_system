@@ -109,8 +109,7 @@ export function HistoryPage() {
         <>
             <title>C4Vision - History</title>
             {
-                !userData || isError || showErrorPage || !historyListData ? //||
-                    // !predictionSummaryData || !predictionDetailData || !recommendationDetailData ?
+                !userData || isError || showErrorPage || !historyListData ?
                     (
                         <ErrorPage
                             title="Failed to load data"
@@ -187,7 +186,7 @@ export function HistoryPage() {
                                     </div>
 
                                     {/* Right side - Fixed History Sidebar */}
-                                    <div id="history-selection" className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
+                                    <div className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
                                         <HistoryListSidebar
                                             historyData={historyListData.data}
                                             onVersionSelect={handleVersionSelect}

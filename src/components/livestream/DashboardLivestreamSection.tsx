@@ -4,6 +4,7 @@ import { LivestreamControls } from '@/components/livestream/LivestreamControls';
 import { VehicleCountsSidebar } from '@/components/livestream/VehicleCountsSidebar';
 import { useLivestream } from '@/hooks/useLivestream';
 import { useVehicleCounts } from '@/hooks/useVehicleCounts';
+import { CameraPlaceholder } from './CameraPlaceholder';
 
 export function DashboardLivestreamSection() {
   const [dateTime, setDateTime] = useState('');
@@ -63,6 +64,7 @@ export function DashboardLivestreamSection() {
         {/* Vehicle Counts Sidebar - LEFT SIDE (1 column) */}
         <div>
           <VehicleCountsSidebar counts={counts} totalCount={totalCount} />
+          <CameraPlaceholder size="sm" />
         </div>
 
         {/* Video Feed - RIGHT SIDE (3 columns) */}
