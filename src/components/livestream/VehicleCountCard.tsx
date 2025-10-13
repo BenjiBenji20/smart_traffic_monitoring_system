@@ -2,33 +2,47 @@ import { Card } from '@/components/ui/card';
 import type { LucideIcon } from 'lucide-react';
 
 interface VehicleCountCardProps {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  iconUrl?: string;
   label: string;
   count: number;
   variant?: 'default' | 'total';
 }
 
 export function VehicleCountCard({
-  icon: Icon,
+  icon: IconComponent,
+  iconUrl,
   label,
   count,
   variant = 'default'
 }: VehicleCountCardProps) {
   const isTotal = variant === 'total';
+  const iconColorClass = isTotal ? 'text-cyan-400' : 'text-cyan-400';
 
   return (
     <Card
-      className={`p-3 transition-all ${isTotal
-        ? 'bg-cyan-500/20 border-cyan-500/50'
-        : 'bg-slate-700/50 border-slate-600/50'
+      className={`p-2.5 transition-all ${isTotal
+          ? 'bg-cyan-500/20 border-cyan-500/50'
+          : 'bg-slate-700/50 border-slate-600/50'
         }`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Icon
-            className={`w-6 h-6 ${isTotal ? 'text-cyan-400' : 'text-cyan-400'}`}
-          />
-          <span className={`text-xs ${isTotal ? 'font-semibold' : ''}`}>
+          {/* SVG from URL */}
+          {iconUrl && (
+            <img
+              src={iconUrl}
+              alt=""
+              className={`w-6 h-6 ${iconColorClass}`}
+            />
+          )}
+
+          {/* Lucide Icon */}
+          {IconComponent && !iconUrl && (
+            <IconComponent className={`w-6 h-6 ${iconColorClass}`} />
+          )}
+
+          <span className={`text-s ${isTotal ? 'font-semibold' : ''}`}>
             {label}
           </span>
         </div>

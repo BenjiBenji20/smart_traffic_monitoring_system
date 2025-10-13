@@ -14,6 +14,8 @@ export interface VehicleCounts {
     truck: number;
     bicycle: number;
     motorbike: number;
+    jeepney: number;
+    tricycle: number;
 } 
 
 export interface StatsResponse {

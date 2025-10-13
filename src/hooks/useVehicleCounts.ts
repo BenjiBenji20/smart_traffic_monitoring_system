@@ -16,7 +16,9 @@ export function useVehicleCounts({
     car: 0,
     truck: 0,
     bicycle: 0,
-    motorbike: 0
+    motorbike: 0,
+    jeepney: 0,
+    tricycle: 0,
   });
   const [totalCount, setTotalCount] = useState(0);
   
@@ -40,7 +42,7 @@ export function useVehicleCounts({
       intervalRef.current = setInterval(fetchStats, pollingInterval);
     } else {
       // Reset counts when stopped
-      setCounts({ car: 0, truck: 0, bicycle: 0, motorbike: 0 });
+      setCounts({ car: 0, truck: 0, bicycle: 0, motorbike: 0, jeepney: 0, tricycle: 0 });
       setTotalCount(0);
     }
 
