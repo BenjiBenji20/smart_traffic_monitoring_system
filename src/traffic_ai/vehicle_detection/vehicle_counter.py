@@ -304,10 +304,9 @@ class OptimizedDetectionPipeline:
                     # COUNTED vehicles - Light Green
                     vehicle_class = self.vehicle_data.get(track_id, {}).get("class", "Unknown")
                     cvzone.cornerRect(frame, (x1, y1, w, h), l=9, colorR=(144, 238, 144), rt=2)  # Light green
-                    cvzone.putTextRect(frame, f"{vehicle_class} - COUNTED", 
-                                    (max(0, x1), max(35, y1)), 
-                                    scale=0.6, thickness=1, offset=2,
-                                    colorR=(0, 0, 0), colorB=(144, 238, 144))
+                    cv2.putText(frame, f"COUNTED: {vehicle_class} - ID:{track_id}", 
+                                    (max(0, x1), max(35, y1 - 5)), cv2.FONT_HERSHEY_SIMPLEX, 
+                                    0.5, (144, 238, 144), 1)
             
             # STEP 2: Draw initial detections on top (these are not yet tracked/counted)
             # Only draw if they don't overlap with tracked objects
@@ -334,10 +333,8 @@ class OptimizedDetectionPipeline:
                         if not is_tracked:
                             vehicle_color = self.get_vehicle_color(class_name)
                             cvzone.cornerRect(frame, (x1, y1, w, h), l=6, rt=1, colorR=vehicle_color)
-                            cvzone.putTextRect(frame, f"{class_name} {conf}", 
-                                            (max(0, x1), max(35, y1 - 10)), 
-                                            scale=0.6, thickness=1, offset=2,
-                                            colorR=(255, 255, 255), colorB=vehicle_color)
+                            cv2.putText(frame, f"{class_name}", (max(0, x1), max(35, y1 - 5)), 
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.5,vehicle_color, 1) 
             
             # Handle vehicle exits
             self.handle_vehicle_exits()
