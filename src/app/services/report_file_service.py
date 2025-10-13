@@ -11,9 +11,7 @@ from fastapi.exceptions import HTTPException
 from src.app.models.user import User
 from src.app.schemas.request_schema import PDFRequest
 from src.app.exceptions.custom_exceptions import FileDownloadException
-from src.traffic_ai.traffic_forecast.traffic_prediction_json_bldr import (
-  prediction_summary
-)
+
 
 def download_path() -> str:
   """Dir to Downloads folder to save the download file"""
@@ -169,7 +167,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 async def generate_pdf_file(request: PDFRequest, user: User) -> io.BytesIO:
   try:
-    d1 = prediction_summary()
+    d1 = request.summary
     
     # Create PDF in memory
     output = io.BytesIO()

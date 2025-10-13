@@ -5,6 +5,7 @@ PUBLIC_ROUTES = {
   "/openapi.json",
   "/api/user/register",
   "/api/user/auth/token",
+  "/api/user/auth/refresh2",
   "/api/dashboard/user/end-user-prediction-req",
   "/api/dashboard/user/end-user-traffic-recommendations",
   "/api/dashboard/user/end-user-traffic-req-recommendations",

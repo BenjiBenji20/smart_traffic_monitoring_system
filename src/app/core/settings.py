@@ -32,7 +32,8 @@ class Settings(BaseSettings):
   # livestream pi http addresses
   PI_HOME_WIFI: str
   PI_MOBILE_HOTSPOT: str
-  PI_LIVESTREAM_ADDRESS_LIST: List[str] = ["PI_HOME_WIFI", "PI_MOBILE_HOTSPOT"]
+  PI_CMU_ENVIRONMENT: str
+  PI_LIVESTREAM_ADDRESS_LIST: List[str] = ["PI_HOME_WIFI", "PI_MOBILE_HOTSPOT", "PI_CMU_ENVIRONMENT"]
 
   class Config:
     env_file = ".env"
