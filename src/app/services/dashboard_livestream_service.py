@@ -1,4 +1,3 @@
-# src/app/services/dashboard_service.py
 import time
 import cv2
 import numpy as np
@@ -6,7 +5,9 @@ import threading
 import logging
 import asyncio
 import aiohttp
-from typing import List, Tuple, Optional
+import json
+from typing import List, Tuple, Optional, Set
+from fastapi import WebSocket
 
 from src.traffic_ai.vehicle_detection.vehicle_counter import (
     get_pipeline, 
@@ -20,12 +21,139 @@ from src.app.core.settings import settings
 _pipeline_thread: Optional[threading.Thread] = None
 _pipeline_stop_event = threading.Event()
 
+
+# ===== WEBSOCKET BROADCAST MANAGER =====
+
+class DetectionBroadcaster:
+    """Manages WebSocket connections and broadcasts detection updates"""
+    
+    def __init__(self):
+        self.active_connections: Set[WebSocket] = set()
+        self.broadcast_task = None
+        self.is_running = False
+        
+    async def register(self, websocket: WebSocket):
+        """Register a new WebSocket connection"""
+        self.active_connections.add(websocket)
+        logging.info(f"WebSocket client registered. Total clients: {len(self.active_connections)}")
+        
+        # Start broadcast task if not already running
+        if not self.is_running:
+            await self.start_broadcast()
+    
+    async def unregister(self, websocket: WebSocket):
+        """Unregister a WebSocket connection"""
+        self.active_connections.discard(websocket)
+        logging.info(f"WebSocket client unregistered. Total clients: {len(self.active_connections)}")
+        
+        # Stop broadcast task if no clients connected
+        if len(self.active_connections) == 0:
+            await self.stop_broadcast()
+    
+    async def broadcast(self, data: dict):
+        """Broadcast data to all connected clients"""
+        if not self.active_connections:
+            return
+        
+        # Convert data to JSON
+        try:
+            message = json.dumps(data)
+        except Exception as e:
+            logging.error(f"Error serializing broadcast data: {e}")
+            return
+        
+        # Send to all clients
+        disconnected = set()
+        for connection in self.active_connections:
+            try:
+                await connection.send_text(message)
+            except Exception as e:
+                logging.warning(f"Error sending to client: {e}")
+                disconnected.add(connection)
+        
+        # Clean up disconnected clients
+        for connection in disconnected:
+            await self.unregister(connection)
+    
+    async def start_broadcast(self):
+        """Start the broadcast task"""
+        if self.is_running:
+            return
+        
+        self.is_running = True
+        self.broadcast_task = asyncio.create_task(self._broadcast_loop())
+        logging.info("Detection broadcast task started")
+    
+    async def stop_broadcast(self):
+        """Stop the broadcast task"""
+        self.is_running = False
+        if self.broadcast_task:
+            self.broadcast_task.cancel()
+            try:
+                await self.broadcast_task
+            except asyncio.CancelledError:
+                pass
+        logging.info("Detection broadcast task stopped")
+    
+    async def _broadcast_loop(self):
+        """Main broadcast loop - runs continuously and sends updates"""
+        try:
+            while self.is_running and self.active_connections:
+                try:
+                    # Get current pipeline data
+                    pipeline = get_pipeline()
+                    
+                    if pipeline and pipeline.running:
+                        # Collect detection data
+                        detections = get_current_detections()
+                        stats = {
+                            "total_count": pipeline.get_persistent_total_count(),
+                            "vehicle_counts": pipeline.vehicle_class_counts,
+                            "status": "running"
+                        }
+                    else:
+                        detections = []
+                        stats = {
+                            "total_count": 0,
+                            "vehicle_counts": {},
+                            "status": "stopped"
+                        }
+                    
+                    # Create broadcast message
+                    data = {
+                        "type": "detection_update",
+                        "timestamp": time.time(),
+                        "data": {
+                            "detections": detections,
+                            "stats": stats
+                        }
+                    }
+                    
+                    # Broadcast to all connected clients
+                    await self.broadcast(data)
+                    
+                    # Send updates every 100ms (10 FPS)
+                    await asyncio.sleep(0.1)
+                    
+                except asyncio.CancelledError:
+                    break
+                except Exception as e:
+                    logging.error(f"Error in broadcast loop: {e}")
+                    await asyncio.sleep(0.1)
+        
+        finally:
+            self.is_running = False
+            logging.info("Broadcast loop ended")
+
+
+# Create global broadcaster instance
+broadcast_detection_updates = DetectionBroadcaster()
+
 def generate_raw_stream():
   """Generate raw video stream from the pipeline"""
   while True:
     pipeline = get_pipeline()
     if pipeline is None or not pipeline.running:
-      # No pipeline running, send placeholder
       placeholder = np.zeros((270, 480, 3), dtype=np.uint8)
       cv2.putText(placeholder, "Livestream Stopped", (120, 120), 
                   cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 128, 128), 2)
@@ -33,24 +161,20 @@ def generate_raw_stream():
                   cv2.FONT_HERSHEY_SIMPLEX, 0.8, (128, 128, 128), 2)
       frame = placeholder
     else:
-      # Get raw frame from pipeline
       frame = pipeline.get_raw_frame()
       if frame is None:
-        # Camera disconnected, send error frame
         error_frame = np.zeros((270, 480, 3), dtype=np.uint8)
         cv2.putText(error_frame, "Camera Error", (150, 135), 
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         frame = error_frame
       
-    # Encode frame
     _, jpeg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
     frame_bytes = jpeg.tobytes()
     
-    # Yield MJPEG frame
     yield (b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
     
-    time.sleep(0.033)  # ~30fps
+    time.sleep(0.033)
 
 
 def generate_processed_stream():
@@ -58,7 +182,6 @@ def generate_processed_stream():
   while True:
     pipeline = get_pipeline()
     if pipeline is None or not pipeline.running:
-      # No pipeline running, send placeholder
       placeholder = np.zeros((270, 480, 3), dtype=np.uint8)
       cv2.putText(placeholder, "AI Detection Stopped", (100, 120), 
                   cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 128, 128), 2)
@@ -66,24 +189,20 @@ def generate_processed_stream():
                   cv2.FONT_HERSHEY_SIMPLEX, 0.8, (128, 128, 128), 2)
       frame = placeholder
     else:
-      # Get processed frame from pipeline
       frame = pipeline.get_processed_frame()
       if frame is None:
-          # No processed frame yet
           loading_frame = np.zeros((270, 480, 3), dtype=np.uint8)
           cv2.putText(loading_frame, "Processing...", (150, 135), 
                       cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2)
           frame = loading_frame
     
-    # Encode frame
     _, jpeg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
     frame_bytes = jpeg.tobytes()
     
-    # Yield MJPEG frame
     yield (b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
     
-    time.sleep(0.033)  # ~30fps
+    time.sleep(0.033)
 
 
 def get_current_detections():
@@ -103,11 +222,9 @@ def get_available_pi_addresses() -> List[str]:
 async def test_pi_connection(address: str, timeout: int = 5) -> bool:
   """Test connection to a Pi camera address"""
   try:
-    # Try to connect to the Pi camera stream
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=timeout)) as session:
       async with session.get(address) as response:
         if response.status == 200:
-          # Try to read a small chunk to ensure it's actually streaming
           chunk = await response.content.read(1024)
           return len(chunk) > 0
     return False
@@ -116,36 +233,30 @@ async def test_pi_connection(address: str, timeout: int = 5) -> bool:
     return False
 
 
-def start_detection_pipeline(camera_source: str, detection_mode: str = "raw") -> Tuple[bool, str]:  # ADD detection_mode parameter
+def start_detection_pipeline(camera_source: str, detection_mode: str = "raw") -> Tuple[bool, str]:
   """Start the detection pipeline with specified camera source and mode"""
   global _pipeline_thread, _pipeline_stop_event
   
   try:
-    # Check if pipeline is already running
     pipeline = get_pipeline()
     if pipeline and pipeline.running:
       return False, "Pipeline is already running. Stop it first."
     
-    # Stop any existing thread
     if _pipeline_thread and _pipeline_thread.is_alive():
       _pipeline_stop_event.set()
       _pipeline_thread.join(timeout=5)
     
-    # Reset stop event
     _pipeline_stop_event.clear()
     
-    # Start new detection thread WITH detection mode
     _pipeline_thread = threading.Thread(
       target=start_optimized_detection,
-      args=(camera_source, detection_mode),  # PASS detection_mode
+      args=(camera_source, detection_mode),
       daemon=True
     )
     _pipeline_thread.start()
     
-    # Give the pipeline time to initialize
     time.sleep(2)
     
-    # Verify pipeline started
     pipeline = get_pipeline()
     if pipeline and pipeline.running:
       logging.info(f"Detection pipeline started with source: {camera_source}, mode: {detection_mode}")
@@ -161,7 +272,6 @@ def start_detection_pipeline(camera_source: str, detection_mode: str = "raw") ->
 def switch_detection_mode(mode: str) -> Tuple[bool, str]:
   """Switch detection mode without restarting pipeline"""
   try:
-    # Import from correct module
     from src.traffic_ai.vehicle_detection.vehicle_counter import set_detection_mode
     
     pipeline = get_pipeline()
@@ -184,23 +294,17 @@ def stop_detection_pipeline() -> Tuple[bool, str]:
   global _pipeline_thread, _pipeline_stop_event
   
   try:
-    # Get current pipeline
     pipeline = get_pipeline()
     
     if pipeline is None:
       return False, "No pipeline is currently running"
     
-    # Stop the pipeline
     pipeline.stop()
-    
-    # Signal thread to stop
     _pipeline_stop_event.set()
     
-    # Wait for thread to finish
     if _pipeline_thread and _pipeline_thread.is_alive():
       _pipeline_thread.join(timeout=10)
     
-    # Reset thread reference
     _pipeline_thread = None
     
     logging.info("Detection pipeline stopped successfully")
@@ -225,7 +329,7 @@ def get_pipeline_status() -> dict:
     return {
       "running": pipeline.running,
       "camera_source": getattr(pipeline, 'camera_source', None),
-      "detection_mode": getattr(pipeline, 'detection_mode', 'unknown'),  # ADD THIS LINE
+      "detection_mode": getattr(pipeline, 'detection_mode', 'unknown'),
       "message": "Pipeline running" if pipeline.running else "Pipeline stopped"
     }
       

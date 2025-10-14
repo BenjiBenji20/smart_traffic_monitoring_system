@@ -1,5 +1,6 @@
 import logging
-from fastapi import APIRouter, HTTPException
+import asyncio
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 
 from src.app.exceptions.custom_exceptions import *
@@ -12,7 +13,8 @@ from src.app.services.dashboard_livestream_service import (
     switch_detection_mode,
     get_pipeline_status,
     test_pi_connection,
-    get_available_pi_addresses
+    get_available_pi_addresses,
+    broadcast_detection_updates  
 )
 from src.app.schemas.livestream_schema import *
 
@@ -20,10 +22,7 @@ from src.app.schemas.livestream_schema import *
 dashboard_livestream_router = APIRouter(
     prefix="/api/dashboard/livestream",
     tags=["admin dashboard livestream"]
-  )
-
-
-# # === LIVESTREAM CONTROL ENDPOINTS ===
+)
 
 # === LIVESTREAM CONTROL ENDPOINTS ===
 
@@ -31,14 +30,10 @@ dashboard_livestream_router = APIRouter(
 async def start_livestream(request: StartLivestreamRequest):
   """Start the livestream and detection pipeline"""
   try:
-    # Get available Pi addresses
     available_addresses = get_available_pi_addresses()
     
-    # If no camera source specified, try to auto-detect
     if not request.camera_source:
       logging.info("No camera source specified, testing available addresses...")
-      
-      # Test each address to find working one
       working_address = None
       for address in available_addresses:
         if await test_pi_connection(address):
@@ -57,7 +52,6 @@ async def start_livestream(request: StartLivestreamRequest):
     else:
       camera_source = request.camera_source
     
-    # Start the detection pipeline
     success, message = start_detection_pipeline(camera_source, "raw")
     
     return LivestreamResponse(
@@ -80,7 +74,6 @@ async def stop_livestream():
   """Stop the livestream and detection pipeline"""
   try:
     success, message = stop_detection_pipeline()
-    
     return LivestreamResponse(
       success=success,
       message=message
@@ -146,8 +139,6 @@ async def get_raw_video_feed():
   """Stream raw video feed WITHOUT AI processing"""
   try:
     logging.info("Raw video feed requested")
-
-    # Automatically switch to raw mode (no Firebase updates)
     switch_detection_mode("raw")
     
     return StreamingResponse(
@@ -170,8 +161,6 @@ async def get_processed_video_feed():
   """Stream processed video feed WITH AI annotations"""
   try:
     logging.info("Processed video feed requested")
-
-    # Automatically switch to processed mode (Firebase updates enabled)
     switch_detection_mode("processed")
     
     return StreamingResponse(
@@ -220,16 +209,70 @@ async def switch_mode(request: SwitchModeRequest):
       "message": f"Failed to switch mode: {str(e)}"
     }
 
-# === DETECTION DATA ENDPOINTS ===
+
+# === WEBSOCKET ENDPOINTS ===
+
+@dashboard_livestream_router.websocket("/ws/detection-stream")
+async def websocket_detection_stream(websocket: WebSocket):
+  """
+  WebSocket endpoint for real-time detection data and stats.
+  Replaces HTTP polling 
+  
+  Message format sent to client:
+  {
+    "type": "detection_update",
+    "data": {
+      "detections": [...],
+      "stats": {
+        "total_count": 42,
+        "vehicle_counts": {"car": 20, "truck": 10, ...},
+        "status": "running"
+      }
+    }
+  }
+  """
+  await websocket.accept()
+  logging.info("Client connected to detection stream WebSocket")
+  
+  try:
+    # Register this connection for broadcasts
+    await broadcast_detection_updates.register(websocket)
+    
+    # Keep connection alive and handle incoming messages
+    while True:
+      # Receive any messages (for future extensibility like rate control)
+      data = await websocket.receive_text()
+      logging.debug(f"Received from client: {data}")
+      
+      # Optional: handle commands from client
+      # Example: {"command": "set_fps", "value": 100}
+      # For now, just keep connection alive
+      
+  except WebSocketDisconnect:
+    logging.info("Client disconnected from detection stream")
+    await broadcast_detection_updates.unregister(websocket)
+    
+  except Exception as e:
+    logging.error(f"WebSocket error: {e}")
+    await broadcast_detection_updates.unregister(websocket)
+    try:
+      await websocket.close(code=1000)
+    except:
+      pass
+
+
+# === HTTP/REST for fall back compatibility if WebSocket fails in client
+# === DEPRECATED ENDPOINTS (Keep for backwards compatibility temporarily) ===
 
 @dashboard_livestream_router.get("/detection-data")
 def get_detection_data():
-  """Get current detection data"""
+  """
+  DEPRECATED: Use WebSocket /ws/detection-stream instead.
+  Get current detection data (HTTP fallback)
+  """
   try:
     detections = get_current_detections()
-    
-    logging.debug(f"Returning {len(detections)} detections")
-    
+    logging.debug(f"HTTP fallback: Returning {len(detections)} detections")
     return {"objects": detections}
       
   except Exception as e:
@@ -239,7 +282,10 @@ def get_detection_data():
 
 @dashboard_livestream_router.get("/stats")
 def get_detection_stats():
-  """Get detection statistics"""
+  """
+  DEPRECATED: Use WebSocket /ws/detection-stream instead.
+  Get detection statistics (HTTP fallback)
+  """
   try:
     from src.traffic_ai.vehicle_detection.vehicle_counter import get_pipeline
     
@@ -264,3 +310,4 @@ def get_detection_stats():
       "vehicle_counts": {},
       "status": "error"
     }
+    
