@@ -1,6 +1,6 @@
 // src/hooks/useVehicleCounts.ts
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { livestreamApi } from '@/api/livestream_api';
+import { livestreamApi, type DetectionUpdateMessage } from '@/api/livestream_api';
 import type { VehicleCounts } from '@/types/livestream.types';
 
 interface UseVehicleCountsProps {
@@ -8,9 +8,9 @@ interface UseVehicleCountsProps {
   pollingInterval?: number;
 }
 
-export function useVehicleCounts({ 
-  isStreaming, 
-  pollingInterval = 2000 
+export function useVehicleCounts({
+  isStreaming,
+  pollingInterval = 2000
 }: UseVehicleCountsProps) {
   const [counts, setCounts] = useState<VehicleCounts>({
     car: 0,
@@ -21,11 +21,24 @@ export function useVehicleCounts({
     tricycle: 0,
   });
   const [totalCount, setTotalCount] = useState(0);
-  
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const fetchStats = useCallback(async () => {
-    if (!isStreaming) return;
+  const httpPollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const wsUnsubscribeRef = useRef<(() => void) | null>(null);
+  const wsConnectedRef = useRef(false);
+
+  // Handle WebSocket updates for stats
+  const handleWebSocketUpdate = useCallback((message: DetectionUpdateMessage) => {
+    try {
+      setCounts(message.data.stats.vehicle_counts as unknown as VehicleCounts);
+      setTotalCount(message.data.stats.total_count);
+    } catch (error) {
+      console.error('Error processing WebSocket stats:', error);
+    }
+  }, []);
+
+  // HTTP fallback for stats (if WebSocket fails)
+  const fetchStatsHttp = useCallback(async () => {
+    if (!isStreaming || wsConnectedRef.current) return;
 
     try {
       const data = await livestreamApi.getStats();
@@ -38,20 +51,57 @@ export function useVehicleCounts({
 
   useEffect(() => {
     if (isStreaming) {
-      fetchStats(); // Fetch immediately on start
-      intervalRef.current = setInterval(fetchStats, pollingInterval);
+      // Try to connect WebSocket for stats
+      if (!livestreamApi.isDetectionWebSocketConnected()) {
+        livestreamApi.connectDetectionWebSocket(handleWebSocketUpdate)
+          .then(() => {
+            wsConnectedRef.current = true;
+            console.log('WebSocket connected for stats');
+          })
+          .catch((error) => {
+            console.warn('WebSocket connection failed, using HTTP fallback:', error);
+            wsConnectedRef.current = false;
+            // Fall back to HTTP polling
+            fetchStatsHttp();
+            httpPollIntervalRef.current = setInterval(fetchStatsHttp, pollingInterval);
+          });
+      } else {
+        // WebSocket already connected
+        wsConnectedRef.current = true;
+        wsUnsubscribeRef.current = livestreamApi.onDetectionUpdate(handleWebSocketUpdate);
+      }
+
+      // Initial fetch
+      if (!livestreamApi.isDetectionWebSocketConnected()) {
+        fetchStatsHttp();
+      }
     } else {
-      // Reset counts when stopped
+      // Stop everything when not streaming
       setCounts({ car: 0, truck: 0, bicycle: 0, motorbike: 0, jeepney: 0, tricycle: 0 });
       setTotalCount(0);
+
+      if (httpPollIntervalRef.current) {
+        clearInterval(httpPollIntervalRef.current);
+        httpPollIntervalRef.current = null;
+      }
+
+      if (wsUnsubscribeRef.current) {
+        wsUnsubscribeRef.current();
+        wsUnsubscribeRef.current = null;
+      }
+
+      wsConnectedRef.current = false;
     }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (httpPollIntervalRef.current) {
+        clearInterval(httpPollIntervalRef.current);
+      }
+      if (wsUnsubscribeRef.current) {
+        wsUnsubscribeRef.current();
       }
     };
-  }, [isStreaming, fetchStats, pollingInterval]);
+  }, [isStreaming, handleWebSocketUpdate, fetchStatsHttp, pollingInterval]);
 
   return {
     counts,

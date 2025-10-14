@@ -1,7 +1,7 @@
 // src/hooks/useLivestream.ts
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
-import { livestreamApi } from '../api/livestream_api';
+import { livestreamApi, type DetectionUpdateMessage } from '../api/livestream_api';
 import type { DetectionMode, DetectionData } from '@/types/livestream.types';
 
 export function useLivestream() {
@@ -15,19 +15,15 @@ export function useLivestream() {
   const [isStarting, setIsStarting] = useState(false);
   const [isStopping, setIsStopping] = useState(false);
 
-  const detectionIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const statusIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const wsUnsubscribeRef = useRef<(() => void) | null>(null);
 
-  const fetchDetectionData = useCallback(async () => {
-    if (!isStreaming || detectionMode !== 'raw') return;
-
-    try {
-      const data = await livestreamApi.getDetectionData();
-      setDetectionData(data);
-    } catch (error) {
-      console.debug('Detection data fetch skipped', error);
-    }
-  }, [isStreaming, detectionMode]);
+  // Handle WebSocket messages
+  const handleDetectionUpdate = useCallback((message: DetectionUpdateMessage) => {
+    // Update detection data
+    setDetectionData({
+      objects: message.data.detections
+    });
+  }, []);
 
   const checkStatus = useCallback(async () => {
     try {
@@ -64,6 +60,15 @@ export function useLivestream() {
         setDetectionMode('raw');
         setCurrentLocation(response.camera_source || 'Unknown Location');
         toast.success(`Livestream started: ${response.camera_source}`);
+
+        // Connect WebSocket after starting stream
+        try {
+          await livestreamApi.connectDetectionWebSocket(handleDetectionUpdate);
+          console.log('WebSocket connected');
+        } catch (wsError) {
+          console.warn('WebSocket connection failed, will use HTTP fallback:', wsError);
+          // Fallback to HTTP polling happens automatically via useVehicleCounts
+        }
       } else {
         toast.error(response.message || 'Failed to start livestream');
       }
@@ -73,7 +78,7 @@ export function useLivestream() {
     } finally {
       setIsStarting(false);
     }
-  }, [isStarting, isStreaming, selectedSource]);
+  }, [isStarting, isStreaming, selectedSource, handleDetectionUpdate]);
 
   const stopLivestream = useCallback(async () => {
     if (isStopping || !isStreaming) return;
@@ -85,6 +90,10 @@ export function useLivestream() {
       if (response.success) {
         setIsStreaming(false);
         setDetectionData({ objects: [] });
+
+        // Disconnect WebSocket
+        livestreamApi.disconnectDetectionWebSocket();
+
         toast.success('Livestream stopped');
       } else {
         toast.error(response.message || 'Failed to stop livestream');
@@ -119,9 +128,7 @@ export function useLivestream() {
 
   const testConnection = useCallback(async () => {
     try {
-      // If no source is selected (auto-detect mode)
       if (!selectedSource || selectedSource === 'auto') {
-        // Test all available sources
         let foundWorking = false;
 
         for (let i = 0; i < availableSources.length; i++) {
@@ -140,7 +147,6 @@ export function useLivestream() {
 
         return foundWorking;
       } else {
-        // Specific source selected
         const selectedIndex = availableSources.indexOf(selectedSource);
 
         if (selectedIndex === -1) {
@@ -165,34 +171,24 @@ export function useLivestream() {
     }
   }, [selectedSource, availableSources]);
 
-  // Detection data polling (only in raw mode)
+  // Cleanup on unmount
   useEffect(() => {
-    if (isStreaming && detectionMode === 'raw') {
-      fetchDetectionData();
-      detectionIntervalRef.current = setInterval(fetchDetectionData, 500);
-    } else {
-      if (detectionIntervalRef.current) {
-        clearInterval(detectionIntervalRef.current);
-        detectionIntervalRef.current = null;
-      }
-    }
-
     return () => {
-      if (detectionIntervalRef.current) {
-        clearInterval(detectionIntervalRef.current);
+      if (wsUnsubscribeRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        wsUnsubscribeRef.current();
       }
+      livestreamApi.disconnectDetectionWebSocket();
     };
-  }, [isStreaming, detectionMode, fetchDetectionData]);
+  }, []);
 
-  // Status checking
+  // Status checking (keep this for overall status)
   useEffect(() => {
     checkStatus();
-    statusIntervalRef.current = setInterval(checkStatus, 5000);
+    const statusIntervalRef_local = setInterval(checkStatus, 5000);
 
     return () => {
-      if (statusIntervalRef.current) {
-        clearInterval(statusIntervalRef.current);
-      }
+      clearInterval(statusIntervalRef_local);
     };
   }, [checkStatus]);
 
@@ -212,3 +208,5 @@ export function useLivestream() {
     setSelectedSource
   };
 }
+
+
