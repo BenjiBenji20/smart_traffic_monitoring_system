@@ -57,7 +57,7 @@ class OptimizedDetectionPipeline:
         self.camera_source = camera_source
         self.detection_mode = detection_mode
         self.cap = None
-        self.model = YOLO("src/traffic_ai/vehicle_detection/image-weights/vehicle_detection_model_v2n.pt", task='detect')
+        self.model = YOLO("src/traffic_ai/vehicle_detection/image-weights/vehicle_detection_model_v2n.onnx", task='detect')
         self.class_names = []
         self.tracker = None
         self.running = False
@@ -170,7 +170,7 @@ class OptimizedDetectionPipeline:
             self.load_existing_counts_from_firebase()
 
             # Initialize tracker
-            self.tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
+            self.tracker = Sort(max_age=30, min_hits=2, iou_threshold=0.25)
             
             # Start Firebase worker thread
             self.firebase_thread = threading.Thread(target=firebase_worker, daemon=True)
