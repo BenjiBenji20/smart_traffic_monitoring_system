@@ -39,7 +39,7 @@ export function VehicleCountsSidebar({ counts, totalCount }: VehicleCountsSideba
       <VehicleCountCard
         icon={BikeIcon}
         label="Motorbikes"
-        count={counts.motorbike}
+        count={counts.motorcycle}
       />
 
       <VehicleCountCard

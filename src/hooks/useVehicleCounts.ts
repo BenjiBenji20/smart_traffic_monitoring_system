@@ -16,7 +16,7 @@ export function useVehicleCounts({
     car: 0,
     truck: 0,
     bicycle: 0,
-    motorbike: 0,
+    motorcycle: 0,
     jeepney: 0,
     tricycle: 0,
   });
@@ -77,8 +77,18 @@ export function useVehicleCounts({
       }
     } else {
       // Stop everything when not streaming
-      setCounts({ car: 0, truck: 0, bicycle: 0, motorbike: 0, jeepney: 0, tricycle: 0 });
-      setTotalCount(0);
+      setCounts({
+        car: counts.car,
+        truck: counts.truck,
+        bicycle: counts.bicycle,
+        motorcycle: counts.motorcycle,
+        jeepney: counts.jeepney,
+        tricycle: counts.tricycle
+      });
+
+      setCounts(counts);
+      const total = Object.values(counts).reduce((sum, val) => sum + val, 0);
+      setTotalCount(total);
 
       if (httpPollIntervalRef.current) {
         clearInterval(httpPollIntervalRef.current);
@@ -101,7 +111,7 @@ export function useVehicleCounts({
         wsUnsubscribeRef.current();
       }
     };
-  }, [isStreaming, handleWebSocketUpdate, fetchStatsHttp, pollingInterval]);
+  }, [isStreaming, handleWebSocketUpdate, fetchStatsHttp, pollingInterval, counts]);
 
   return {
     counts,

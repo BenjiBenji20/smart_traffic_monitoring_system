@@ -13,7 +13,7 @@ export interface VehicleCounts {
     car: number;
     truck: number;
     bicycle: number;
-    motorbike: number;
+    motorcycle: number;
     jeepney: number;
     tricycle: number;
 } 
