@@ -17,3 +17,7 @@ class AddressIndex(BaseModel):
 
 class SwitchModeRequest(BaseModel):
   mode: str
+  
+class ChangeLimitAngleRequest(BaseModel):
+  degree_angle: int
+  side: str

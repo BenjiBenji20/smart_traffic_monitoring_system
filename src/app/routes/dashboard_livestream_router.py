@@ -5,6 +5,7 @@ from fastapi.responses import StreamingResponse
 
 from src.app.exceptions.custom_exceptions import *
 from src.app.services.dashboard_livestream_service import (
+    change_limit_angle_service,
     generate_raw_stream, 
     generate_processed_stream, 
     get_current_detections,
@@ -208,6 +209,12 @@ async def switch_mode(request: SwitchModeRequest):
       "success": False,
       "message": f"Failed to switch mode: {str(e)}"
     }
+
+
+@dashboard_livestream_router.post("/change-limit")
+async def change_limit_angle_router(request: ChangeLimitAngleRequest):
+  """Change virtual line limit vehicle object tracker"""
+  return change_limit_angle_service(request.degree_angle, request.side)
 
 
 # === WEBSOCKET ENDPOINTS ===

@@ -1,4 +1,5 @@
 import time
+import math
 import cv2
 import numpy as np
 import threading
@@ -337,5 +338,75 @@ def get_pipeline_status() -> dict:
     logging.error(f"Error getting pipeline status: {e}")
     return {
       "running": False,
+      "message": f"Error: {str(e)}"
+    }
+    
+
+def change_limit_angle_service(degree_angle: int, side: str) -> dict:
+  """
+  Receives limit angle: 30, 35, 45, 60, or 90 degrees.
+  Calculates new line limits based on the side ('left' or 'right').
+  """
+  try:
+    pipeline = get_pipeline()
+    
+    if pipeline is None:
+      return {
+        "limit": [400, 135, 80, 135],
+        "message" : "Detection pipeline not available"
+      }
+    
+    if degree_angle not in [30, 35, 45, 60, 90]:
+      pipeline.change_limit_angle([400, 135, 80, 135])
+      return {
+        "limit": [400, 135, 80, 135],
+        "message" : "Degree angle set to default"
+      }
+
+    # Frame dimensions
+    width, height = 480, 270
+    cx, cy = width // 2, height // 2
+    line_length = 320 / 2  # half of the horizontal span (160)
+
+    # Handle 90° case: vertical line through center
+    if degree_angle == 90:
+      pipeline.change_limit_angle([cx, 0, cx, height])
+      return {
+        "limit": [cx, 0, cx, height],
+        "message" : f"Angle set to {degree_angle}° (vertical)"
+      }
+
+    # Convert angle to radians
+    angle_rad = math.radians(degree_angle)
+
+    dx = int(line_length * math.cos(angle_rad))
+    dy = int(line_length * math.sin(angle_rad))
+
+    if side.lower() == "right":
+      # Slant up-right
+      x1, y1 = cx - dx, cy - dy
+      x2, y2 = cx + dx, cy + dy
+    elif side.lower() == "left":
+      # Slant up-left
+      x1, y1 = cx + dx, cy - dy
+      x2, y2 = cx - dx, cy + dy
+    else:
+      pipeline.change_limit_angle([400, 135, 80, 135])
+      return {
+        "limit": [400, 135, 80, 135],
+        "message" : "Invalid side. Fall back to horizontal"
+      }
+      
+    # change the limit in detection pipeline
+    pipeline.change_limit_angle([x1, y1, x2, y2])
+
+    return {
+      "limit": [x1, y1, x2, y2],
+      "message": f"Angle set to {degree_angle}° ({side})"
+    }
+  except Exception as e:
+    logging.error(f"Error changing virtual line limit: {e}")
+    return {
+      "limit": [400, 135, 80, 135], 
       "message": f"Error: {str(e)}"
     }

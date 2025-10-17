@@ -19,6 +19,7 @@ PUBLIC_ROUTES = {
   "/api/dashboard/livestream/detection-data",
   "/api/dashboard/livestream/stats",
   "/api/dashboard/livestream/switch-detection-mode",
+  "/api/dashboard/livestream/change-limit",
   "/api/dashboard/livestream/ws/detection-stream",
 }
 

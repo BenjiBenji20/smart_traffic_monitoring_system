@@ -1,6 +1,7 @@
 import logging
 import requests.exceptions
 from ultralytics import YOLO
+import math
 from src.traffic_ai.vehicle_detection.sort import *
 from src.traffic_ai.vehicle_detection.shared import detection_state
 import cv2
@@ -185,6 +186,7 @@ class OptimizedDetectionPipeline:
             self.initialized = False
             return False
     
+    
     def check_date_change(self):
         """Check if date has changed and reset counts if needed"""
         global today
@@ -200,6 +202,71 @@ class OptimizedDetectionPipeline:
             return True
         return False
 
+
+    def change_limit_angle(self, new_limits: list[int]) -> bool:
+        """Change limit angle based on user input"""
+        if not len(new_limits) == 4:
+            return False
+        
+        self.limits = new_limits
+        return True
+    
+    
+    def point_to_line_distance(self, px: int, py: int) -> float:
+        """
+        Calculate perpendicular distance from point (px, py) to the detection line.
+        Uses the formula: |Ax + By + C| / sqrt(A² + B²)
+        """
+        x1, y1, x2, y2 = self.limits
+        
+        # Handle vertical line (90 degrees)
+        if x1 == x2:
+            return abs(px - x1)
+        
+        # Handle horizontal line (default)
+        if y1 == y2:
+            return abs(py - y1)
+        
+        # General case: Calculate line equation Ax + By + C = 0
+        # From two points: (y2-y1)x - (x2-x1)y + (x2-x1)y1 - (y2-y1)x1 = 0
+        A = y2 - y1
+        B = x1 - x2
+        C = (x2 - x1) * y1 - (y2 - y1) * x1
+        
+        # Distance formula
+        distance = abs(A * px + B * py + C) / math.sqrt(A * A + B * B)
+        return distance
+
+
+    def is_point_on_line_segment(self, px: int, py: int, threshold: int = 20) -> bool:
+        """
+        Check if point (px, py) is near the line segment AND within bounds.
+        
+        Args:
+            px, py: Point coordinates (vehicle center)
+            threshold: Maximum distance from line to consider "crossing" (pixels)
+        
+        Returns:
+            True if point is near the line and within segment bounds
+        """
+        x1, y1, x2, y2 = self.limits
+        
+        # Step 1: Check perpendicular distance to line
+        distance = self.point_to_line_distance(px, py)
+        if distance > threshold:
+            return False
+        
+        # Step 2: Check if point is within the bounding box of line segment
+        min_x = min(x1, x2) - threshold
+        max_x = max(x1, x2) + threshold
+        min_y = min(y1, y2) - threshold
+        max_y = max(y1, y2) + threshold
+        
+        if not (min_x <= px <= max_x and min_y <= py <= max_y):
+            return False
+        
+        return True
+    
 
     def process_frame(self):
         """Process a single frame with detection and tracking"""
@@ -293,8 +360,7 @@ class OptimizedDetectionPipeline:
                 self.current_ids.add(track_id)
                 
                 # Check line crossing
-                if (min(self.limits[0], self.limits[2]) < cx < max(self.limits[0], self.limits[2]) and 
-                    self.limits[1] - 20 < cy < self.limits[1] + 20 and 
+                if (self.is_point_on_line_segment(cx, cy, threshold=25) and 
                     track_id not in self.crossed_vehicles):
                     
                     self.handle_vehicle_crossing(track_id, detected_objects, frame_detections, cx, cy)
@@ -552,4 +618,14 @@ def set_detection_mode(mode: str):
     with pipeline_lock:
         if pipeline:
             return pipeline.set_detection_mode(mode)
+        return False
+    
+    
+def change_limit_angle(new_limits: list[int]) -> bool:
+    """Service function call to set a new limit"""
+    global pipeline
+    
+    with pipeline_lock:
+        if pipeline and pipeline.running:
+            return pipeline.change_limit_angle(new_limits)
         return False
