@@ -17,11 +17,13 @@ interface LivestreamControlsProps {
   selectedSource: string | null;
   isStarting: boolean;
   isStopping: boolean;
+  selectedTracker: string;
   onStart: () => void;
   onStop: () => void;
   onModeSwitch: (mode: DetectionMode) => void;
   onSourceSelect: (source: string | null) => void;
   onTestConnection: () => void;
+  onTrackerChange: (degreeAngle: number, side: string) => void;
 }
 
 export function LivestreamControls({
@@ -31,12 +33,28 @@ export function LivestreamControls({
   selectedSource,
   isStarting,
   isStopping,
+  selectedTracker,
   onStart,
   onStop,
   onModeSwitch,
   onSourceSelect,
-  onTestConnection
+  onTestConnection,
+  onTrackerChange
 }: LivestreamControlsProps) {
+  // Parse tracker selection value
+  const handleTrackerChange = (value: string) => {
+    if (value === "default") {
+      // Default tracker - reset to horizontal
+      onTrackerChange(999, "default");
+      return;
+    }
+
+    // Parse "30 right" or "45 left" format
+    const [angleStr, side] = value.split(' ');
+    const angle = parseInt(angleStr);
+    onTrackerChange(angle, side);
+  };
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-800/30 rounded-lg border border-slate-700/50 w-fit">
       {/* Left: Source selection */}
@@ -46,7 +64,7 @@ export function LivestreamControls({
           onValueChange={(val: string | null) => onSourceSelect(val === 'auto' ? null : val)}
           disabled={isStreaming}
         >
-          <SelectTrigger className="w-[140px] h-8 text-xs bg-slate-700/50 border-slate-600">
+          <SelectTrigger className="w-[115px] h-8 text-xs bg-slate-700/50 border-slate-600">
             <SelectValue placeholder="Auto-detect" />
           </SelectTrigger>
           <SelectContent>
@@ -71,6 +89,31 @@ export function LivestreamControls({
         </Button>
       </div>
 
+      {/* Tracker selection */}
+      <div className="flex items-center gap-2">
+        <Select
+          value={selectedTracker} 
+          onValueChange={handleTrackerChange}
+          disabled={!isStreaming}
+        >
+          <SelectTrigger className="w-[115px] h-8 text-xs bg-slate-700/50 border-slate-600">
+            <SelectValue placeholder="Default Tracker" />Horizontal
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="default">Horizontal</SelectItem>
+            <SelectItem value="30 right">30° - Right</SelectItem>
+            <SelectItem value="35 right">35° - Right</SelectItem>
+            <SelectItem value="45 right">45° - Right</SelectItem>
+            <SelectItem value="60 right">60° - Right</SelectItem>
+            <SelectItem value="90 right">90° - Vertical</SelectItem>
+            <SelectItem value="30 left">30° - Left</SelectItem>
+            <SelectItem value="35 left">35° - Left</SelectItem>
+            <SelectItem value="45 left">45° - Left</SelectItem>
+            <SelectItem value="60 left">60° - Left</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Center: Mode toggle */}
       <div className="flex items-center gap-2">
         <Button
@@ -81,7 +124,7 @@ export function LivestreamControls({
           className="h-8 text-xs"
         >
           <Eye className="w-3 h-3 mr-1" />
-          Raw (No AI)
+          Raw
         </Button>
 
         <Button
@@ -92,7 +135,7 @@ export function LivestreamControls({
           className="h-8 text-xs"
         >
           <Bot className="w-3 h-3 mr-1" />
-          AI Processing
+          AI
         </Button>
       </div>
 

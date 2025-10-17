@@ -16,7 +16,7 @@ export interface VehicleCounts {
     motorcycle: number;
     jeepney: number;
     tricycle: number;
-} 
+}
 
 export interface StatsResponse {
     vehicle_counts: VehicleCounts;
@@ -51,4 +51,14 @@ export type DetectionMode = 'raw' | 'processed';
 export interface ScaleFactors {
     x: number;
     y: number;
+}
+
+export interface ChangeLimitAngleRequest {
+    degree_angle: number;
+    side: string;
+}
+
+export interface ChangeLimitAngleResponse {
+    limit: number [];
+    message: string;
 }

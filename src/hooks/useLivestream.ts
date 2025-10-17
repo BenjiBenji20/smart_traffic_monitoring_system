@@ -14,6 +14,7 @@ export function useLivestream() {
 
   const [isStarting, setIsStarting] = useState(false);
   const [isStopping, setIsStopping] = useState(false);
+  const [selectedTracker, setSelectedTracker] = useState<string>('0');
 
   const wsUnsubscribeRef = useRef<(() => void) | null>(null);
 
@@ -126,6 +127,33 @@ export function useLivestream() {
     }
   }, [isStreaming]);
 
+  const changeTrackerAngle = async (degreeAngle: number, side: string) => {
+    try {
+      if (degreeAngle === 0 || degreeAngle === 999) {
+        // Reset to default horizontal line
+        const response = await livestreamApi.changeLimitAngle({
+          degree_angle: 999,
+          side: 'default'
+        });
+        console.log('Tracker reset to default:', response.message);
+        setSelectedTracker("default");
+        return;
+      }
+
+      const response = await livestreamApi.changeLimitAngle({
+        degree_angle: degreeAngle,
+        side: side
+      });
+
+      console.log(`Tracker angle changed: ${degreeAngle}° ${side}`, response.limit);
+      setSelectedTracker(`${degreeAngle} ${side}`);
+      toast.success(`Tracker angle changed: ${degreeAngle}° ${side}`);
+    } catch (error) {
+      console.error('Failed to change tracker angle:', error);
+      toast.error(`Tracker angle not available.\nBack to default: ${degreeAngle}° ${side}`);
+    }
+  };
+
   const testConnection = useCallback(async () => {
     try {
       if (!selectedSource || selectedSource === 'auto') {
@@ -201,9 +229,11 @@ export function useLivestream() {
     detectionData,
     isStarting,
     isStopping,
+    selectedTracker,
     startLivestream,
     stopLivestream,
     switchMode,
+    changeTrackerAngle,
     testConnection,
     setSelectedSource
   };

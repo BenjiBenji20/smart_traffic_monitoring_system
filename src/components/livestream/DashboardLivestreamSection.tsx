@@ -16,11 +16,13 @@ export function DashboardLivestreamSection() {
     detectionData,
     isStarting,
     isStopping,
+    selectedTracker,
     startLivestream,
     stopLivestream,
     switchMode,
     testConnection,
-    setSelectedSource
+    setSelectedSource,
+    changeTrackerAngle  
   } = useLivestream();
 
   const { counts, totalCount } = useVehicleCounts({
@@ -80,11 +82,13 @@ export function DashboardLivestreamSection() {
             selectedSource={selectedSource}
             isStarting={isStarting}
             isStopping={isStopping}
+            selectedTracker={selectedTracker}
             onStart={startLivestream}
             onStop={stopLivestream}
             onModeSwitch={switchMode}
             onSourceSelect={setSelectedSource}
             onTestConnection={() => testConnection()}
+            onTrackerChange={changeTrackerAngle}
           />
         </div>
       </div>

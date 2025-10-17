@@ -7,7 +7,9 @@ import type {
   DetectionData,
   StatsResponse,
   ConnectionTestResponse,
-  DetectionMode
+  DetectionMode,
+  ChangeLimitAngleRequest,
+  ChangeLimitAngleResponse
 } from '@/types/livestream.types';
 
 const API_BASE = '/dashboard/livestream';
@@ -61,6 +63,16 @@ export const livestreamApi = {
       `${API_BASE}/switch-detection-mode`,
       { mode }
     );
+    return response.data;
+  },
+
+  // Change livestream virtual line angle (limit tracker)
+  async changeLimitAngle(request: ChangeLimitAngleRequest): Promise<ChangeLimitAngleResponse> {
+    const response = await securedRequest.post<ChangeLimitAngleResponse>(
+      `${API_BASE}/change-limit`,
+      request
+    );
+    
     return response.data;
   },
 
