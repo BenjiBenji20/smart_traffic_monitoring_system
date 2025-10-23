@@ -1,11 +1,9 @@
-// src/api/livestream_api.ts
 import securedRequest from "./authentication_api";
 import type {
   LivestreamStatus,
   StartLivestreamRequest,
   ApiResponse,
   DetectionData,
-  StatsResponse,
   ConnectionTestResponse,
   DetectionMode,
   ChangeLimitAngleRequest,
@@ -189,29 +187,5 @@ export const livestreamApi = {
    */
   isDetectionWebSocketConnected(): boolean {
     return detectionWebSocket !== null && detectionWebSocket.readyState === WebSocket.OPEN;
-  },
-
-  // ===== FALLBACK HTTP METHODS (for backwards compatibility) =====
-
-  /**
-   * DEPRECATED: Use WebSocket instead.
-   * Get current detection data (HTTP fallback)
-   */
-  async getDetectionData(): Promise<DetectionData> {
-    const response = await securedRequest.get<DetectionData>(
-      `${API_BASE}/detection-data`
-    );
-    return response.data;
-  },
-
-  /**
-   * DEPRECATED: Use WebSocket instead.
-   * Get vehicle stats (HTTP fallback)
-   */
-  async getStats(): Promise<StatsResponse> {
-    const response = await securedRequest.get<StatsResponse>(
-      `${API_BASE}/stats`
-    );
-    return response.data;
   }
 };

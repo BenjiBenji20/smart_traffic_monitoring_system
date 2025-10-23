@@ -27,7 +27,6 @@ export function DashboardLivestreamSection() {
 
   const { counts, totalCount } = useVehicleCounts({
     isStreaming,
-    pollingInterval: 2000
   });
 
   useEffect(() => {
