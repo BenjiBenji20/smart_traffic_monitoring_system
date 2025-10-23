@@ -162,7 +162,7 @@ class OptimizedDetectionPipeline:
             
             # Get class names directly from the model
             self.class_names = list(self.model.names.values())
-            print(f"✅ Model loaded with classes: {self.class_names}")
+            print(f"Model loaded with classes: {self.class_names}")
             
             # Initialize counts for all vehicle types from the model
             self.vehicle_class_counts = {cls: 0 for cls in self.class_names}
@@ -193,12 +193,12 @@ class OptimizedDetectionPipeline:
         current_date = pd.to_datetime(datetime.now()).date()
         
         if current_date != today:
-            print(f"📅 Date changed from {today} to {current_date}")
+            print(f"Date changed from {today} to {current_date}")
             today = current_date
             self.vehicle_class_counts = {cls: 0 for cls in self.class_names}
             self.total_count = []
             self.crossed_vehicles.clear()
-            print("🔄 Counts reset for new day")
+            print("Counts reset for new day")
             return True
         return False
 
@@ -307,6 +307,8 @@ class OptimizedDetectionPipeline:
         
         try:
             # Run YOLO without class filtering
+            # add conf level to .50 or more if model improves in the futre
+            # and used a better machine 
             results = self.model.predict(
                 frame, 
                 verbose=False, 
@@ -328,6 +330,10 @@ class OptimizedDetectionPipeline:
                         
                         # Get class name directly from model
                         class_name = self.model.names[cls]
+                        
+                        # skip bus obj detection. just remove this if requirementschange
+                        if class_name.lower() == "bus":
+                            continue
                         
                         frame_detections.append({
                             "label": class_name,
@@ -384,6 +390,10 @@ class OptimizedDetectionPipeline:
                         cls = int(box.cls[0])
                         conf = round(float(box.conf[0]), 2)
                         class_name = self.model.names[cls]
+                        
+                        # skip class bus obj
+                        if class_name.lower() == "bus":
+                            continue
                         
                         # Check if this detection is already being tracked
                         is_tracked = False
@@ -479,7 +489,7 @@ class OptimizedDetectionPipeline:
             self.vehicle_class_counts[vehicle_class] = 1
 
         total_persistent_count = self.get_persistent_total_count()
-        print(f"✅ VEHICLE COUNTED: {track_id} ({vehicle_class}) - Session: {len(self.total_count)}, Total: {total_persistent_count}")
+        print(f"VEHICLE COUNTED: {track_id} ({vehicle_class}) - Session: {len(self.total_count)}, Total: {total_persistent_count}")
         print(f"Current counts: {self.vehicle_class_counts}")
 
         # Update Firebase
@@ -511,7 +521,7 @@ class OptimizedDetectionPipeline:
                     firebase_queue.put((f"/detected_vehicle/{today}/individual_vehicle", 
                                       'push', self.vehicle_data[ex_id]))
                     
-                    print(f"🚗 Vehicle {ex_id} completed: {self.vehicle_data[ex_id]}")
+                    print(f"Vehicle {ex_id} completed: {self.vehicle_data[ex_id]}")
                     
                     del self.time_track[ex_id]
                     del self.vehicle_data[ex_id]
