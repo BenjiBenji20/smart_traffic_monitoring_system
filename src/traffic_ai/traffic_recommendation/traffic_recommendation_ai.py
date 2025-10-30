@@ -4,6 +4,7 @@ Mixtral 8x7B Instruct free api key from openrouter
 response time to answer sequentially the 5 propmpts -> 30 seconds
 """
 from openai import OpenAI
+from groq import Groq
 from dotenv import load_dotenv
 import sys
 import os
@@ -46,8 +47,7 @@ class AIRecommendation:
     # initialize client
     config()
 
-    self.client = OpenAI(
-      base_url="https://openrouter.ai/api/v1",
+    self.client = Groq(
       api_key=os.getenv('AI_API_KEY'),
     )
 
@@ -62,7 +62,7 @@ class AIRecommendation:
 
   def client_chat(self, prompt):
     self.completion = self.client.chat.completions.create(
-      model="mistralai/mixtral-8x7b-instruct",
+      model="openai/gpt-oss-120b",
       messages=[
         {
           "role": "user",

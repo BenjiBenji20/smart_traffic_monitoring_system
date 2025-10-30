@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import time
 from openai import OpenAI
+from groq import Groq
 from dotenv import load_dotenv
 import sys
 import os
@@ -44,8 +45,7 @@ class AITrafficFactorsAnalysis:
     
     load_dotenv()
     
-    self.client = OpenAI(
-      base_url="https://openrouter.ai/api/v1",
+    self.client = Groq(
       api_key=os.getenv('AI_API_KEY'),
     )
     
@@ -62,7 +62,7 @@ class AITrafficFactorsAnalysis:
     for attempt in range(self.max_retries):
       try:
         completion = self.client.chat.completions.create(
-          model="mistralai/mixtral-8x7b-instruct",
+          model="openai/gpt-oss-120b",
           messages=[{"role": "user", "content": prompt}],
           max_tokens=max_tokens,
           temperature=0.1,  
