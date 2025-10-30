@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 from src.app.exceptions.custom_exceptions import InvalidTokenException
 from src.app.models.user import User
 from src.app.services.register_user_service import register_user_service
-from src.app.services.auth_service import auth_user, generate_access_token, generate_refresh_token, get_current_user, refresh_token
+from src.app.services.auth_service import auth_user, generate_access_token, generate_refresh_token, refresh_token
 from src.app.db.db_session import get_async_db
+from src.app.dependencies.get_current_user_depends import get_current_user
 from src.app.schemas.user_schema import *
 from src.app.schemas.token_schema import Token
 

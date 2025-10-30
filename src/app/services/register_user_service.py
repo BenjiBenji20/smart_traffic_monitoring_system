@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from src.app.repositories.user_repository import search_user_by_username_repository
 from src.app.schemas.user_schema import RegisterUserSchema
 from src.app.models.user import User
 from src.app.utils.user_validation_utils import hash_password
@@ -8,18 +9,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# search existing user using username
-async def search_user_by_username(username: str, db: AsyncSession) -> User:
-  query = select(User).where(User.username == username)
-  res = await db.execute(query)
-  user = res.scalar_one_or_none()
-  return user
-
 
 async def register_user_service(new_user: RegisterUserSchema, db: AsyncSession) -> User:
   try:
     # validate user existance
-    user = await search_user_by_username(new_user.username, db)
+    user = await search_user_by_username_repository(new_user.username, db)
     if user:
         raise DuplicateEntryException(f"User with {new_user.username} as username already exists.")
 

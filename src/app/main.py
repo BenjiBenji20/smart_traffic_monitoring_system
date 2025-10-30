@@ -28,6 +28,7 @@ from src.app.routes.dashboard_user_router import dashboard_user_router
 from src.app.routes.dashboard_livestream_router import dashboard_livestream_router
 from src.app.routes.dashboard_download_report_file_router import dl_file_router
 from src.app.routes.dashboard_history_router import dashboard_history_router
+from app.routes.dashboard_user_action_router import dashboard_user_action_router
 
 # configurations
 from src.app.core.cors_config import cors_middleware
@@ -185,6 +186,7 @@ app.include_router(dashboard_user_router)
 app.include_router(dashboard_livestream_router)
 app.include_router(dl_file_router)
 app.include_router(dashboard_history_router)
+app.include_router(dashboard_user_action_router)
 
 # regiustering global exeception handler
 app.add_exception_handler(InternalServerError, internal_server_error_handler)

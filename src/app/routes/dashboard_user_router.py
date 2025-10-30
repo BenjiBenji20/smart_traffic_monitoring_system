@@ -4,7 +4,7 @@ import asyncio
 from src.app.models.user import User
 from src.app.schemas.user_schema import UserSchema
 from src.app.exceptions.custom_exceptions import *
-from src.app.services.auth_service import get_current_user
+from src.app.dependencies.get_current_user_depends import get_current_user
 
 from src.app.schemas.request_schema import AdminPredictionRequest, EndUserPredictionRequest
 

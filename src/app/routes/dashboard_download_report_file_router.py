@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 from src.app.schemas.request_schema import DownloadDataRequest, PDFRequest
 from src.app.models.user import User
-from src.app.services.auth_service import get_current_user
+from src.app.dependencies.get_current_user_depends import get_current_user
 from src.app.services.report_file_service import *
 from src.app.exceptions.custom_exceptions import FileDownloadException
 

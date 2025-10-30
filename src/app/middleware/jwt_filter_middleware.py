@@ -11,7 +11,7 @@ from src.app.db.db_session import get_async_db
 from src.app.core.address import PUBLIC_ROUTES
 from src.app.exceptions.custom_exceptions import *
 from src.app.core.settings import settings
-from src.app.services.register_user_service import search_user_by_username
+from src.app.repositories.user_repository import search_user_by_username_repository
 from src.app.utils.error_response import error_response
 
 
@@ -44,7 +44,7 @@ class JWTFilterMiddleware(BaseHTTPMiddleware):
       # extract user from db
       # create DB session from generator
       async for db in get_async_db():
-        user: User = await search_user_by_username(username, db)
+        user: User = await search_user_by_username_repository(username, db)
         
       if user is None:
         return error_response(detail=f"User with {username} username not found..", error_code="NOT_FOUND", status_code=404)
