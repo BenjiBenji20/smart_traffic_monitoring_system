@@ -1,3 +1,4 @@
+// pages/dashboard/DashboardPage.tsx
 import { DashboardSidebar } from "../../components/sidebar/DashboardSidebar"
 import { DashboardNav } from "../../components/nav/DashboardNav"
 import { useCallback, useEffect, useState } from "react"
@@ -29,6 +30,8 @@ import type { FileDownloadPayload } from "@/types/download_file.types";
 import { DownloadButton } from "@/components/download-button/DownloadButton";
 import { ChartCaptureService } from "@/services/chart-capture-service";
 import { HiddenChartRenderer } from "@/components/chart/HiddenChartRenderer";
+import { ChatProvider } from "@/contexts/ChatContext";
+import { ChatContainer } from "@/components/chat/ChatContainer";
 
 export function DashboardPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
@@ -41,24 +44,19 @@ export function DashboardPage() {
     const [requestRecommendationData, setRequestRecommendationData] =
         useState<trafficRecommendationStr | null>(null);
 
-    // Add state for prediction request loading
     const [isPredictionLoading, setIsPredictionLoading] = useState(false);
-    // Add timestamp to force re-animation on new requests
     const [requestTimestamp, setRequestTimestamp] = useState(0);
 
-    // Prediction Data
     const [predictionSummaryData, setPredictionSummaryData] = useState<PredictionSummary | null>(null);
     const [predictionDetailData, setPredictionDetailData] = useState<PredictionData | null>(null);
     const [predictionFactorsAnalysisData, setPredictionFactorsAnalysisData] =
         useState<PredictionFactorsAnalysis | null>(null);
 
-    // Prediction AI Recommendation
     const [recommendationDetailData, setRecommendationDetailData] =
         useState<trafficRecommendationDict | null>(null);
     const [recommendationFactorsAnalysisData, setRecommendationFactorsAnalysisData] =
         useState<trafficFactorsAnalysis | null>(null);
 
-    // Download button
     const [downloadPayload, setDownloadPayload] = useState<FileDownloadPayload | null>(null);
 
     const chartCaptureService = new ChartCaptureService();
@@ -67,7 +65,6 @@ export function DashboardPage() {
     const handleChartsReady = useCallback((chartRefs: Map<string, HTMLDivElement>) => {
         chartCaptureService.registerChartContainers(chartRefs);
         setIsChartsReady(true);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const navigator = useNavigate();
@@ -76,9 +73,8 @@ export function DashboardPage() {
         const fetchAllDashboardData = async () => {
             try {
                 setIsLoading(true);
-                setIsChartsReady(false); // Reset charts ready state
+                setIsChartsReady(false);
 
-                // wait for your auth context to be ready
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 const user = await getUserProfile();
@@ -86,25 +82,19 @@ export function DashboardPage() {
 
                 const predictionSummaryRes = await predictionSummary();
                 setPredictionSummaryData(predictionSummaryRes);
-                // console.log("\npredictionSummaryRes", predictionSummaryRes);
 
                 const predictionDetailRes = await predictionDetail();
                 setPredictionDetailData(predictionDetailRes);
-                // console.log("\npredictionDetailRes", predictionDetailRes);
 
                 const predictionFactorsAnalysisRes = await predictionFactorsAnalysis();
                 setPredictionFactorsAnalysisData(predictionFactorsAnalysisRes);
-                // console.log("\npredictionFactorsAnalysisRes", predictionFactorsAnalysisRes);
 
                 const recommendationDetailRes = await recommendationDict();
                 setRecommendationDetailData(recommendationDetailRes);
-                // console.log("\nrecommendationDetailRes", recommendationDetailRes);
 
                 const recommendationFactorsAnalysisRes = await recommendationFactorsAnalysis();
                 setRecommendationFactorsAnalysisData(recommendationFactorsAnalysisRes);
-                // console.log("\nrecommendationFactorsAnalysisRes", recommendationFactorsAnalysisRes);
 
-                // pass each fetched data to download payload to use in button
                 setDownloadPayload({
                     prediction_summary: predictionSummaryRes,
                     prediction_detail: predictionDetailRes,
@@ -127,16 +117,14 @@ export function DashboardPage() {
 
     const handlePredictionRequest = async (endDate: string) => {
         try {
-            setIsPredictionLoading(true); // Set prediction loading state
+            setIsPredictionLoading(true);
 
-            // Fetch prediction data
             const predictionData = await predictionRequest({ end: endDate });
             setRequestPredictionData(predictionData);
 
             const recommendationData = await recommendationStr({ end: endDate });
             setRequestRecommendationData(recommendationData);
 
-            // Update timestamp to force re-animation
             setRequestTimestamp(Date.now());
 
             setIsError(false);
@@ -146,7 +134,7 @@ export function DashboardPage() {
             setIsError(true);
             toast.error("Failed to load prediction request data");
         } finally {
-            setIsPredictionLoading(false); // Reset prediction loading
+            setIsPredictionLoading(false);
         }
     };
 
@@ -169,15 +157,13 @@ export function DashboardPage() {
                             onGoHome={() => navigator('/')}
                         />
                     ) : (
-                        <>
+                        <ChatProvider currentUserId={userData.id}>
                             <div className="fixed top-0 left-0 right-0 z-50">
                                 <DashboardNav userData={userData} />
                             </div>
 
-                            {/* Main content with sidebar offset */}
                             <main className="ml-64 pt-16 min-h-screen">
                                 <div className="flex">
-                                    {/* Left side - Main content */}
                                     <div className="flex-1 p-6">
                                         <div className="space-y-6">
                                             <DashboardSidebar userData={userData} />
@@ -185,9 +171,7 @@ export function DashboardPage() {
                                                 <DashboardLivestreamSection />
                                             </div>
 
-                                            {/* ALL SECTIONS */}
                                             <div className="space-y-6 max-w-[845px]">
-                                                {/* Prediction Summary Section */}
                                                 <div id="prediction-summary-section">
                                                     <PredictionSummarySection
                                                         summaryData={predictionSummaryData}
@@ -197,7 +181,6 @@ export function DashboardPage() {
                                                     />
                                                 </div>
 
-                                                {/* Prediction Detail Section */}
                                                 <div id="prediction-detailed-section">
                                                     <PredictionDetailSection
                                                         predictionChartData={predictionDetailData}
@@ -207,7 +190,6 @@ export function DashboardPage() {
                                                     />
                                                 </div>
 
-                                                {/* Prediction Factors Section */}
                                                 <div id="prediction-factors-section">
                                                     <PredictionFactorsSection
                                                         predictionChartData={predictionFactorsAnalysisData}
@@ -218,13 +200,11 @@ export function DashboardPage() {
                                                 </div>
 
                                                 <div id="download-reports-section">
-                                                    {/* Hidden Chart Renderer for PDF */}
                                                     <HiddenChartRenderer
                                                         data={predictionDetailData}
                                                         onChartsReady={handleChartsReady}
                                                     />
 
-                                                    {/* Download Button with Modal */}
                                                     <DownloadButton
                                                         payload={downloadPayload!}
                                                         disabled={!downloadPayload || !isChartsReady}
@@ -235,7 +215,6 @@ export function DashboardPage() {
                                         </div>
                                     </div>
 
-                                    {/* Right side - Fixed Prediction Panel */}
                                     <div className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
                                         <RequestPrediction
                                             requestPredictionData={requestPredictionData}
@@ -247,7 +226,10 @@ export function DashboardPage() {
                                     </div>
                                 </div>
                             </main>
-                        </>
+
+                            {/* Chat Container - renders all open chats */}
+                            <ChatContainer />
+                        </ChatProvider>
                     )}
         </>
     );

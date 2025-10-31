@@ -4,7 +4,7 @@
 import { cn } from "@/lib/utils"
 import { SidebarMenuItem } from "@/components/sidebar/sidebar-menu-item"
 import { Submenu } from "@/components/sidebar/submenu"
-import { Home, BarChart, Mail, Settings, History } from "lucide-react"
+import { Home, BarChart, History } from "lucide-react"
 import { Profile } from "@/components/ui/profile"
 import type { UserModel } from "@/types/user_model"
 import { useLocation } from "react-router"
@@ -17,15 +17,8 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
     // Determine active state based on current path
     const isDashboardActive = location.pathname === "/dashboard";
     const isHistoryActive = location.pathname === "/history";
-    const isMessagesActive = location.pathname === "/messages";
-    const isSettingsActive = location.pathname === "/settings";
-
-
-    const handleUserSelect = (user: UserModel) => {
-        console.log("Selected user for chat:", user);
-        // This will be connected to chat functionality later
-        // For now, just log the selected user
-    };
+    // const isMessagesActive = location.pathname === "/messages";
+    // const isSettingsActive = location.pathname === "/settings";
 
     return (
         <div className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background z-40">
@@ -44,8 +37,16 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                         isCollapsed={isCollapsed}
                     />
 
+                    <SidebarMenuItem
+                        icon={<History className="h-4 w-4" />}
+                        name="History"
+                        href="/history"
+                        isActive={isHistoryActive}
+                        isCollapsed={isCollapsed}
+                    />
+
                     <Submenu
-                        title="Section"
+                        title="Page Section"
                         icon={<BarChart className="h-4 w-4" />}
                         defaultOpen={false}
                         isCollapsed={isCollapsed}
@@ -85,33 +86,27 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
 
                     <UserListDropdown
                         isCollapsed={isCollapsed}
-                        onUserSelect={handleUserSelect}
                     />
 
-                    <SidebarMenuItem
+                    {/* TO IMPLEMENT CHAT PAGE IF HAVE TIME BEFORE THE DEADLINE */}
+                    {/* <SidebarMenuItem
                         icon={<Mail className="h-4 w-4" />}
                         name="Messages"
                         href="/messages"
                         isActive={isMessagesActive}
                         badge="5"
                         isCollapsed={isCollapsed}
-                    />
+                    /> */}
 
-                    <SidebarMenuItem
-                        icon={<History className="h-4 w-4" />}
-                        name="History"
-                        href="/history"
-                        isActive={isHistoryActive}
-                        isCollapsed={isCollapsed}
-                    />
 
-                    <SidebarMenuItem
+
+                    {/* <SidebarMenuItem
                         icon={<Settings className="h-4 w-4" />}
                         name="Settings"
                         href="/settings"
                         isActive={isSettingsActive}
                         isCollapsed={isCollapsed}
-                    />
+                    /> */}
                 </div>
 
                 {/* User Profile Footer */}

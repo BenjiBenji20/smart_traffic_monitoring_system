@@ -1,26 +1,30 @@
-// components/sidebar/user-list-dropdown.tsx
+/**
+ * TO IMPLEMENT GROUP CHAT IF HAVE TIME LEFT BEFORE THE DEADLINE.
+ * 
+ */
+
 "use client"
 
 import { useState, useEffect } from "react";
-import { Users, ChevronDown } from "lucide-react";
+import { Users, ChevronDown, UsersRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserListItem } from "@/components/sidebar/user-list-item";
 import { getAllUsers } from "@/api/user_api";
 import type { UserModel } from "@/types/user_model";
+import { useChat } from "@/contexts/ChatContext";
+import { Button } from "@/components/ui/button";
 
 interface UserListDropdownProps {
     isCollapsed?: boolean;
-    onUserSelect?: (user: UserModel) => void;
 }
 
 export function UserListDropdown({
     isCollapsed = false,
-    onUserSelect
 }: UserListDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [users, setUsers] = useState<UserModel[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
+    const { openPersonalChat } = useChat();
 
     // Fetch users when dropdown opens
     useEffect(() => {
@@ -41,9 +45,8 @@ export function UserListDropdown({
         }
     };
 
-    const handleUserClick = (user: UserModel) => {
-        setSelectedUser(user);
-        onUserSelect?.(user);
+    const handleUserClick = async (user: UserModel) => {
+        await openPersonalChat(user);
     };
 
     const handleDropdownToggle = (e: React.MouseEvent) => {
@@ -87,12 +90,12 @@ export function UserListDropdown({
                 )}
             </button>
 
-            {/* Dropdown Content - Now in document flow, not absolute */}
+            {/* Dropdown Content */}
             {isOpen && (
                 <div
                     className={cn(
                         "mt-2 bg-background rounded-lg shadow-lg border overflow-hidden transition-all duration-200",
-                        "max-h-80" // Limit height to prevent overflow
+                        "max-h-80"
                     )}
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -119,14 +122,30 @@ export function UserListDropdown({
                                 <UserListItem
                                     key={user.id}
                                     user={user}
-                                    isSelected={selectedUser?.id === user.id}
+                                    isSelected={false}
                                     onClick={handleUserClick}
                                 />
                             ))
                         )}
                     </div>
 
-                    {/* Close button for better UX */}
+                    {/* Group Chat Button */}
+                    <div className="border-t p-2 bg-muted/30">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => {
+                                // TODO: Open group chat creation modal
+                                console.log("Create group chat");
+                            }}
+                        >
+                            <UsersRound className="h-4 w-4 mr-2" />
+                            Create Group Chat
+                        </Button>
+                    </div>
+
+                    {/* Close button */}
                     <div className="border-t p-2 bg-muted/30">
                         <button
                             onClick={() => setIsOpen(false)}

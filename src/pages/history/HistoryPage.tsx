@@ -1,3 +1,4 @@
+// pages/history/HistoryPage.tsx
 import { DashboardNav } from "@/components/nav/DashboardNav";
 import { ErrorPage } from "../error/ErrorPage";
 import { useNavigate } from "react-router";
@@ -17,6 +18,8 @@ import { ChartCaptureService } from "@/services/chart-capture-service";
 import type { PredictionData, PredictionSummary } from "@/types/prediction.types";
 import type { trafficRecommendationDict } from "@/types/ai_recommendation.types";
 import { HistoryPageSkeleton } from "@/components/skeleton/HistoryPageSkeleton";
+import { ChatProvider } from "@/contexts/ChatContext";
+import { ChatContainer } from "@/components/chat/ChatContainer";
 
 
 export function HistoryPage() {
@@ -30,7 +33,6 @@ export function HistoryPage() {
 
     const navigator = useNavigate();
 
-    // on click when version is selected
     const handleVersionSelect = async (id: string) => {
         const historyResponse = await getOneHistoryRecord(id);
         setHistoryData(historyResponse);
@@ -41,7 +43,6 @@ export function HistoryPage() {
             try {
                 setIsLoading(true);
 
-                // wait for your auth context to be ready
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 const user = await getUserProfile();
@@ -50,7 +51,6 @@ export function HistoryPage() {
                 const historyListResponse = await getAllHistoryRecord();
                 setHistoryListData(historyListResponse);
 
-                // Auto-load the first history record
                 if (historyListResponse.data.length > 0) {
                     const firstRecord = historyListResponse.data[0];
                     await handleVersionSelect(firstRecord.id);
@@ -76,14 +76,12 @@ export function HistoryPage() {
     const handleChartsReady = useCallback((chartRefs: Map<string, HTMLDivElement>) => {
         chartCaptureService.registerChartContainers(chartRefs);
         setIsChartsReady(true);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleVersionUpdate = async (id: string, newName: string) => {
         try {
             const success = await updateVersionName(id, newName);
             if (success) {
-                // Update local state
                 setHistoryListData(prev =>
                     prev ? {
                         ...prev,
@@ -98,12 +96,12 @@ export function HistoryPage() {
             }
         } catch (error) {
             toast.error('Failed to update version name');
-            throw error; // Re-throw to let component handle loading state
+            throw error;
         }
     };
 
     if (isLoading) {
-        return <><HistoryPageSkeleton /></>; // return history page skeleton
+        return <><HistoryPageSkeleton /></>;
     }
 
     return (
@@ -119,27 +117,23 @@ export function HistoryPage() {
                             onGoHome={() => navigator('/')}
                         />
                     ) : (
-                        <>
+                        <ChatProvider currentUserId={userData.id}>
                             <div className="fixed top-0 left-0 right-0 z-50">
                                 <DashboardNav userData={userData} />
                             </div>
 
-                            {/* Main content with sidebar offset */}
                             <main className="ml-64 pt-16 min-h-screen">
                                 <div className="flex">
-                                    {/* Left side - Main content */}
                                     <div className="flex-1 p-6">
                                         <div className="space-y-6">
                                             <DashboardSidebar userData={userData} />
 
-                                            {/* ALL SECTIONS */}
                                             <div className="space-y-6 max-w-[845px]">
                                                 {historyData && (
                                                     <div className="space-y-6">
                                                         <h2 className="text-xl font-bold mb-4">
                                                             {historyData.version_name}
                                                         </h2>
-                                                        {/* Prediction Summary Section */}
                                                         <PredictionSummarySection
                                                             summaryData={
                                                                 historyData.prediction_summary as PredictionSummary
@@ -149,7 +143,6 @@ export function HistoryPage() {
                                                             requestTimestamp={0}
                                                         />
 
-                                                        {/* Prediction Detail Section */}
                                                         <div id="prediction-detailed-section">
                                                             <PredictionDetailSection
                                                                 predictionChartData={historyData.prediction_detail}
@@ -160,13 +153,11 @@ export function HistoryPage() {
                                                         </div>
 
                                                         <div id="download-reports-section">
-                                                            {/* Hidden Chart Renderer for PDF */}
                                                             <HiddenChartRenderer
                                                                 data={historyData.prediction_detail}
                                                                 onChartsReady={handleChartsReady}
                                                             />
 
-                                                            {/* Download Button with Modal */}
                                                             <DownloadButton
                                                                 payload={{
                                                                     prediction_summary:
@@ -186,7 +177,6 @@ export function HistoryPage() {
                                         </div>
                                     </div>
 
-                                    {/* Right side - Fixed History Sidebar */}
                                     <div className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
                                         <HistoryListSidebar
                                             historyData={historyListData.data}
@@ -197,7 +187,10 @@ export function HistoryPage() {
                                     </div>
                                 </div>
                             </main>
-                        </>
+
+                            {/* Chat Container - renders all open chats */}
+                            <ChatContainer />
+                        </ChatProvider>
                     )}
         </>
     );
