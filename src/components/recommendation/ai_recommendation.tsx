@@ -50,25 +50,30 @@ export function AIRecommendation({
     const getTextForPeriod = (): string => {
         if (!data) return '';
 
+        let rawText = '';
+
         if (typeof data === 'string') {
-            return data;
-        }
+            rawText = data;
+        } else {
+            const possibleKeys = [
+                `${currentPeriod}_reco`,
+                `${currentPeriod}_anal`,
+                currentPeriod,
+                `${currentPeriod}Reco`,
+                `${currentPeriod}Anal`
+            ];
 
-        const possibleKeys = [
-            `${currentPeriod}_reco`,
-            `${currentPeriod}_anal`,
-            currentPeriod,
-            `${currentPeriod}Reco`,
-            `${currentPeriod}Anal`
-        ];
-
-        for (const key of possibleKeys) {
-            if (data[key]) {
-                return data[key];
+            for (const key of possibleKeys) {
+                if (data[key]) {
+                    rawText = data[key];
+                    break;
+                }
             }
         }
 
-        return '';
+        // Clean the text by removing ** markers
+        const cleanText = rawText.replace(/\*\*/g, '');
+        return cleanText || '';
     };
 
     const fullText = getTextForPeriod();

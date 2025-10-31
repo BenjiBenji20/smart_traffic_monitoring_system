@@ -4,7 +4,11 @@ import { DashboardNavSkeleton } from "./dashboard-nav-skeleton";
 import { DashboardSidebarSkeleton } from "./dashboard-sidebar-skeleton";
 import { RequestPredictionSkeleton } from "./request-prediction-skeleton";
 
-export function DashboardPageSkeleton() {
+interface RoleProps {
+    role: string;
+}
+
+export function DashboardPageSkeleton({ role }: RoleProps) {
 
     return (
         <>
@@ -19,9 +23,11 @@ export function DashboardPageSkeleton() {
                     {/* Left side - Main content */}
                     <div className="flex-1 p-6">
                         <div className="space-y-6">
-                            <div className="space-y-6">
-                                <LivestreamContainerSkeleton />
-                            </div>
+                            {role === "admin" && (
+                                <div className="space-y-6">
+                                    <LivestreamContainerSkeleton />
+                                </div>
+                            )}
 
                             {/* ALL SECTIONS */}
                             <div className="space-y-6 max-w-[830px]">

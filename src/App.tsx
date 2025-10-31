@@ -9,8 +9,6 @@ import { HistoryPage } from "./pages/history/HistoryPage";
 
 function App() {
 
-    
-
     return (
         <>
             <Routes>

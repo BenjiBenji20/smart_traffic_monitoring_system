@@ -139,7 +139,7 @@ export function DashboardPage() {
     };
 
     if (isLoading) {
-        return <div><DashboardPageSkeleton /></div>;
+        return <div><DashboardPageSkeleton role={userData?.role ?? ""} /></div>;
     }
 
     return (
@@ -167,9 +167,13 @@ export function DashboardPage() {
                                     <div className="flex-1 p-6">
                                         <div className="space-y-6">
                                             <DashboardSidebar userData={userData} />
-                                            <div id="livestream-section">
-                                                <DashboardLivestreamSection />
-                                            </div>
+
+                                            {/* implemented simple role-based wrapper component for MVP */}
+                                            {userData?.role === "admin" && (
+                                                <div id="livestream-section">
+                                                    <DashboardLivestreamSection />
+                                                </div>
+                                            )}
 
                                             <div className="space-y-6 max-w-[845px]">
                                                 <div id="prediction-summary-section">

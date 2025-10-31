@@ -51,12 +51,15 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                         defaultOpen={false}
                         isCollapsed={isCollapsed}
                     >
-                        <SidebarMenuItem
-                            name="Traffic Livestream"
-                            href="/dashboard"
-                            sectionId="livestream-section"
-                            isCollapsed={isCollapsed}
-                        />
+                        {/* implemented simple role-based wrapper component for MVP */}
+                        {userData?.role === "admin" && (
+                            <SidebarMenuItem
+                                name="Traffic Livestream"
+                                href="/dashboard"
+                                sectionId="livestream-section"
+                                isCollapsed={isCollapsed}
+                            />
+                        )}
                         <SidebarMenuItem
                             name="Prediction Summary"
                             href="/dashboard"
