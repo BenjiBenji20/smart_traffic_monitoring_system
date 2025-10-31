@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import type { UserModel } from "@/types/user_model";
 
-function ProfileAvatar({ username, className = "" }: { username: string; className?: string }) {
+export function ProfileAvatar({ username, className = "" }: { username: string; className?: string }) {
     const firstLetter = username.charAt(0).toUpperCase();
     const bgColor = getAvatarColor(username);
 

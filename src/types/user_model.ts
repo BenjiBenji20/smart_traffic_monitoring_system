@@ -8,4 +8,5 @@ export type UserModel = {
     complete_name: string;
     complete_address: string;
     age: number;
+    is_active: boolean
 }

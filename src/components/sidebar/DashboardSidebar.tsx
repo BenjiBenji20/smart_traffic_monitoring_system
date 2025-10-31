@@ -4,21 +4,28 @@
 import { cn } from "@/lib/utils"
 import { SidebarMenuItem } from "@/components/sidebar/sidebar-menu-item"
 import { Submenu } from "@/components/sidebar/submenu"
-import { Home, BarChart, Users, Mail, Settings, History } from "lucide-react"
+import { Home, BarChart, Mail, Settings, History } from "lucide-react"
 import { Profile } from "@/components/ui/profile"
 import type { UserModel } from "@/types/user_model"
 import { useLocation } from "react-router"
+import { UserListDropdown } from "./user-list-dropdown"
 
 export function DashboardSidebar({ userData }: { userData: UserModel }) {
     const isCollapsed = false;
     const location = useLocation(); // Get current route
-    
+
     // Determine active state based on current path
     const isDashboardActive = location.pathname === "/dashboard";
     const isHistoryActive = location.pathname === "/history";
-    const isUsersActive = location.pathname === "/users";
     const isMessagesActive = location.pathname === "/messages";
     const isSettingsActive = location.pathname === "/settings";
+
+
+    const handleUserSelect = (user: UserModel) => {
+        console.log("Selected user for chat:", user);
+        // This will be connected to chat functionality later
+        // For now, just log the selected user
+    };
 
     return (
         <div className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background z-40">
@@ -76,12 +83,9 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                         />
                     </Submenu>
 
-                    <SidebarMenuItem
-                        icon={<Users className="h-4 w-4" />}
-                        name="Users"
-                        isActive={isUsersActive}
-                        href="/users"
+                    <UserListDropdown
                         isCollapsed={isCollapsed}
+                        onUserSelect={handleUserSelect}
                     />
 
                     <SidebarMenuItem
