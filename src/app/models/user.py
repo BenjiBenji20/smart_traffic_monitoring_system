@@ -2,6 +2,8 @@ from sqlalchemy import Column, String, DateTime, Integer, Boolean
 from sqlalchemy import Enum as SQLAlchemyEnum
 from src.app.db.base import Base
 from datetime import datetime, timezone
+from sqlalchemy.orm import relationship
+from src.app.models.chat_members import chat_members
 import uuid
 
 from src.app.models.role import Role
@@ -28,3 +30,6 @@ class User(Base):
   banned_until = Column(DateTime(timezone=True), nullable=True)
   last_login = Column(DateTime(timezone=True), nullable=True)
   is_active = Column(Boolean, default=False, nullable=False)
+  
+  chats = relationship("Chat", secondary=chat_members, back_populates="members")
+  messages = relationship("ChatMessage", back_populates="user")

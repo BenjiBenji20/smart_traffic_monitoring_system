@@ -9,9 +9,10 @@ from sqlalchemy import select
 # db, model and schema
 from src.app.db.db_session import engine, async_session
 from src.app.db.base import Base
-from src.app.models.user import User  # ensure it's imported so Base knows the model
+from src.app.models.user import User  
 from src.app.models.history import History
 from src.app.schemas.history_schema import HistorySchema
+from src.app.models.chat import Chat, ChatMessage
 
 from sqlalchemy.ext.asyncio import AsyncSession
 

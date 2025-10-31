@@ -50,6 +50,7 @@ class UserSchema(BaseModel):
   complete_name: str 
   complete_address: str 
   age: int 
+  is_active: bool
 
 class Config:
   from_attributes = True

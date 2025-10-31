@@ -2,13 +2,11 @@ from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 import jwt 
 from jwt import InvalidTokenError, ExpiredSignatureError
-from starlette import status
-from fastapi.responses import JSONResponse
 from datetime import datetime, timezone
 
 from src.app.models.user import User
 from src.app.db.db_session import get_async_db
-from src.app.core.address import PUBLIC_ROUTES
+from src.app.core.address import match_uri
 from src.app.exceptions.custom_exceptions import *
 from src.app.core.settings import settings
 from src.app.repositories.user_repository import search_user_by_username_repository
@@ -20,7 +18,7 @@ class JWTFilterMiddleware(BaseHTTPMiddleware):
     path = request.url.path
 
     # check if the request url path is a public route
-    if path in PUBLIC_ROUTES:
+    if match_uri(str(path)):
       # no need for token validation
       return await call_next(request)
     
