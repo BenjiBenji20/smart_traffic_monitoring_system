@@ -1,9 +1,13 @@
 from datetime import datetime, timezone
 from typing import List
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import logging
 
+from src.app.utils.user_validation_utils import hash_password
+from src.app.services.auth_service import auth_user
+from src.app.schemas.user_schema import UpdateUserProfileSchema, UserSchema, AuthUserSchema
 from src.app.repositories.user_repository import (
     all_pending_registration_repository,
     search_pending_registration_repository,
@@ -14,7 +18,8 @@ from src.app.repositories.user_repository import (
     get_user_by_id_repository,
     delete_active_user_repository,
     all_archive_active_users_repository,
-    search_archived_active_user_repository
+    search_archived_active_user_repository,
+    search_user_by_username_repository
 )
 from src.app.models.user import ActiveUserArchives, ArchivePendingUser, PendingUser, User
 from src.app.exceptions.custom_exceptions import *
@@ -308,3 +313,82 @@ async def delete_active_user_service(db: AsyncSession, id: str, username: str) -
         await db.rollback()
         logger.error(f"Error deleting archived user {id}: {str(e)}")
         raise InternalServerError("Failed to delete the archived user.")
+        
+            
+async def update_user_profile_service(
+    db: AsyncSession, 
+    id: str, 
+    update_data: UpdateUserProfileSchema,
+    current_user: UserSchema  
+) -> User:
+    """
+        Update user profile with current admin credential verification
+        [action allowed only for admin]
+    """
+    try:
+        # Authenticate admin credentials - handle exceptions from auth_user
+        try:
+            admin: User = await auth_user(
+                update_data.username, 
+                update_data.password, 
+                db
+            )
+        except (ResourceNotFoundException, UnauthorizedAccessException):
+            raise UnauthorizedAccessException("Invalid admin credentials")
+        
+        # Verify the authenticated admin matches the current user
+        if admin.id != current_user.id:
+            raise ForbiddenAccessException("Credentials do not match current user")
+        
+        # Fetch the user to be updated
+        user_to_update: User = await get_user_by_id_repository(db, id)
+        if user_to_update is None:
+            logger.error(f"User to update not found with id: {id}")
+            raise ResourceNotFoundException(f"User not found with id: {id}")
+        
+        # Check if username is being changed and if it's available
+        if update_data.update_info.username != user_to_update.username:
+            existing_user = await search_user_by_username_repository(
+                update_data.update_info.username, db
+            )
+            if existing_user and existing_user.id != id:
+                raise DuplicateEntryException("Username already taken")
+        
+        # Get update data
+        update_info = update_data.update_info
+        
+        # Build update dictionary
+        update_dict = {
+            "username": update_info.username,
+            "complete_name": update_info.complete_name,
+            "complete_address": update_info.complete_address,
+            "age": update_info.age,
+            "role": update_info.role,
+        }
+        
+        # Add password if provided (and hash it)
+        if update_info.password:
+            update_dict["password_hash"] = hash_password(update_info.password)
+        
+        # update statement
+        stmt = (
+            update(User)
+            .where(User.id == id)
+            .values(**update_dict)
+        )
+        
+        await db.execute(stmt)
+        await db.commit()
+        
+        # Fetch the updated user
+        updated_user = await get_user_by_id_repository(db, id)
+        await db.refresh(updated_user)
+        
+        logger.info(f"Successfully updated user profile {updated_user.complete_name}")
+        return updated_user
+        
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Error updating user profile {id}: {str(e)}")
+        raise InternalServerError("Failed to update user profile")
+    

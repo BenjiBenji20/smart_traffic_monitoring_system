@@ -4,6 +4,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.app.dependencies.get_current_user_depends import get_current_user
 from src.app.models.user import User
 from src.app.exceptions.custom_exceptions import *
 from src.app.models.role import Role
@@ -21,9 +22,16 @@ from src.app.services.dashboard_crud_service import (
     archive_active_user_service,
     all_archive_active_users_service,
     retrieve_archived_active_user_service,
-    delete_active_user_service
+    delete_active_user_service,
+    update_user_profile_service
 )
-from src.app.schemas.user_schema import ArchiveActiveUserSchema, ArchiveUserSchema, PendingUserSchema, UserSchema
+from src.app.schemas.user_schema import (
+    ArchiveActiveUserSchema, 
+    ArchiveUserSchema, 
+    PendingUserSchema,
+    UpdateUserProfileSchema, 
+    UserSchema
+)
 
 
 dashboard_crud_router = APIRouter(
@@ -211,7 +219,7 @@ async def delete_active_user_router(
     role_required = Depends(role_required([Role.ADMIN])),
     id: str = Query(...),
     username: str = Query(...),
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_async_db)
 ):
     """
         Total delete the archived user [action allowed only for admin]
@@ -226,5 +234,30 @@ async def delete_active_user_router(
             "message": "User deleted successfully!",
             "status": is_deleted
         }
+    except Exception as e:
+        raise InternalServerError(f"An expencted error occured: {e}")
+
+
+@dashboard_crud_router.put("/update-user", response_model=UserSchema)
+async def update_user_profile_router(
+    update_data: UpdateUserProfileSchema,
+    id: str = Query(...),
+    current_user: UserSchema = Depends(get_current_user),
+    role_required = Depends(role_required([Role.ADMIN])),
+    db: AsyncSession = Depends(get_async_db)
+):
+    """
+        Update user profile with current admin credential verification
+        [action allowed only for admin]
+    """
+    try:
+        updated_profile = await update_user_profile_service(
+            db=db, id=id, update_data=update_data, current_user=current_user
+        )
+        
+        if updated_profile is None:
+            raise BadRequestException("Action not allowed.")
+        
+        return updated_profile
     except Exception as e:
         raise InternalServerError(f"An expencted error occured: {e}")

@@ -38,6 +38,13 @@ class RegisterUserSchema(AuthUserSchema):
       raise ValueError(f"Must be valid: {val}")
     
     return val
+  
+  
+# request dto
+class UpdateUserProfileSchema(BaseModel):
+  username: str = Field(..., min_length=3, max_length=50)
+  password: str = Field(..., min_length=8)
+  update_info: RegisterUserSchema  # new info of user being updated
 
 
 # for response dto
