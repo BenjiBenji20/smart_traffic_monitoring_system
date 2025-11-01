@@ -7,7 +7,7 @@ import type {
 } from "@/types/chat.types";
 import { ChatWebSocketManager, chatApi } from "@/api/chat_api";
 import { toast } from "sonner";
-import type { UserModel } from "@/types/user_model";
+import type { UserModel } from "@/types/user.types";
 
 interface ChatContextType {
     openChats: ChatWindowState[];

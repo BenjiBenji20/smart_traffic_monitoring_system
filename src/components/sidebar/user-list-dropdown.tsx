@@ -10,7 +10,7 @@ import { Users, ChevronDown, UsersRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserListItem } from "@/components/sidebar/user-list-item";
 import { getAllUsers } from "@/api/user_api";
-import type { UserModel } from "@/types/user_model";
+import type { UserModel } from "@/types/user.types";
 import { useChat } from "@/contexts/ChatContext";
 import { Button } from "@/components/ui/button";
 

@@ -1,5 +1,5 @@
 import securedRequest from "./authentication_api";
-import { type UserModel } from "@/types/user_model";
+import { type UserModel } from "@/types/user.types";
 
 
 export async function getUserProfile(): Promise<UserModel> {

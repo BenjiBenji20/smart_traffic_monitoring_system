@@ -6,7 +6,7 @@ import { SidebarMenuItem } from "@/components/sidebar/sidebar-menu-item"
 import { Submenu } from "@/components/sidebar/submenu"
 import { Home, BarChart, History, UserCog } from "lucide-react"
 import { Profile } from "@/components/ui/profile"
-import type { UserModel } from "@/types/user_model"
+import type { UserModel } from "@/types/user.types"
 import { useLocation } from "react-router"
 import { UserListDropdown } from "./user-list-dropdown"
 

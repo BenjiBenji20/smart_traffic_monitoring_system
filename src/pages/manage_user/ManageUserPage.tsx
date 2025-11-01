@@ -1,6 +1,14 @@
+// pages/ManageUserPage.tsx
 import { getUserProfile } from "@/api/user_api";
+import { userManagementApi } from "@/api/crud_api";
 import { DashboardPageSkeleton } from "@/components/skeleton/DashboardPageSkeleton";
-import type { UserModel } from "@/types/user_model";
+import type { 
+    UserModel, 
+    UserSchema, 
+    PendingUserSchema, 
+    ArchiveUserSchema, 
+    ArchiveActiveUserSchema 
+} from "@/types/user.types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ErrorPage } from "../error/ErrorPage";
@@ -9,27 +17,27 @@ import { DashboardNav } from "@/components/nav/DashboardNav";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { ChatContainer } from "@/components/chat/ChatContainer";
 import { DashboardSidebar } from "@/components/sidebar/DashboardSidebar";
+import { UserListSidebar } from "@/components/manage_user/UserListSideBar"
+import { UserProfileContainer } from "@/components/manage_user/UserProfileContainer";
 
-/**
- * use states
- * use effects
- * skeleton
- * return component
- * - header nav
- * - sidebar
- * - main content
- * -- right sidebar
- * --- user list
- * --- pending registration list
- * -- main section
- * --- update profile box 
- */
+type UserType = UserSchema | PendingUserSchema | ArchiveUserSchema | ArchiveActiveUserSchema;
+type UserSource = 'Traffic Managers' | 'Archived Managers' | 'Pending Registrations' | 'Archived Registrations';
 
 export function ManageUserPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showErrorPage, setShowErrorPage] = useState<boolean>(false);
     const [isError, setIsError] = useState<boolean>(false);
+
+    // User management states
+    const [activeUsers, setActiveUsers] = useState<UserSchema[]>([]);
+    const [archivedUsers, setArchivedUsers] = useState<ArchiveActiveUserSchema[]>([]);
+    const [pendingRegistrations, setPendingRegistrations] = useState<PendingUserSchema[]>([]);
+    const [archivedRegistrations, setArchivedRegistrations] = useState<ArchiveUserSchema[]>([]);
+
+    // Selected user state
+    const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+    const [selectedUserSource, setSelectedUserSource] = useState<UserSource>('Traffic Managers');
 
     const navigator = useNavigate();
 
@@ -38,8 +46,29 @@ export function ManageUserPage() {
             try {
                 setIsLoading(true);
                 await new Promise(resolve => setTimeout(resolve, 1000));
+                
                 const user = await getUserProfile();
                 setUserData(user);
+
+                // Fetch all user management data
+                const [active, archived, pending, archivedReg] = await Promise.all([
+                    userManagementApi.getAllActiveUsers(),
+                    userManagementApi.getAllArchivedActiveUsers(),
+                    userManagementApi.getAllPendingRegistrations(),
+                    userManagementApi.getAllArchivedRegistrations()
+                ]);
+
+                setActiveUsers(active);
+                setArchivedUsers(archived);
+                setPendingRegistrations(pending);
+                setArchivedRegistrations(archivedReg);
+
+                // Set first active user as default selected
+                if (active.length > 0) {
+                    setSelectedUser(active[0]);
+                    setSelectedUserSource('Traffic Managers');
+                }
+
                 setIsError(false);
             } catch (error) {
                 console.error("Failed to fetch data:", error);
@@ -54,12 +83,90 @@ export function ManageUserPage() {
         fetchAllDashboardData();
     }, []);
 
-    // skeleton
+    // Action handlers
+    const handleArchiveUser = async (id: string, username: string) => {
+        const archived = await userManagementApi.archiveActiveUser(id, username);
+        setActiveUsers(prev => prev.filter(u => u.id !== id));
+        setArchivedUsers(prev => [...prev, archived]);
+        
+        // If archived user was selected, select first active user
+        if (selectedUser?.id === id && activeUsers.length > 1) {
+            const nextUser = activeUsers.find(u => u.id !== id);
+            if (nextUser) {
+                setSelectedUser(nextUser);
+            }
+        }
+    };
+
+    const handleRetrieveUser = async (id: string, username: string) => {
+        const retrieved = await userManagementApi.retrieveArchivedActiveUser(id, username);
+        setArchivedUsers(prev => prev.filter(u => u.id !== id));
+        setActiveUsers(prev => [...prev, retrieved]);
+    };
+
+    const handleDeleteUser = async (id: string, username: string) => {
+        await userManagementApi.deleteActiveUser(id, username);
+        setArchivedUsers(prev => prev.filter(u => u.id !== id));
+        
+        // If deleted user was selected, select first archived user
+        if (selectedUser?.id === id && archivedUsers.length > 1) {
+            const nextUser = archivedUsers.find(u => u.id !== id);
+            if (nextUser) {
+                setSelectedUser(nextUser);
+            }
+        }
+    };
+
+    const handleArchiveRegistration = async (id: string) => {
+        const archived = await userManagementApi.archivePendingRegistration(id);
+        setPendingRegistrations(prev => prev.filter(u => u.id !== id));
+        setArchivedRegistrations(prev => [...prev, archived]);
+        
+        if (selectedUser?.id === id && pendingRegistrations.length > 1) {
+            const nextUser = pendingRegistrations.find(u => u.id !== id);
+            if (nextUser) {
+                setSelectedUser(nextUser);
+            }
+        }
+    };
+
+    const handleRetrieveRegistration = async (id: string) => {
+        const retrieved = await userManagementApi.retrieveArchivedRegistration(id);
+        setArchivedRegistrations(prev => prev.filter(u => u.id !== id));
+        setPendingRegistrations(prev => [...prev, retrieved]);
+    };
+
+    const handleDeleteRegistration = async (id: string) => {
+        await userManagementApi.deletePendingRegistration(id);
+        setArchivedRegistrations(prev => prev.filter(u => u.id !== id));
+        
+        if (selectedUser?.id === id && archivedRegistrations.length > 1) {
+            const nextUser = archivedRegistrations.find(u => u.id !== id);
+            if (nextUser) {
+                setSelectedUser(nextUser);
+            }
+        }
+    };
+
+    const handleUserClick = (user: UserType, source: UserSource) => {
+        setSelectedUser(user);
+        setSelectedUserSource(source);
+    };
+
+    const handleUserUpdate = (updatedUser: UserSchema) => {
+        // Update in active users list
+        setActiveUsers(prev => 
+            prev.map(u => u.id === updatedUser.id ? updatedUser : u)
+        );
+        // Update selected user
+        setSelectedUser(updatedUser);
+        toast.success("User list updated");
+    };
+
     if (isLoading) {
         return <div><DashboardPageSkeleton role={userData?.role ?? ""} /></div>;
     }
 
-    // Show error page if there's an error or no user data
     if (!userData || isError || showErrorPage) {
         return (
             <>
@@ -89,17 +196,40 @@ export function ManageUserPage() {
                                 <DashboardSidebar userData={userData} />
 
                                 <div className="space-y-6 max-w-[845px]">
-                                    {/* Main section component here */}
+                                    {selectedUser ? (
+                                        <UserProfileContainer
+                                            user={selectedUser}
+                                            userSource={selectedUserSource}
+                                            onUserUpdate={handleUserUpdate}
+                                        />
+                                    ) : (
+                                        <div className="text-center text-muted-foreground py-12">
+                                            No user selected
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
-                        <div className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
-                            {/* Right sidebar here */}
+                        
+                        {/* Right sidebar */}
+                        <div className="w-96 fixed right-5 top-20 h-[88vh] overflow-hidden">
+                            <UserListSidebar
+                                activeUsers={activeUsers}
+                                archivedUsers={archivedUsers}
+                                pendingRegistrations={pendingRegistrations}
+                                archivedRegistrations={archivedRegistrations}
+                                onArchiveUser={handleArchiveUser}
+                                onRetrieveUser={handleRetrieveUser}
+                                onDeleteUser={handleDeleteUser}
+                                onArchiveRegistration={handleArchiveRegistration}
+                                onRetrieveRegistration={handleRetrieveRegistration}
+                                onDeleteRegistration={handleDeleteRegistration}
+                                onUserClick={handleUserClick}
+                            />
                         </div>
                     </div>
                 </main>
 
-                {/* Chat Container - renders all open chats */}
                 <ChatContainer />
             </ChatProvider>
         </>

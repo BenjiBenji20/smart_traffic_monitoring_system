@@ -8,7 +8,7 @@ import { PredictionDetailSection } from "@/components/sections/PredictionDetailS
 import { HiddenChartRenderer } from "@/components/chart/HiddenChartRenderer";
 import { DownloadButton } from "@/components/download-button/DownloadButton";
 import { useCallback, useEffect, useState } from "react";
-import type { UserModel } from "@/types/user_model";
+import type { UserModel } from "@/types/user.types";
 import { getUserProfile } from "@/api/user_api";
 import { toast } from "sonner";
 import type { HistoryData, HistoryListData } from "@/types/history.types";

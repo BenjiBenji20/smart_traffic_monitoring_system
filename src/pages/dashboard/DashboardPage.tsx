@@ -2,7 +2,7 @@
 import { DashboardSidebar } from "../../components/sidebar/DashboardSidebar"
 import { DashboardNav } from "../../components/nav/DashboardNav"
 import { useCallback, useEffect, useState } from "react"
-import type { UserModel } from "@/types/user_model"
+import type { UserModel } from "@/types/user.types"
 import { getUserProfile } from "@/api/user_api";
 import { toast } from "sonner";
 import { DashboardPageSkeleton } from "@/components/skeleton/DashboardPageSkeleton";

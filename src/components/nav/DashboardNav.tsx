@@ -5,7 +5,7 @@ import { SearchBar } from "@/components/ui/search-bar"
 import { Logo } from "@/components/ui/logo"
 import { Profile } from "@/components/ui/profile"
 import { ModeToggle } from "@/components/ui/mode-toggle"
-import type { UserModel } from "@/types/user_model"
+import type { UserModel } from "@/types/user.types"
 
 export function DashboardNav({ userData }: { userData: UserModel }) {
 

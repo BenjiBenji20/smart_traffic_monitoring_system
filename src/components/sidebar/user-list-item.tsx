@@ -1,7 +1,7 @@
 // components/sidebar/user-list-item.tsx
 import { cn } from "@/lib/utils";
 import { ProfileAvatar } from "@/components/ui/profile";
-import type { UserModel } from "@/types/user_model";
+import type { UserModel } from "@/types/user.types";
 
 interface UserListItemProps {
     user: UserModel;
