@@ -4,7 +4,7 @@
 import { cn } from "@/lib/utils"
 import { SidebarMenuItem } from "@/components/sidebar/sidebar-menu-item"
 import { Submenu } from "@/components/sidebar/submenu"
-import { Home, BarChart, History } from "lucide-react"
+import { Home, BarChart, History, UserCog } from "lucide-react"
 import { Profile } from "@/components/ui/profile"
 import type { UserModel } from "@/types/user_model"
 import { useLocation } from "react-router"
@@ -44,52 +44,68 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                         isActive={isHistoryActive}
                         isCollapsed={isCollapsed}
                     />
-
-                    <Submenu
-                        title="Page Section"
-                        icon={<BarChart className="h-4 w-4" />}
-                        defaultOpen={false}
-                        isCollapsed={isCollapsed}
-                    >
-                        {/* implemented simple role-based wrapper component for MVP */}
-                        {userData?.role === "admin" && (
-                            <SidebarMenuItem
-                                name="Traffic Livestream"
-                                href="/dashboard"
-                                sectionId="livestream-section"
+                    {
+                        (isDashboardActive || isHistoryActive) && (
+                            <Submenu
+                                title="Page Section"
+                                icon={<BarChart className="h-4 w-4" />}
+                                defaultOpen={false}
                                 isCollapsed={isCollapsed}
-                            />
-                        )}
-                        <SidebarMenuItem
-                            name="Prediction Summary"
-                            href="/dashboard"
-                            sectionId="prediction-summary-section"
-                            isCollapsed={isCollapsed}
-                        />
-                        <SidebarMenuItem
-                            name="Traffic Predictions and Analysis"
-                            href="/dashboard"
-                            sectionId="prediction-detailed-section"
-                            isCollapsed={isCollapsed}
-                        />
-                        <SidebarMenuItem
-                            name="Traffic Predictions and Factors"
-                            href="/dashboard"
-                            sectionId="prediction-factors-section"
-                            isCollapsed={isCollapsed}
-                        />
-                        <SidebarMenuItem
-                            name="Reports"
-                            href="/dashboard"
-                            sectionId="download-reports-section"
-                            badge="3"
-                            isCollapsed={isCollapsed}
-                        />
-                    </Submenu>
+                            >
+                                {/* implemented simple role-based wrapper component for MVP */}
+                                {userData?.role === "admin" && (
+                                    <SidebarMenuItem
+                                        name="Traffic Livestream"
+                                        href="/dashboard"
+                                        sectionId="livestream-section"
+                                        isCollapsed={isCollapsed}
+                                    />
+                                )}
+                                <SidebarMenuItem
+                                    name="Prediction Summary"
+                                    href="/dashboard"
+                                    sectionId="prediction-summary-section"
+                                    isCollapsed={isCollapsed}
+                                />
+                                <SidebarMenuItem
+                                    name="Traffic Predictions and Analysis"
+                                    href="/dashboard"
+                                    sectionId="prediction-detailed-section"
+                                    isCollapsed={isCollapsed}
+                                />
+                                <SidebarMenuItem
+                                    name="Traffic Predictions and Factors"
+                                    href="/dashboard"
+                                    sectionId="prediction-factors-section"
+                                    isCollapsed={isCollapsed}
+                                />
+                                <SidebarMenuItem
+                                    name="Reports"
+                                    href="/dashboard"
+                                    sectionId="download-reports-section"
+                                    badge="3"
+                                    isCollapsed={isCollapsed}
+                                />
+                            </Submenu>
+                        )
+                    }
 
                     <UserListDropdown
                         isCollapsed={isCollapsed}
                     />
+
+                    {
+                        // Admin are only allowed to view the user management page
+                        (userData?.role === "admin" && (
+                            <SidebarMenuItem
+                                icon={<UserCog className="h-4 w-4" />}
+                                name="Manage Users"
+                                href="/manage-users"
+                                isActive={isHistoryActive}
+                                isCollapsed={isCollapsed}
+                            />
+                        ))
+                    }
 
                     {/* TO IMPLEMENT CHAT PAGE IF HAVE TIME BEFORE THE DEADLINE */}
                     {/* <SidebarMenuItem
@@ -100,8 +116,6 @@ export function DashboardSidebar({ userData }: { userData: UserModel }) {
                         badge="5"
                         isCollapsed={isCollapsed}
                     /> */}
-
-
 
                     {/* <SidebarMenuItem
                         icon={<Settings className="h-4 w-4" />}

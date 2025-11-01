@@ -5,6 +5,7 @@ import { RegistrationPage } from "./pages/auth/RegistrationPage";
 import { DashboardPage } from "./pages/dashboard/DashboardPage";
 import { ProtectedRoute } from "./middleware/token_filter";
 import { HistoryPage } from "./pages/history/HistoryPage";
+import { ManageUserPage } from "./pages/manage_user/ManageUserPage";
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<AuthenticationPage />} />
                 <Route path="/registration" element={<RegistrationPage />} />
+                {/* Include landing page here... saka na pag tapos na lahat paimportante. */}
                 <Route path="/dashboard" element={
                     <ProtectedRoute>
                         <DashboardPage />
@@ -22,6 +24,11 @@ function App() {
                 <Route path="/history" element={
                     <ProtectedRoute>
                         <HistoryPage />
+                    </ProtectedRoute>
+                } />
+                <Route path="/manage-users" element={
+                    <ProtectedRoute>
+                        <ManageUserPage />
                     </ProtectedRoute>
                 } />
             </Routes>

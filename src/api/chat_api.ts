@@ -28,7 +28,7 @@ export const chatApi = {
      */
     async createPersonalChat(otherUserId: string): Promise<ChatResponse> {
         const response = await securedRequest.post<ChatResponse>(
-            `/user/action/chats/personal?other_user_id=${otherUserId}`
+            `/user/chats/personal?other_user_id=${otherUserId}`
         );
         return response.data;
     },
@@ -38,7 +38,7 @@ export const chatApi = {
      */
     async createGroupChat(data: CreateGroupChatRequest): Promise<ChatResponse> {
         const response = await securedRequest.post<ChatResponse>(
-            `/user/action/chats/group`,
+            `/user/chats/group`,
             {
                 name: data.name,
                 is_group: true,
@@ -53,7 +53,7 @@ export const chatApi = {
      */
     async getMyChats(): Promise<ChatResponse[]> {
         const response = await securedRequest.get<ChatResponse[]>(
-            `/user/action/chats/my`
+            `/user/chats/my`
         );
         return response.data;
     },
@@ -63,7 +63,7 @@ export const chatApi = {
      */
     async getChatMessages(chatId: string): Promise<ChatMessage[]> {
         const response = await securedRequest.get<ChatMessage[]>(
-            `/user/action/chats/${chatId}/messages`
+            `/user/chats/${chatId}/messages`
         );
         return response.data;
     },
@@ -93,7 +93,7 @@ export class ChatWebSocketManager {
         try {
             // Determine protocol (ws or wss based on current location)
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/api/user/action/ws/chat/${this.chatId}/user/${this.userId}`;
+            const wsUrl = `${protocol}//${window.location.host}/api/user/ws/chat/${this.chatId}/user/${this.userId}`;
             
             this.ws = new WebSocket(wsUrl);
 

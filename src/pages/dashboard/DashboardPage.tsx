@@ -65,6 +65,7 @@ export function DashboardPage() {
     const handleChartsReady = useCallback((chartRefs: Map<string, HTMLDivElement>) => {
         chartCaptureService.registerChartContainers(chartRefs);
         setIsChartsReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const navigator = useNavigate();

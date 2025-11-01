@@ -16,7 +16,7 @@ export async function getUserProfile(): Promise<UserModel> {
 export async function getUserById(id: string): Promise <UserModel> {
     try {
         const response = await securedRequest.get<UserModel>(
-            `/user/action/user/${id}`
+            `/user/active-user/${id}`
         );
         return response.data;
     } catch(error) {
@@ -29,7 +29,7 @@ export async function getUserById(id: string): Promise <UserModel> {
 export async function getAllUsers(): Promise <UserModel[]> {
     try {
         const response = await securedRequest.get<UserModel[]>(
-            `/user/action/all-users`
+            `/user/all-active-users`
         );
         return response.data;
     } catch(error) {
