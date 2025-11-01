@@ -16,34 +16,15 @@ from src.app.schemas.user_schema import UserSchema
 from src.app.db.db_session import get_async_db
 
 from src.app.exceptions.custom_exceptions import ResourceNotFoundException
-from src.app.services.dashboard_user_action_service import get_all_users_service, get_user_by_id_service, dashboardChatManager, save_chats_service
+from app.services.dashboard_chat_service import dashboardChatManager, save_chats_service
 from src.app.repositories.chat_repository import chat_repository
 
-dashboard_user_action_router = APIRouter(prefix="/api/user/action", tags=["user activities"])
-
-
-@dashboard_user_action_router.get("/user/{id}", response_model=UserSchema)
-async def get_user_by_id_router(id: str, db: AsyncSession = Depends(get_async_db)):
-  try:
-    user: UserSchema = await get_user_by_id_service(id, db)
-    
-    if user is None:
-      raise ResourceNotFoundException(f"User not found by id: {id}")
-    
-    return user
-  except Exception as e:
-    logging.error(f"Server error while fetching user")
-    raise HTTPException(status_code=404, detail=str(e))
-  
-  
-@dashboard_user_action_router.get("/all-users", response_model=List[UserSchema])
-async def get_all_users_router(db: AsyncSession = Depends(get_async_db)):
-  return await get_all_users_service(db)
+dashboard_chat_router = APIRouter(prefix="/api/user", tags=["user chat"])
   
 
 # === WebSocket Service for Real-time multi and single-user messages ===
 # === Personal Chat WebSocket ===
-@dashboard_user_action_router.websocket("/ws/chat/{chat_id}/user/{user_id}")
+@dashboard_chat_router.websocket("/ws/chat/{chat_id}/user/{user_id}")
 async def personal_chat_websocket(ws: WebSocket, chat_id: str, user_id: str, db: AsyncSession = Depends(get_async_db)):
     await dashboardChatManager.register_ws_connection(ws, chat_id, user_id)
     
@@ -73,7 +54,7 @@ async def personal_chat_websocket(ws: WebSocket, chat_id: str, user_id: str, db:
 
 
 # === Group Chat WebSocket ===
-@dashboard_user_action_router.websocket("/ws/group-chat/{chat_id}/user/{user_id}")
+@dashboard_chat_router.websocket("/ws/group-chat/{chat_id}/user/{user_id}")
 async def group_chat_websocket(websocket: WebSocket, chat_id: str, user_id: str, db: AsyncSession = Depends(get_async_db)):
     await dashboardChatManager.register_ws_connection(websocket, chat_id, user_id)
     
@@ -102,7 +83,7 @@ async def group_chat_websocket(websocket: WebSocket, chat_id: str, user_id: str,
         
 
 # === REST APIs for control ===
-@dashboard_user_action_router.post("/chats/personal", response_model=ChatResponse)
+@dashboard_chat_router.post("/chats/personal", response_model=ChatResponse)
 async def create_personal_chat(
     other_user_id: str, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)
 ):
@@ -125,7 +106,7 @@ async def create_personal_chat(
     )
 
 
-@dashboard_user_action_router.post("/chats/group", response_model=ChatResponse)
+@dashboard_chat_router.post("/chats/group", response_model=ChatResponse)
 async def create_group_chat(
     chat_data: ChatCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)
 ):
@@ -136,7 +117,7 @@ async def create_group_chat(
     return chat
 
 
-@dashboard_user_action_router.get("/chats/my", response_model=List[ChatResponse])
+@dashboard_chat_router.get("/chats/my", response_model=List[ChatResponse])
 async def get_my_chats(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)
 ):
@@ -145,7 +126,7 @@ async def get_my_chats(
     return user.chats
 
 
-@dashboard_user_action_router.get("/chats/{chat_id}/messages", response_model=List[MessageResponse])
+@dashboard_chat_router.get("/chats/{chat_id}/messages", response_model=List[MessageResponse])
 async def get_chat_messages(
     chat_id: str,
     db: AsyncSession = Depends(get_async_db)

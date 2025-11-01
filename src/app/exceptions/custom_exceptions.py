@@ -40,3 +40,9 @@ class FileDownloadException(Exception):
   def __init__(self, detail="Download error", error_code="BAD_REQUEST"):
     self.detail = detail
     self.error_code = error_code
+    
+    
+class BadRequestException(Exception):
+  def __init__(self, detail="Invalid request", error_code="BAD_REQUEST"):
+    self.detail = detail
+    self.error_code = error_code

@@ -28,3 +28,6 @@ async def invalid_token_handler(request: Request, exc: InvalidTokenException):
 
 async def failed_file_download_handler(request: Request, exc: FileDownloadException):
   return error_response(exc.detail, exc.error_code, 400)
+
+async def bad_request_handler(request: Request, exc: BadRequestException):
+  return error_response(exc.detail, exc.error_code, 400)

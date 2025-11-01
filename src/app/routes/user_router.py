@@ -13,8 +13,9 @@ from src.app.schemas.token_schema import Token
 
 user_router = APIRouter(prefix="/api/user", tags=["Users"])
 
-@user_router.post("/register", response_model=UserSchema)
+@user_router.post("/register", response_model=PendingUserSchema)
 async def register_user_route(new_user: RegisterUserSchema, db: AsyncSession = Depends(get_async_db)):
+  """Registration initally stored in pending_users table"""
   return await register_user_service(new_user, db)
 
 

@@ -9,7 +9,7 @@ from sqlalchemy import select
 # db, model and schema
 from src.app.db.db_session import engine, async_session
 from src.app.db.base import Base
-from src.app.models.user import User  
+from src.app.models.user import User, ActiveUserArchives, PendingUser, ArchivePendingUser
 from src.app.models.history import History
 from src.app.schemas.history_schema import HistorySchema
 from src.app.models.chat import Chat, ChatMessage
@@ -29,7 +29,8 @@ from src.app.routes.dashboard_user_router import dashboard_user_router
 from src.app.routes.dashboard_livestream_router import dashboard_livestream_router
 from src.app.routes.dashboard_download_report_file_router import dl_file_router
 from src.app.routes.dashboard_history_router import dashboard_history_router
-from app.routes.dashboard_user_action_router import dashboard_user_action_router
+from src.app.routes.dashboard_chat_router import dashboard_chat_router
+from src.app.routes.dashboard_crud_router import dashboard_crud_router
 
 # configurations
 from src.app.core.cors_config import cors_middleware
@@ -187,7 +188,8 @@ app.include_router(dashboard_user_router)
 app.include_router(dashboard_livestream_router)
 app.include_router(dl_file_router)
 app.include_router(dashboard_history_router)
-app.include_router(dashboard_user_action_router)
+app.include_router(dashboard_chat_router)
+app.include_router(dashboard_crud_router)
 
 # regiustering global exeception handler
 app.add_exception_handler(InternalServerError, internal_server_error_handler)
@@ -197,3 +199,4 @@ app.add_exception_handler(UnauthorizedAccessException, unauthorized_access_handl
 app.add_exception_handler(ForbiddenAccessException, forbidden_access_handler)
 app.add_exception_handler(InvalidTokenException, invalid_token_handler)
 app.add_exception_handler(FileDownloadException, failed_file_download_handler)
+app.add_exception_handler(BadRequestException, bad_request_handler)

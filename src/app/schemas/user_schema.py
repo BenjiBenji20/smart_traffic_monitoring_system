@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
-from datetime import datetime, timezone
+from datetime import datetime
 import regex
-import uuid
 
 from src.app.models.role import Role
 
@@ -54,3 +53,20 @@ class UserSchema(BaseModel):
 
 class Config:
   from_attributes = True
+
+
+# for response dto
+class PendingUserSchema(UserSchema):
+  message: str = "Registration is pending. Please wait to be accepted by admin."
+
+
+# for response dto
+class ArchiveUserSchema(UserSchema):
+  message: str = "Archived pending registration."
+
+
+# for response dto
+class ArchiveActiveUserSchema(UserSchema):
+  archived_at: datetime
+  archived_by: str
+  message: str = "Archived active user successfully."
