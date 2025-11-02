@@ -1,5 +1,4 @@
-// src/components/livestream/LivestreamVideo.tsx
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { useDetectionOverlay } from '@/hooks/useDetectionOverlay';
 import { livestreamApi } from '@/api/livestream_api';
@@ -9,16 +8,19 @@ interface LivestreamVideoProps {
   isStreaming: boolean;
   detectionMode: DetectionMode;
   detectionData: DetectionData;
+  location?: string; // Add location prop
 }
 
 export function LivestreamVideo({
   isStreaming,
   detectionMode,
-  detectionData
+  detectionData,
+  location
 }: LivestreamVideoProps) {
   const videoRef = useRef<HTMLImageElement>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const streamUrlRef = useRef<string>('');
+  const [dateTime, setDateTime] = useState('');
 
   const { drawDetections, clearCanvas, calculateScaleFactors } = useDetectionOverlay({
     videoRef,
@@ -26,14 +28,31 @@ export function LivestreamVideo({
     isActive: isStreaming && detectionMode === 'raw'
   });
 
+  // Update datetime
+  useEffect(() => {
+    const updateDateTime = () => {
+      const now = new Date();
+      const formatted = now.toLocaleString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+      setDateTime(formatted);
+    };
+    updateDateTime();
+    const interval = setInterval(updateDateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Update video source when streaming state or mode changes
   useEffect(() => {
     if (!videoRef.current) return;
-
     if (isStreaming) {
       const videoUrl = livestreamApi.getVideoFeedUrl(detectionMode);
-
-      // Force reload by changing the URL only if it's different
       if (streamUrlRef.current !== videoUrl) {
         streamUrlRef.current = videoUrl;
         videoRef.current.src = videoUrl;
@@ -62,11 +81,15 @@ export function LivestreamVideo({
 
   return (
     <Card className="relative overflow-hidden bg-slate-900/50 border-slate-700 w-fit p-0">
-      {/* Header overlay */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/70 to-transparent p-2">
+      {/* Header overlay with datetime */}
+      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent p-3">
         <div className="flex justify-between items-start text-xs">
           <div className="text-white">
-            <p className="font-medium">Live traffic feed</p>
+            <p className="font-medium">Live Traffic Feed</p>
+            {location && <p className="text-gray-400 mt-0.5">{location}</p>}
+          </div>
+          <div className="text-right text-white">
+            <p className="font-medium">{dateTime}</p>
           </div>
         </div>
       </div>

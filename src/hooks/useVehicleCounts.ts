@@ -8,6 +8,7 @@ interface UseVehicleCountsProps {
 
 export function useVehicleCounts({ isStreaming }: UseVehicleCountsProps) {
   const [counts, setCounts] = useState<VehicleCounts>({
+    pedestrian: 0,
     car: 0,
     truck: 0,
     bicycle: 0,

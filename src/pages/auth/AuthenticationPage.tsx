@@ -18,7 +18,7 @@ import { type AuthUserModel } from "@/types/auth";
 import { authenticate, isAuthenticated } from "@/api/authentication_api"
 import { NavMenu } from "@/components/nav/NavMenu"
 import { Footer } from "@/components/footer/Footer"
-
+import { usePasswordToggle } from "@/hooks/use-password-toggle"
 
 export function AuthenticationPage({
     className,
@@ -28,6 +28,13 @@ export function AuthenticationPage({
         username: "",
         password: ""
     });
+
+    // Use the password toggle hook
+    const { 
+        passwordInputType, 
+        PasswordIcon, 
+        togglePasswordVisibility 
+    } = usePasswordToggle();
 
     const handleInputChange = (field: keyof AuthUserModel, value: string) => {
         setCredentials(prev => ({
@@ -106,14 +113,24 @@ export function AuthenticationPage({
                                                     Forgot your password?
                                                 </Link>
                                             </div>
-                                            <Input
-                                                id="password"
-                                                type="password"
-                                                placeholder="Password"
-                                                required
-                                                value={credentials.password}
-                                                onChange={(e) => handleInputChange('password', e.target.value)}
-                                            />
+                                            <div className="relative">
+                                                <Input
+                                                    id="password"
+                                                    type={passwordInputType}
+                                                    placeholder="Password"
+                                                    required
+                                                    value={credentials.password}
+                                                    onChange={(e) => handleInputChange('password', e.target.value)}
+                                                    className="pr-10"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={togglePasswordVisibility}
+                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                                >
+                                                    <PasswordIcon className="h-4 w-4" />
+                                                </button>
+                                            </div>
                                         </div>
 
                                         {/* OAUTH2 SOCIAL LOGIN COMING SOON */}
@@ -122,9 +139,9 @@ export function AuthenticationPage({
                                             <Button type="submit" className="w-full">
                                                 Login
                                             </Button>
-                                            <Button variant="outline" className="w-full">
+                                            {/* <Button variant="outline" className="w-full">
                                                 Login with Google
-                                            </Button>
+                                            </Button> */}
                                         </div>
                                     </div>
                                     <div className="mt-4 text-center text-sm">

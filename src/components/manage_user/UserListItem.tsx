@@ -25,7 +25,7 @@ export function UserListItem({ user, onClick, actions, isArchived, isPending }: 
             <div className="flex items-center gap-3">
                 {/* Avatar */}
                 <ProfileAvatar
-                    username={user.complete_name}
+                    complete_name={user.complete_name}
                     className="h-10 w-10 flex-shrink-0"
                 />
 
@@ -35,7 +35,7 @@ export function UserListItem({ user, onClick, actions, isArchived, isPending }: 
                         {user.complete_name}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
-                        @{user.username}
+                        @{user.complete_name}
                     </p>
                 </div>
 

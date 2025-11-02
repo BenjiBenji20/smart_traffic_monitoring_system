@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { LivestreamVideo } from '@/components/livestream/LivestreamVideo';
 import { LivestreamControls } from '@/components/livestream/LivestreamControls';
 import { VehicleCountsSidebar } from '@/components/livestream/VehicleCountsSidebar';
@@ -6,7 +5,6 @@ import { useLivestream } from '@/hooks/useLivestream';
 import { useVehicleCounts } from '@/hooks/useVehicleCounts';
 
 export function DashboardLivestreamSection() {
-  const [dateTime, setDateTime] = useState('');
 
   const {
     isStreaming,
@@ -29,33 +27,12 @@ export function DashboardLivestreamSection() {
     isStreaming,
   });
 
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      const formatted = now.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-      });
-      setDateTime(formatted);
-    };
-
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6 max-w-[52rem]">
-        <h2 className="text-2xl font-bold">Live Malabon Barangay Longos C-4 Road</h2>
+      <div className="flex justify-between items-center mb-3 max-w-[52rem]">
+        <h2 className="text-2xl font-bold">Live at Longos, C-4 Road, Malabon City</h2>
         <div className="text-right text-sm">
-          <p className="text-muted-foreground text-xs">{dateTime}</p>
         </div>
       </div>
 

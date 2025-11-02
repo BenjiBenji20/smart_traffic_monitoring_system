@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { cn } from "@/lib/utils";
 import { useScrollToSection } from '@/hooks/useScrollToSection';
 
@@ -24,6 +24,7 @@ export function SidebarMenuItem({
     onClick
 }: SidebarMenuItemProps) {
     const location = useLocation();
+    const navigate = useNavigate();
     const scrollToSection = useScrollToSection();
 
     // Check if this is the current page
@@ -33,13 +34,24 @@ export function SidebarMenuItem({
     const handleClick = (e: React.MouseEvent) => {
         if (sectionId) {
             e.preventDefault();
-            window.history.pushState(null, '', `${href}/${sectionId}`); // Update URL with hash
-            scrollToSection(sectionId);
+            
+            // If we're already on the target page, just scroll
+            if (location.pathname === href) {
+                scrollToSection(sectionId);
+                // Don't change URL, just scroll
+            } else {
+                // Navigate to the page first
+                navigate(href);
+                // Wait for navigation to complete, then scroll
+                setTimeout(() => {
+                    scrollToSection(sectionId);
+                }, 100);
+            }
         }
         onClick?.();
     };
 
-    // Determine if this is an internal section link or external page
+    // Determine if this is an internal section link
     const isInternalSection = sectionId && location.pathname === href;
 
     return (
@@ -58,7 +70,6 @@ export function SidebarMenuItem({
             title={name}
         >
             {icon && <span className="flex-shrink-0">{icon}</span>}
-
             {!isCollapsed && (
                 <>
                     <span className="flex-1 truncate">{name}</span>
@@ -67,13 +78,11 @@ export function SidebarMenuItem({
                     )}
                 </>
             )}
-
             {!isCollapsed && badge && (
                 <span className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded-full">
                     {badge}
                 </span>
             )}
-
             {isCollapsed && name && (
                 <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 whitespace-nowrap">
                     {name}

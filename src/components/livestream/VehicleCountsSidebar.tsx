@@ -1,4 +1,4 @@
-import { Car, Truck, Bike, BikeIcon, AlertTriangle } from 'lucide-react';
+import { Car, Truck, Bike, BikeIcon, AlertTriangle, PersonStanding } from 'lucide-react';
 import { VehicleCountCard } from './VehicleCountCard';
 import type { VehicleCounts } from '@/types/livestream.types';
 
@@ -11,6 +11,12 @@ export function VehicleCountsSidebar({ counts, totalCount }: VehicleCountsSideba
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-semibold mb-3">Vehicle Counts</h3>
+
+      <VehicleCountCard
+        icon={PersonStanding}
+        label="Pedestrian"
+        count={counts.pedestrian}
+      />
 
       <VehicleCountCard
         iconUrl={"/jeepney.png"}

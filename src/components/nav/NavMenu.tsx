@@ -20,7 +20,7 @@ export function NavMenu() {
         <div className="flex w-full items-center justify-between px-6 py-4">
             <NavigationMenu viewport={false} className="max-w-[50%]">
                 <NavigationMenuList>
-                    <NavigationMenuItem>
+                    {/* <NavigationMenuItem>
                         <NavigationMenuTrigger>Home</NavigationMenuTrigger>
                         <NavigationMenuContent>
                             <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
@@ -50,15 +50,15 @@ export function NavMenu() {
                                 </ListItem>
                             </ul>
                         </NavigationMenuContent>
-                    </NavigationMenuItem>
+                    </NavigationMenuItem> */}
 
-                    <NavigationMenuItem>
+                    {/* <NavigationMenuItem>
                         <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                             <Link to="/docs">Docs</Link>
                         </NavigationMenuLink>
-                    </NavigationMenuItem>
+                    </NavigationMenuItem> */}
 
-                    <NavigationMenuItem>
+                    {/* <NavigationMenuItem>
                         <NavigationMenuTrigger>List</NavigationMenuTrigger>
                         <NavigationMenuContent>
                             <ul className="grid w-[300px] gap-4">
@@ -90,9 +90,9 @@ export function NavMenu() {
                                 </li>
                             </ul>
                         </NavigationMenuContent>
-                    </NavigationMenuItem>
+                    </NavigationMenuItem> */}
 
-                    <NavigationMenuItem >
+                    {/* <NavigationMenuItem >
                         <NavigationMenuTrigger>Simple</NavigationMenuTrigger>
                         <NavigationMenuContent>
                             <ul className="grid w-[200px] gap-4">
@@ -109,7 +109,7 @@ export function NavMenu() {
                                 </li>
                             </ul>
                         </NavigationMenuContent>
-                    </NavigationMenuItem>
+                    </NavigationMenuItem> */}
 
                     <NavigationMenuItem>
                         <ModeToggle />

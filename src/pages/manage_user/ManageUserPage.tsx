@@ -19,6 +19,7 @@ import { ChatContainer } from "@/components/chat/ChatContainer";
 import { DashboardSidebar } from "@/components/sidebar/DashboardSidebar";
 import { UserListSidebar } from "@/components/manage_user/UserListSideBar"
 import { UserProfileContainer } from "@/components/manage_user/UserProfileContainer";
+import { Footer } from "@/components/footer/Footer";
 
 type UserType = UserSchema | PendingUserSchema | ArchiveUserSchema | ArchiveActiveUserSchema;
 type UserSource = 'Traffic Managers' | 'Archived Managers' | 'Pending Registrations' | 'Archived Registrations';
@@ -189,7 +190,7 @@ export function ManageUserPage() {
                     <DashboardNav userData={userData} />
                 </div>
 
-                <main className="ml-64 pt-16 min-h-screen">
+                <main className="ml-64 pt-16 min-h-screen pb-20">
                     <div className="flex">
                         <div className="flex-1 p-6">
                             <div className="space-y-6">
@@ -212,7 +213,7 @@ export function ManageUserPage() {
                         </div>
                         
                         {/* Right sidebar */}
-                        <div className="w-96 fixed right-5 top-20 h-[88vh] overflow-hidden">
+                        <div className="w-90 sticky right-5 top-20 self-start h-[calc(100vh-6rem)] overflow-y-auto bg-background">
                             <UserListSidebar
                                 activeUsers={activeUsers}
                                 archivedUsers={archivedUsers}
@@ -229,6 +230,8 @@ export function ManageUserPage() {
                         </div>
                     </div>
                 </main>
+
+                <Footer/>
 
                 <ChatContainer />
             </ChatProvider>

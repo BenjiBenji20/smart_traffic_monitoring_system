@@ -10,6 +10,7 @@ export interface DetectionData {
 }
 
 export interface VehicleCounts {
+    pedestrian: number;
     car: number;
     truck: number;
     bicycle: number;

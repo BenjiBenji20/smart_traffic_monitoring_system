@@ -32,6 +32,7 @@ import { ChartCaptureService } from "@/services/chart-capture-service";
 import { HiddenChartRenderer } from "@/components/chart/HiddenChartRenderer";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { ChatContainer } from "@/components/chat/ChatContainer";
+import { Footer } from "@/components/footer/Footer";
 
 export function DashboardPage() {
     const [userData, setUserData] = useState<UserModel | null>(null);
@@ -65,7 +66,7 @@ export function DashboardPage() {
     const handleChartsReady = useCallback((chartRefs: Map<string, HTMLDivElement>) => {
         chartCaptureService.registerChartContainers(chartRefs);
         setIsChartsReady(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const navigator = useNavigate();
@@ -163,8 +164,8 @@ export function DashboardPage() {
                                 <DashboardNav userData={userData} />
                             </div>
 
-                            <main className="ml-64 pt-16 min-h-screen">
-                                <div className="flex">
+                            <main className="ml-64 pt-16 min-h-screen pb-20"> 
+                                <div className="flex relative"> 
                                     <div className="flex-1 p-6">
                                         <div className="space-y-6">
                                             <DashboardSidebar userData={userData} />
@@ -220,7 +221,7 @@ export function DashboardPage() {
                                         </div>
                                     </div>
 
-                                    <div className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
+                                    <div className="w-90 sticky right-5 top-20 self-start h-[calc(100vh-6rem)] overflow-y-auto bg-background">
                                         <RequestPrediction
                                             requestPredictionData={requestPredictionData}
                                             requestRecommendationData={requestRecommendationData}
@@ -231,6 +232,8 @@ export function DashboardPage() {
                                     </div>
                                 </div>
                             </main>
+
+                            <Footer />
 
                             {/* Chat Container - renders all open chats */}
                             <ChatContainer />

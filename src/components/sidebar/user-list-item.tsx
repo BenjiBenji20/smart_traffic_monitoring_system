@@ -26,7 +26,7 @@ export function UserListItem({ user, isSelected = false, onClick }: UserListItem
         >
             {/* Avatar with online status indicator */}
             <div className="relative flex-shrink-0">
-                <ProfileAvatar username={user.username} />
+                <ProfileAvatar complete_name={user.complete_name} />
                 {/* Online status indicator */}
                 <div
                     className={cn(

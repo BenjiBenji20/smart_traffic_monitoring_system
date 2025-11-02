@@ -17,6 +17,7 @@ import { register } from "@/api/registration_api"
 import { toast } from "sonner"
 import { NavMenu } from "@/components/nav/NavMenu"
 import { Footer } from "@/components/footer/Footer"
+import { usePasswordToggle } from "@/hooks/use-password-toggle"
 
 export function RegistrationPage({
     className,
@@ -30,6 +31,13 @@ export function RegistrationPage({
         complete_address: "",
         age: 18
     });
+
+    // Use the password toggle hook
+    const {
+        passwordInputType,
+        PasswordIcon,
+        togglePasswordVisibility
+    } = usePasswordToggle();
 
     const handleInputChange = (field: keyof RegisterUserModel, value: string | number) => {
         setRegistration(prev => ({
@@ -121,13 +129,24 @@ export function RegistrationPage({
                                             </div>
                                             <div className="grid gap-2">
                                                 <Label htmlFor="password">Password</Label>
-                                                <Input
-                                                    id="password"
-                                                    type="password"
-                                                    required
-                                                    value={registration.password}
-                                                    onChange={(e) => handleInputChange('password', e.target.value)}
-                                                />
+                                                <div className="relative">
+                                                    <Input
+                                                        id="password"
+                                                        type={passwordInputType}
+                                                        placeholder="Password"
+                                                        required
+                                                        value={registration.password}
+                                                        onChange={(e) => handleInputChange('password', e.target.value)}
+                                                        className="pr-10"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={togglePasswordVisibility}
+                                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                                    >
+                                                        <PasswordIcon className="h-4 w-4" />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -158,11 +177,11 @@ export function RegistrationPage({
                                                 </select>
                                             </div>
                                         </div>
-
-                                        <Button type="submit" className="w-full mt-4">
-                                            Create Account
-                                        </Button>
                                     </div>
+
+                                    <Button type="submit" className="w-full mt-4">
+                                        Create Account
+                                    </Button>
 
                                     <div className="relative my-6">
                                         <div className="absolute inset-0 flex items-center">
@@ -177,7 +196,7 @@ export function RegistrationPage({
 
                                     {/* OAUTH2 SOCIAL LOGIN COMING SOON */}
 
-                                    <Button variant="outline" className="w-full">
+                                    {/* <Button variant="outline" className="w-full">
                                         <svg
                                             className="mr-2 h-4 w-4"
                                             viewBox="0 0 24 24"
@@ -190,7 +209,7 @@ export function RegistrationPage({
                                             />
                                         </svg>
                                         Google
-                                    </Button>
+                                    </Button> */}
 
                                     <div className="mt-4 text-center text-xs text-muted-foreground">
                                         By clicking continue, you agree to our{" "}
@@ -210,7 +229,7 @@ export function RegistrationPage({
                         </Card>
                     </div>
                 </div>
-            </div>
+            </div >
 
             <Footer />
         </>

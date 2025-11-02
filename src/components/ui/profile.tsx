@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { LogOut, User, Settings, ChevronDown } from "lucide-react";
+import { LogOut, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isAuthenticated, signOut } from "@/api/authentication_api";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import type { UserModel } from "@/types/user.types";
 
-export function ProfileAvatar({ username, className = "" }: { username: string; className?: string }) {
-    const firstLetter = username.charAt(0).toUpperCase();
-    const bgColor = getAvatarColor(username);
+export function ProfileAvatar({ complete_name, className = "" }: { complete_name: string; className?: string }) {
+    const firstLetter = complete_name.charAt(0).toUpperCase();
+    const bgColor = getAvatarColor(complete_name);
 
     return (
         <div
@@ -23,18 +23,18 @@ export function ProfileAvatar({ username, className = "" }: { username: string; 
     );
 }
 
-// Helper function to generate consistent color based on username
-function getAvatarColor(username: string): string {
+// Helper function to generate consistent color based on complete_name
+function getAvatarColor(complete_name: string): string {
     const colors = [
         "bg-red-500", "bg-blue-500", "bg-green-500",
         "bg-yellow-500", "bg-purple-500", "bg-pink-500",
         "bg-indigo-500", "bg-teal-500", "bg-orange-500"
     ];
 
-    // Simple hash to get consistent color for same username
+    // Simple hash to get consistent color for same complete_name
     let hash = 0;
-    for (let i = 0; i < username.length; i++) {
-        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    for (let i = 0; i < complete_name.length; i++) {
+        hash = complete_name.charCodeAt(i) + ((hash << 5) - hash);
     }
 
     const index = Math.abs(hash) % colors.length;
@@ -50,8 +50,6 @@ interface ProfileProps {
 export function Profile(
     { className, user }: ProfileProps,
 ) {
-    const { username, role } = user;
-
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -100,12 +98,12 @@ export function Profile(
                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors w-full"
             >
                 {/* Profile Image */}
-                <ProfileAvatar username={username} />
+                <ProfileAvatar complete_name={user.complete_name} />
 
                 {/* User Info - Hidden on mobile, visible on desktop */}
                 <div className="hidden sm:block text-left flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{username}</p>
-                    <p className="text-xs text-muted-foreground capitalize truncate">{role}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{user.complete_name}</p>
+                    <p className="text-xs text-muted-foreground capitalize truncate">{user.role.replace('_', ' ')}</p>
                 </div>
 
                 <ChevronDown
@@ -121,22 +119,12 @@ export function Profile(
                 <div className="absolute right-0 mt-2 w-48 bg-background rounded-md shadow-lg border z-50 animate-in fade-in-80">
                     {/* User Info Section */}
                     <div className="px-4 py-3 border-b">
-                        <p className="text-sm font-medium text-foreground">{username}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{role}</p>
+                        <p className="text-sm font-medium text-foreground">{user.complete_name}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{user.role.replace('_', ' ')}</p>
                     </div>
 
                     {/* Menu Items */}
                     <div className="py-1">
-                        <button className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-foreground transition-colors">
-                            <User className="h-4 w-4 mr-3" />
-                            Profile
-                        </button>
-
-                        <button className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-foreground transition-colors">
-                            <Settings className="h-4 w-4 mr-3" />
-                            Settings
-                        </button>
-
                         <div className="border-t my-1"></div>
 
                         <button

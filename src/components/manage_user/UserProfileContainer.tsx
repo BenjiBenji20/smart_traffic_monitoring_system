@@ -89,7 +89,7 @@ export function UserProfileContainer({ user, userSource, onUserUpdate }: UserPro
                     {/* Avatar and Basic Info */}
                     <div className="flex flex-col items-center space-y-2">
                         <ProfileAvatar
-                            username={user.complete_name}
+                            complete_name={user.complete_name}
                             className="h-20 w-20 text-3xl"
                         />
                         <div className="text-center space-y-2">
@@ -97,7 +97,7 @@ export function UserProfileContainer({ user, userSource, onUserUpdate }: UserPro
                                 {user.complete_name}
                             </h2>
                             <p className="text-sm text-muted-foreground">
-                                @{user.username}
+                                @{user.complete_name}
                             </p>
                         </div>
                     </div>

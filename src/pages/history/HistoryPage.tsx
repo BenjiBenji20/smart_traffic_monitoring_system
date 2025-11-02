@@ -20,6 +20,7 @@ import type { trafficRecommendationDict } from "@/types/ai_recommendation.types"
 import { HistoryPageSkeleton } from "@/components/skeleton/HistoryPageSkeleton";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { ChatContainer } from "@/components/chat/ChatContainer";
+import { Footer } from "@/components/footer/Footer";
 
 
 export function HistoryPage() {
@@ -122,7 +123,7 @@ export function HistoryPage() {
                                 <DashboardNav userData={userData} />
                             </div>
 
-                            <main className="ml-64 pt-16 min-h-screen">
+                            <main className="ml-64 pt-16 min-h-screen pb-20"> 
                                 <div className="flex">
                                     <div className="flex-1 p-6">
                                         <div className="space-y-6">
@@ -177,7 +178,7 @@ export function HistoryPage() {
                                         </div>
                                     </div>
 
-                                    <div className="w-90 fixed right-5 top-20 h-[88vh] overflow-y-auto bg-background">
+                                    <div className="w-90 sticky right-5 top-20 self-start h-[calc(100vh-6rem)] overflow-y-auto bg-background">
                                         <HistoryListSidebar
                                             historyData={historyListData.data}
                                             onVersionSelect={handleVersionSelect}
@@ -187,6 +188,8 @@ export function HistoryPage() {
                                     </div>
                                 </div>
                             </main>
+
+                            <Footer/>
 
                             {/* Chat Container - renders all open chats */}
                             <ChatContainer />
