@@ -1,11 +1,11 @@
-"""PRECAPSTONE DEFENSE DETECTION PIPELINE VERSION"""
-
 import logging
 import requests.exceptions
 from ultralytics import YOLO
 import math
 from src.traffic_ai.vehicle_detection.sort import *
 from src.traffic_ai.vehicle_detection.shared import detection_state
+from src.traffic_ai.video_recordings.video_recordings import ContinuousRecorder
+import atexit
 import cv2
 import cvzone
 import numpy as np
@@ -93,10 +93,15 @@ class OptimizedDetectionPipeline:
         
         # Performance optimization
         self.frame_skip = 2
+        self.original_frame_skip = 2 # optimized for video record
         self.frame_count = 0
         
         # Firebase worker thread
         self.firebase_thread = None
+        
+        # init video recording object
+        self.recorder = ContinuousRecorder()
+        atexit.register(self.recorder.cleanup) # emergency clean up on exit
         
         
     def get_vehicle_color(self, vehicle_class):
@@ -139,7 +144,20 @@ class OptimizedDetectionPipeline:
         """Set detection mode: 'raw' or 'processed'"""
         if mode in ["raw", "processed"]:
             self.detection_mode = mode
-            print(f"🔄 Detection mode changed to: {mode}")
+            print(f"Detection mode changed to: {mode}")
+            
+            # signal recorder about AI mode changes
+            if self.recorder:
+                self.recorder.set_ai_mode(mode == "processed")
+                
+            # adjust frame skip for video recorded performance
+            if self.recorder.is_active():
+                # If recording, use higher frame skip to save CPU
+                self.frame_skip = 4 if mode == "processed" else 2
+            else:
+                # Normal operation
+                self.frame_skip = self.original_frame_skip
+            
             if mode == "raw":
                 print("AI processing DISABLED - No vehicle counting or Firebase updates")
             else:
@@ -300,6 +318,13 @@ class OptimizedDetectionPipeline:
                 self.processed_frame = frame.copy()
                 self.current_detections = []
             
+            # write frame to recording
+            if self.recorder and self.recorder.is_active():
+                self.recorder.write_frame(
+                    raw_frame=self.raw_frame,
+                    processed_frame=self.process_frame if self.detection_mode == "processed" else None
+                )
+            
             time.sleep(0.016)
             return True
 
@@ -436,6 +461,13 @@ class OptimizedDetectionPipeline:
             with self.frame_lock:
                 self.processed_frame = frame.copy()
                 self.current_detections = tracked_detections.copy()
+                
+            # Write frame to recording AFTER all processing
+            if self.recorder and self.recorder.is_active():
+                self.recorder.write_frame(
+                    raw_frame=self.raw_frame,
+                    processed_frame=self.processed_frame if self.detection_mode == "processed" else None
+                )
             
             return True
             
@@ -554,9 +586,13 @@ class OptimizedDetectionPipeline:
             print("Failed to initialize pipeline")
             return
         
+        # start recording when livestream pipeline starts
+        self.recorder.start_recording()
+        print("Video recording is running...")
+        
         self.running = True
         print("Starting optimized detection loop...")
-        print("🚨 DETECTION MODE: Vehicles will only be counted when they cross the virtual line!")
+        print("DETECTION MODE: Vehicles will only be counted when they cross the virtual line!")
         
         while self.running:
             try:
@@ -573,6 +609,9 @@ class OptimizedDetectionPipeline:
                 if self.running:
                     print(f"Processing error: {e}")
                     time.sleep(1)
+                    
+        print("livestream - off - stop recording...")
+        self.recorder.stop_recording()
         
         print("Cleaning up pipeline...")
         if self.cap:
@@ -641,3 +680,44 @@ def change_limit_angle(new_limits: list[int]) -> bool:
         if pipeline and pipeline.running:
             return pipeline.change_limit_angle(new_limits)
         return False
+    
+    
+# recording service layer for livestreaming service
+def start_recording() -> tuple[bool, str]:
+    """Start video recording"""
+    global pipeline
+    
+    with pipeline_lock:
+        if pipeline and pipeline.recorder:
+            success = pipeline.recorder.start_recording()
+            if success:
+                return True, "Recording started"
+            return False, "Failed to start recording"
+        return False, "Pipeline not running"
+
+
+def stop_recording() -> tuple[bool, str, str | None]:
+    """Stop video recording"""
+    global pipeline
+    
+    with pipeline_lock:
+        if pipeline and pipeline.recorder:
+            file_path = pipeline.recorder.stop_recording()
+            if file_path:
+                return True, "Recording stopped", file_path
+            return False, "Failed to stop recording", None
+        return False, "Pipeline not running", None
+
+
+def get_recording_status() -> dict:
+    """Get recording status"""
+    global pipeline
+    
+    with pipeline_lock:
+        if pipeline and pipeline.recorder:
+            return {
+                "is_recording": pipeline.recorder.is_active(),
+                "ai_mode": pipeline.recorder.ai_mode_enabled,
+                "file": str(pipeline.recorder.current_file_path) if pipeline.recorder.current_file_path else None
+            }
+        return {"is_recording": False, "ai_mode": False, "file": None}

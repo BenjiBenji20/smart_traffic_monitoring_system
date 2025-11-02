@@ -60,7 +60,7 @@ class OptimizedDetectionPipeline:
         self.camera_source = camera_source
         self.detection_mode = detection_mode
         self.cap = None
-        self.model = YOLO("src/traffic_ai/vehicle_detection/image-weights/vehicle_detection_model_v2n.onnx", task='detect')
+        self.model = YOLO("src/traffic_ai/vehicle_detection/image-weights/vehicle_detection_model_v3n.onnx", task='detect')
         self.class_names = []
         self.tracker = None
         self.running = False
@@ -74,6 +74,7 @@ class OptimizedDetectionPipeline:
             'tricycle': (139, 69, 19),     # Navy blue (darker)
             'motorcycle': (203, 192, 255), # Pink/Light purple
             'bicycle': (0, 255, 255),      # Yellow
+            'pedestrian': (0, 102, 255)    # Pedestrian
         }
         
         # Detection state

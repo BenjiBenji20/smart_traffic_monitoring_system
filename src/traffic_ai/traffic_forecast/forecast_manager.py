@@ -91,7 +91,7 @@ def get_prophet_object() -> ProphetModel:
             is_friday, 
             is_saturday, 
             is_sunday 
-        FROM prophet_dataset
+        FROM vehicle_data_for_prophet
     """
 
     # create a prophet instance model to train it
