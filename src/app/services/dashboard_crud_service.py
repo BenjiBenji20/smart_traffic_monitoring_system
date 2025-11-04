@@ -358,17 +358,31 @@ async def update_user_profile_service(
         update_info = update_data.update_info
         
         # Build update dictionary
-        update_dict = {
-            "username": update_info.username,
-            "complete_name": update_info.complete_name,
-            "complete_address": update_info.complete_address,
-            "age": update_info.age,
-            "role": update_info.role,
-        }
+        update_dict = {}
+        
+        if update_info.username is not None:
+            update_dict["username"] = update_info.username
+            
+        if update_info.complete_name is not None:
+            update_dict["complete_name"] = update_info.complete_name
+            
+        if update_info.complete_address is not None:
+            update_dict["complete_address"] = update_info.complete_address
+            
+        if update_info.age is not None:
+            update_dict["age"] = update_info.age
+            
+        if update_info.role is not None:
+            update_dict["role"] = update_info.role
         
         # Add password if provided (and hash it)
         if update_info.password:
             update_dict["password_hash"] = hash_password(update_info.password)
+            
+        # If nothing to update, return current user
+        if not update_dict:
+            logger.info("No changes detected in update request")
+            return user_to_update
         
         # update statement
         stmt = (
