@@ -15,12 +15,12 @@ export interface RegisterUserModel extends AuthUserModel {
 }
 
 export interface UpdateUserModel {
-    username: string;
+    username?: string;
     password?: string; 
-    role: Role;
-    complete_name: string;
-    complete_address: string;
-    age: number;
+    role?: Role;
+    complete_name?: string;
+    complete_address?: string;
+    age?: number;
     is_active?: boolean;
 }
 

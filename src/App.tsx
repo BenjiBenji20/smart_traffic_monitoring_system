@@ -6,6 +6,7 @@ import { DashboardPage } from "./pages/dashboard/DashboardPage";
 import { ProtectedRoute } from "./middleware/token_filter";
 import { HistoryPage } from "./pages/history/HistoryPage";
 import { ManageUserPage } from "./pages/manage_user/ManageUserPage";
+import { RegistrationSuccessPage } from "./pages/auth/RegistrationSuccessPage";
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<AuthenticationPage />} />
                 <Route path="/registration" element={<RegistrationPage />} />
+                <Route path="/register-success" element={<RegistrationSuccessPage />} />
                 {/* Include landing page here... saka na pag tapos na lahat paimportante. */}
                 <Route path="/dashboard" element={
                     <ProtectedRoute>

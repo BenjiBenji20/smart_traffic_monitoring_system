@@ -55,14 +55,16 @@ export function RegistrationPage({
             console.log("Registration data:", registration);
 
             // Registration fetch from api layer logic
-            await register(registration);
+            const response = await register(registration);
 
             // on success registration
             toast.success("Registration Successful!", {
                 description: "Your account has been successfully registered!",
             });
 
-            navigator("/");
+            navigator("/register-success", {
+                state: { registrationData: response }
+            });
         } catch (error) {
             console.error("Registration failed:", error);
 

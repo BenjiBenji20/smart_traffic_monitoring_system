@@ -2,12 +2,12 @@
 import { getUserProfile } from "@/api/user_api";
 import { userManagementApi } from "@/api/crud_api";
 import { DashboardPageSkeleton } from "@/components/skeleton/DashboardPageSkeleton";
-import type { 
-    UserModel, 
-    UserSchema, 
-    PendingUserSchema, 
-    ArchiveUserSchema, 
-    ArchiveActiveUserSchema 
+import type {
+    UserModel,
+    UserSchema,
+    PendingUserSchema,
+    ArchiveUserSchema,
+    ArchiveActiveUserSchema
 } from "@/types/user.types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -47,7 +47,7 @@ export function ManageUserPage() {
             try {
                 setIsLoading(true);
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                
+
                 const user = await getUserProfile();
                 setUserData(user);
 
@@ -85,16 +85,29 @@ export function ManageUserPage() {
     }, []);
 
     // Action handlers
+    const handleAcceptRegistration = async (id: string, username: string) => {
+        const accepted = await userManagementApi.acceptPendingRegistration(id, username);
+        setPendingRegistrations(prev => prev.filter(u => u.id !== id));
+        setActiveUsers(prev => [...prev, accepted]);
+
+        // Auto-select newly accepted user
+        setSelectedUser(accepted);
+        setSelectedUserSource('Traffic Managers');
+
+        toast.success(`${accepted.complete_name} accepted as Traffic Manager`);
+    };
+
     const handleArchiveUser = async (id: string, username: string) => {
         const archived = await userManagementApi.archiveActiveUser(id, username);
         setActiveUsers(prev => prev.filter(u => u.id !== id));
         setArchivedUsers(prev => [...prev, archived]);
-        
+
         // If archived user was selected, select first active user
-        if (selectedUser?.id === id && activeUsers.length > 1) {
-            const nextUser = activeUsers.find(u => u.id !== id);
+        if (selectedUser?.id === id) {
+            const nextUser = activeUsers.find(u => u.id !== id) || null;
+            setSelectedUser(nextUser);
             if (nextUser) {
-                setSelectedUser(nextUser);
+                setSelectedUserSource('Traffic Managers');
             }
         }
     };
@@ -103,17 +116,22 @@ export function ManageUserPage() {
         const retrieved = await userManagementApi.retrieveArchivedActiveUser(id, username);
         setArchivedUsers(prev => prev.filter(u => u.id !== id));
         setActiveUsers(prev => [...prev, retrieved]);
+
+        // Auto-select retrieved user
+        setSelectedUser(retrieved);
+        setSelectedUserSource('Traffic Managers');
     };
 
     const handleDeleteUser = async (id: string, username: string) => {
         await userManagementApi.deleteActiveUser(id, username);
         setArchivedUsers(prev => prev.filter(u => u.id !== id));
-        
+
         // If deleted user was selected, select first archived user
-        if (selectedUser?.id === id && archivedUsers.length > 1) {
-            const nextUser = archivedUsers.find(u => u.id !== id);
+        if (selectedUser?.id === id) {
+            const nextUser = archivedUsers.find(u => u.id !== id) || null;
+            setSelectedUser(nextUser);
             if (nextUser) {
-                setSelectedUser(nextUser);
+                setSelectedUserSource('Archived Managers');
             }
         }
     };
@@ -122,11 +140,12 @@ export function ManageUserPage() {
         const archived = await userManagementApi.archivePendingRegistration(id);
         setPendingRegistrations(prev => prev.filter(u => u.id !== id));
         setArchivedRegistrations(prev => [...prev, archived]);
-        
-        if (selectedUser?.id === id && pendingRegistrations.length > 1) {
-            const nextUser = pendingRegistrations.find(u => u.id !== id);
+
+        if (selectedUser?.id === id) {
+            const nextUser = pendingRegistrations.find(u => u.id !== id) || null;
+            setSelectedUser(nextUser);
             if (nextUser) {
-                setSelectedUser(nextUser);
+                setSelectedUserSource('Pending Registrations');
             }
         }
     };
@@ -140,11 +159,12 @@ export function ManageUserPage() {
     const handleDeleteRegistration = async (id: string) => {
         await userManagementApi.deletePendingRegistration(id);
         setArchivedRegistrations(prev => prev.filter(u => u.id !== id));
-        
-        if (selectedUser?.id === id && archivedRegistrations.length > 1) {
-            const nextUser = archivedRegistrations.find(u => u.id !== id);
+
+        if (selectedUser?.id === id) {
+            const nextUser = archivedRegistrations.find(u => u.id !== id) || null;
+            setSelectedUser(nextUser);
             if (nextUser) {
-                setSelectedUser(nextUser);
+                setSelectedUserSource('Archived Registrations');
             }
         }
     };
@@ -156,12 +176,12 @@ export function ManageUserPage() {
 
     const handleUserUpdate = (updatedUser: UserSchema) => {
         // Update in active users list
-        setActiveUsers(prev => 
+        setActiveUsers(prev =>
             prev.map(u => u.id === updatedUser.id ? updatedUser : u)
         );
         // Update selected user
         setSelectedUser(updatedUser);
-        toast.success("User list updated");
+        toast.success("User profile updated");
     };
 
     if (isLoading) {
@@ -211,7 +231,7 @@ export function ManageUserPage() {
                                 </div>
                             </div>
                         </div>
-                        
+
                         {/* Right sidebar */}
                         <div className="w-90 sticky right-5 top-20 self-start h-[calc(100vh-6rem)] overflow-y-auto bg-background">
                             <UserListSidebar
@@ -219,6 +239,7 @@ export function ManageUserPage() {
                                 archivedUsers={archivedUsers}
                                 pendingRegistrations={pendingRegistrations}
                                 archivedRegistrations={archivedRegistrations}
+                                onAcceptRegistration={handleAcceptRegistration}
                                 onArchiveUser={handleArchiveUser}
                                 onRetrieveUser={handleRetrieveUser}
                                 onDeleteUser={handleDeleteUser}
@@ -231,7 +252,7 @@ export function ManageUserPage() {
                     </div>
                 </main>
 
-                <Footer/>
+                <Footer />
 
                 <ChatContainer />
             </ChatProvider>
